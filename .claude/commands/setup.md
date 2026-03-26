@@ -10,13 +10,16 @@ You are configuring the environment for the Shopify-to-Figma design system pipel
 
 ---
 
-## Step 1: Reference Store URL
+## Step 1: Reference Store URL and Figma File
 
-Ask the user for the URL of their Shopify store. It can be:
-- A public Shopify URL (e.g., `https://my-store.myshopify.com`)
-- A local dev server (e.g., `http://localhost:9292` or `http://127.0.0.1:9292`)
+**Do NOT use `AskUserQuestion` for this step.** Simply ask the user in plain text to provide two things:
 
-Once provided:
+1. The URL of their Shopify store (e.g., `https://my-store.myshopify.com` or `http://localhost:9292`)
+2. The Figma file URL or file key where the design system will be built (e.g., `https://www.figma.com/design/ABC123/My-File`)
+
+Wait for the user to reply with both URLs in a single message.
+
+Once the **Store URL** is provided:
 
 1. Use Chrome DevTools MCP → `navigate_page` to open the URL
 2. Use `take_screenshot` to see the page
@@ -32,26 +35,21 @@ Once provided:
 4. **If the page is not accessible** (connection refused, timeout): stop and ask the user to resolve the issue (start dev server, check URL, etc.)
 5. **If the page loads correctly:** confirm to the user that the store is accessible
 
----
-
-## Step 2: Figma File
-
-Ask the user for the Figma file where the design system will be built. They can provide:
-- A full Figma URL (e.g., `https://www.figma.com/design/ABC123/My-File`)
-- Just the file key (e.g., `ABC123`)
+Once the **Figma file** URL/key is provided:
 
 **Parse the fileKey from URLs:**
 - `figma.com/design/:fileKey/:fileName` → extract `fileKey`
 - `figma.com/design/:fileKey/branch/:branchKey/:fileName` → use `branchKey`
 
-Once you have the fileKey:
 1. Use Figma MCP → `get_metadata` with the fileKey to verify access
 2. If access fails → ask user to check sharing permissions or the URL
 3. If access succeeds → confirm to the user and show the file name
 
+**Verify both the store and Figma file in parallel** (navigate_page + get_metadata at the same time).
+
 ---
 
-## Step 3: Detect Theme Info
+## Step 2: Detect Theme Info
 
 Read the theme's `config/settings_schema.json` and extract:
 - `theme_name` from the first entry (the `theme_info` object)
@@ -64,25 +62,31 @@ Tell the user: "Detected theme: **{name}** v{version} by {author}"
 
 ---
 
-## Step 4: Propose Configuration
+## Step 3: Propose Configuration
 
-Present the following configuration with defaults. The user can accept all defaults or adjust individual values.
+Present the proposed configuration as a markdown table:
 
 ```
-Configuration for your design system:
+Here's the proposed configuration:
 
-- Desktop design width:  1440px
-- Mobile design width:   390px
-- Figma pages to create: Foundations, Atoms, Blocks, Sections
-  (+ one page per template you build later)
-- Mobile variant naming:  "{name} / Mobile"
+| Setting               | Value                          |
+|----------------------|--------------------------------|
+| Desktop design width | 1440px                         |
+| Mobile design width  | 390px                          |
+| Figma pages to create| Foundations, Atoms, Blocks, Sections |
+| Mobile variant naming| {name} / Mobile                |
 ```
 
-**Wait for user confirmation.** They may want to change viewport sizes, page names, or naming conventions.
+**Ask the user to confirm using `AskUserQuestion`** with these options:
+
+- **"Accept defaults" (Recommended)** — Use all values as shown
+- **"Adjust values"** — Let me change specific settings
+
+If they choose "Adjust values", ask which settings they want to change and use their new values.
 
 ---
 
-## Step 5: Write Manifest
+## Step 4: Write Manifest
 
 Create the directory `.claude/figma-sync/` if it doesn't exist, then write `manifest.json`:
 
@@ -114,7 +118,7 @@ Set `theme.hasProfile` to `true` if a theme profile file was found.
 
 ---
 
-## Step 6: Summary
+## Step 5: Summary
 
 Show the user a summary:
 
@@ -135,6 +139,8 @@ Next step: Run /analyze-theme to extract design tokens.
 
 If `.claude/figma-sync/manifest.json` already exists when this skill runs:
 1. Read it and show the current configuration to the user
-2. Ask: "A manifest already exists. Do you want to reconfigure from scratch, or update specific values?"
+2. **Ask the user using `AskUserQuestion`** with these options:
+   - **"Update specific values"** — Change only what I need, keep everything else
+   - **"Reconfigure from scratch"** — Start fresh (clears extracted foundations and component inventory)
 3. If updating: only change the values the user specifies, preserve everything else (foundations, components, buildStatus)
 4. If reconfiguring: start fresh but warn that this will clear any extracted foundations and component inventory
