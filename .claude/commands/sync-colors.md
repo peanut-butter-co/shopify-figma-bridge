@@ -29,7 +29,7 @@ You are syncing color scheme data between the Figma file (via Figma MCP `use_fig
 
 Colors flow through the variable collections (adapts to either 2-collection or 3-collection architecture):
 
-**2-collection (Evil Horizon default):**
+**2-collection (Primitives + Tokens):**
 ```
 Shopify settings_data.json (hex values)
     ↕ conversion
@@ -38,7 +38,7 @@ Primitives collection (raw {r,g,b,a} values, single mode)
 Tokens collection (semantic aliases, 6 modes)
 ```
 
-**3-collection (Horizon spec):**
+**3-collection (Theme Colors + Grey Scale + Color Schemas):**
 ```
 Shopify settings_data.json (hex values)
     ↕ conversion
@@ -56,6 +56,8 @@ Color Schemas collection (semantic aliases, multi-mode)
 ## Mappings
 
 ### Variable Names: Figma ↔ Shopify field
+
+**Note:** The Figma variable group names below (e.g., `Input/`, `Variant/`, `Variant Selected/`) are defaults. If the Figma file uses different group names (e.g., `Inputs/`, `Variants/`), match the existing names in the file rather than forcing these defaults. Read the actual variable names from the Figma file first.
 
 | Figma Variable | Shopify Field |
 |---|---|

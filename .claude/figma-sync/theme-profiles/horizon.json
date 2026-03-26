@@ -1,0 +1,271 @@
+{
+  "theme": {
+    "name": "Horizon",
+    "author": "Shopify",
+    "slug": "horizon",
+    "versions": ["3.x"]
+  },
+
+  "typography": {
+    "source": "settings",
+    "description": "All typography is driven by settings_schema.json. Four font roles with per-heading controls for size, line-height, letter-spacing, and case.",
+
+    "fontRoles": {
+      "count": 4,
+      "roles": {
+        "body": {
+          "settingKey": "type_body_font",
+          "usage": "Body text, paragraphs, labels, prices"
+        },
+        "subheading": {
+          "settingKey": "type_subheading_font",
+          "usage": "Subheadings (H5, H6), secondary labels, overlines"
+        },
+        "heading": {
+          "settingKey": "type_heading_font",
+          "usage": "Headings H2-H6 by default"
+        },
+        "accent": {
+          "settingKey": "type_accent_font",
+          "usage": "Display text, typically H1 only. Can be a decorative/serif font distinct from heading."
+        }
+      }
+    },
+
+    "headingPresets": {
+      "description": "Each heading level (h1-h6) plus paragraph has independent settings for size, line-height, letter-spacing, case, and which font role to use.",
+      "settingPattern": "type_{level}_size, type_{level}_line_height, type_{level}_letter_spacing, type_{level}_case",
+      "fontRolePerHeading": "Each heading can pick its font role independently. H1 typically uses 'accent', H2-H4 use 'heading', H5-H6 use 'subheading'.",
+      "sizeRange": "10px to 184px",
+      "lineHeightPresets": {
+        "type": "semantic-strings",
+        "values": ["display-tight", "display-normal", "display-loose", "body-tight", "body-normal", "body-loose"],
+        "description": "Mapped to actual CSS values in theme-styles-variables.liquid, not direct pixel/percentage values"
+      },
+      "letterSpacingPresets": {
+        "type": "semantic-strings",
+        "values": ["heading-tight", "heading-normal", "heading-loose"]
+      }
+    },
+
+    "cssVariables": {
+      "perHeading": "--font-h{1-6}--size, --font-h{1-6}--family, --font-h{1-6}--line-height, --font-h{1-6}--letter-spacing, --font-h{1-6}--case",
+      "fontRoles": "--font-body--family, --font-heading--family, --font-accent--family, --font-subheading--family",
+      "application": "Applied via .text-block.h{n} > * selectors using CSS variables"
+    },
+
+    "figmaMapping": {
+      "description": "How to map Horizon typography to Figma text styles and variables",
+      "textStyles": "Create one text style per heading level (H1-H6) + paragraph. H1 uses accent font, H2-H4 use heading font, H5-H6 use subheading font, paragraph uses body font.",
+      "variables": "Create font-size variables for each level. Do NOT create line-height variables (Figma forces pixel units). Set line-height directly as percentage on text styles.",
+      "lineHeightConversion": "Map semantic presets to percentages: display-tight≈110%, display-normal≈120%, display-loose≈140%, body-tight≈140%, body-normal≈170%, body-loose≈200%"
+    }
+  },
+
+  "colorSchemes": {
+    "source": "settings",
+    "description": "Color schemes are fully settings-driven with 6 default schemes plus custom ones. Each scheme has 35+ semantic color roles organized in groups.",
+
+    "schemeStructure": {
+      "location": "settings_data.json under current.color_schemes",
+      "defaultSchemes": ["scheme-1", "scheme-2", "scheme-3", "scheme-4", "scheme-5", "scheme-6"],
+      "customSchemes": "Added via theme editor with UUID keys (e.g., scheme-a90ef358-...)",
+      "schemesPerStore": "Varies. Typically 6-10."
+    },
+
+    "semanticGroups": [
+      {
+        "name": "Essential",
+        "roles": ["background", "foreground_heading", "foreground", "primary", "primary_hover", "border", "shadow"],
+        "notes": "foreground often has alpha (e.g., #000000cf = 81% opacity). primary_hover can be completely different color from primary."
+      },
+      {
+        "name": "Primary button",
+        "roles": ["primary_button_background", "primary_button_text", "primary_button_border", "primary_button_hover_background", "primary_button_hover_text", "primary_button_hover_border"]
+      },
+      {
+        "name": "Secondary button",
+        "roles": ["secondary_button_background", "secondary_button_text", "secondary_button_border", "secondary_button_hover_background", "secondary_button_hover_text", "secondary_button_hover_border"],
+        "notes": "Background is almost always rgba(0,0,0,0) — truly transparent. Hover backgrounds often have low alpha."
+      },
+      {
+        "name": "Inputs",
+        "roles": ["input_background", "input_text_color", "input_border_color", "input_hover_background"],
+        "notes": "Backgrounds are often transparent or very low alpha on non-white schemes."
+      },
+      {
+        "name": "Variants",
+        "roles": ["variant_background_color", "variant_text_color", "variant_border_color", "variant_hover_background_color", "variant_hover_text_color", "variant_hover_border_color"]
+      },
+      {
+        "name": "Selected variants",
+        "roles": ["selected_variant_background_color", "selected_variant_text_color", "selected_variant_border_color", "selected_variant_hover_background_color", "selected_variant_hover_text_color", "selected_variant_hover_border_color"]
+      }
+    ],
+
+    "alphaColors": {
+      "description": "Many color roles use hex-with-alpha or rgba. This is a critical pattern — see figma-best-practices.md for how to handle in Figma variables.",
+      "commonPatterns": [
+        "foreground/primary: #000000cf (black at 81%) on light schemes",
+        "border: #0000000f (black at 6%) to #000000cf depending on scheme",
+        "secondary_button_background: rgba(0,0,0,0) across all schemes",
+        "hover backgrounds: very low alpha whites (#ffffff0a, #ffffff14, #ffffff5c)"
+      ]
+    },
+
+    "adaptiveOpacity": {
+      "description": "Horizon calculates adaptive opacity values per scheme based on background brightness. Dark backgrounds get higher opacity values for overlays.",
+      "variables": ["--opacity-5-15", "--opacity-10-25", "--opacity-35-55"],
+      "calculation": "Based on whether background lightness is above or below a threshold"
+    },
+
+    "cssApplication": {
+      "classPattern": "color-{{ section.settings.color_scheme }}",
+      "variables": "--color-background, --color-foreground, --color-foreground-heading, --color-primary, --color-primary-button-background, etc.",
+      "inheritance": "Blocks can inherit parent section's color scheme via inherit_color_scheme: true setting, or override with their own."
+    },
+
+    "figmaMapping": {
+      "description": "How to map Horizon color schemes to Figma variables",
+      "collections": "Three collections: Theme Colors (opaque base + alpha variants), Grey Scale (opaque + alpha variants), Color Schemas (aliases only, one mode per scheme)",
+      "alphaVariants": "MUST create alpha variant variables (e.g., Grey/900/81) for every semi-transparent color. Without these, Color Schemas aliases break — text becomes invisible.",
+      "transparent": "Include a Transparent variable (rgba(0,0,0,0)) for truly transparent values like secondary button backgrounds.",
+      "modeApplication": "Use setExplicitVariableModeForCollection on section frames to apply the correct scheme. Do NOT create separate variants for color scheme switching."
+    }
+  },
+
+  "spacing": {
+    "source": "mixed",
+    "description": "Spacing scale is hardcoded in CSS. Radii and border widths are settings-driven.",
+
+    "spacingScale": {
+      "source": "css-hardcoded",
+      "description": "Defined in theme-styles-variables.liquid as CSS custom properties. NOT in settings — cannot be changed by merchants.",
+      "pattern": "--margin-{size}, --padding-{size}, --gap-{size}",
+      "sizes": ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl", "5xl", "6xl"]
+    },
+
+    "radii": {
+      "source": "settings",
+      "settings": {
+        "button_border_radius_primary": { "range": "0-100", "default": 0 },
+        "button_border_radius_secondary": { "range": "0-100", "default": 0 },
+        "inputs_border_radius": { "range": "0-32", "default": 0 },
+        "pills_border_radius": { "range": "0-40", "default": 100 },
+        "popover_border_radius": { "range": "0-16", "default": 0 },
+        "variant_swatch_border_radius": { "range": "0-50", "default": 0 },
+        "variant_button_border_radius": { "range": "0-50", "default": 0 }
+      }
+    },
+
+    "borderWidths": {
+      "source": "settings",
+      "settings": {
+        "button_border_width_primary": { "range": "0-4", "default": 0 },
+        "button_border_width_secondary": { "range": "0-4", "default": 1 },
+        "inputs_border_width": { "range": "0-4", "default": 1 }
+      }
+    },
+
+    "pageWidth": {
+      "source": "settings",
+      "settingKey": "page_width",
+      "options": {
+        "narrow": "90rem (1440px)",
+        "normal": "120rem (1920px)",
+        "wide": "150rem (2400px)"
+      },
+      "pageMargin": "16px mobile, 40px desktop"
+    },
+
+    "sectionHeight": {
+      "source": "settings",
+      "presets": {
+        "small": "15rem mobile → 50svh desktop",
+        "medium": "25rem mobile → 65svh desktop",
+        "large": "35rem mobile → 80svh desktop"
+      }
+    },
+
+    "figmaMapping": {
+      "spacingVariables": "Create a Spacing & Layout collection from the CSS scale. Since values are hardcoded (not settings), use the actual px values: 0, 2, 4, 8, 12, 16, 20, 24, 28, 32, 40, 48, 60, 80, 100.",
+      "radiiVariables": "Create radius/{name} variables from the settings values for the specific store.",
+      "borderWidthNote": "Border widths are small integers (0-4px). Store as part of the manifest foundations, apply directly to strokes."
+    }
+  },
+
+  "sections": {
+    "description": "Horizon sections follow a consistent pattern with nested blocks, CSS-class-based styling, and settings-driven configuration.",
+
+    "colorSchemeApplication": {
+      "pattern": "section.settings.color_scheme → CSS class color-{scheme-id}",
+      "multipleSchemes": "Some sections have multiple color scheme settings (e.g., header has color_scheme_top, color_scheme_bottom, color_scheme_transparent)",
+      "backgroundLayer": "Uses separate .section-background element for z-index stacking with shadows/overlays"
+    },
+
+    "blockNesting": {
+      "description": "Horizon uses deep block nesting. Sections contain blocks, blocks can contain other blocks.",
+      "pattern": "section → static blocks → nested blocks (e.g., _product-card → _product-card-gallery + product-title + price)",
+      "colorInheritance": "Nested blocks have an inherit_color_scheme boolean. When true, they use the parent's scheme."
+    },
+
+    "layoutPatterns": {
+      "gridSections": "product-list, collection-list, main-collection use resource-list grid pattern",
+      "gridSettings": "columns (2-6), mobile_columns, columns_gap, rows_gap — all configurable per section",
+      "heroLayout": "Content overlays image via absolute positioning. Content direction (row/column), alignment (flex-start/center/flex-end), and gap are configurable.",
+      "mediaWithContent": "Side-by-side layout with configurable content direction and gap. Stacks vertically on mobile."
+    },
+
+    "sectionWidthOptions": {
+      "description": "Most sections have a section_width setting",
+      "options": ["page-width", "full-width", "full-width-margin"],
+      "cssMapping": "section--page-width, section--full-width, section--full-width-margin"
+    }
+  },
+
+  "icons": {
+    "source": "inline-svg-with-css-variables",
+    "description": "Icons are SVG files in assets/ rendered inline. Stroke width is controlled by a global CSS variable.",
+
+    "strokeWidth": {
+      "settingKey": "icon_stroke",
+      "options": {
+        "thin": "1px",
+        "default": "1.5px",
+        "heavy": "2px"
+      },
+      "cssVariable": "--icon-stroke-width",
+      "svgPattern": "stroke-width=\"var(--icon-stroke-width)\""
+    },
+
+    "color": {
+      "pattern": "stroke=\"currentColor\" or fill=\"currentColor\"",
+      "description": "Icons inherit color from parent text color"
+    },
+
+    "sizes": {
+      "cssVariables": {
+        "2xs": "0.6rem",
+        "xs": "0.85rem",
+        "sm": "1.25rem",
+        "md": "1.375rem",
+        "lg": "1.5rem"
+      }
+    },
+
+    "figmaMapping": {
+      "description": "Create a single 24x24 Icon placeholder component with fill bound to Essential/Text. For a full icon system, each icon would need to be imported as a separate component — but for the design system foundation, a placeholder is sufficient."
+    }
+  },
+
+  "quirks": {
+    "description": "Horizon-specific behaviors that generic heuristics might miss",
+
+    "adaptiveOpacity": "Color schemes recalculate opacity variables based on background brightness. This is unusual — most themes use static opacity values.",
+    "separateBackgroundElement": "Sections render background in a separate .section-background element (not on the section itself). This is for z-index control with shadows and overlays.",
+    "fontRolePerHeading": "Each heading level independently selects which of the 4 font roles to use. H1 often uses 'accent' (display font) while H2-H6 use 'heading'. This is more granular than most themes.",
+    "semanticLineHeightPresets": "Line heights are semantic strings (display-tight, body-normal) mapped to CSS values, not direct numbers. The analyze-theme skill must resolve these to actual percentages.",
+    "blockColorInheritance": "Blocks have an explicit inherit_color_scheme toggle. This means a single section can mix color schemes across its blocks — unusual but important for complex layouts.",
+    "cssVariableFirst": "Nearly zero hardcoded values in CSS. Everything flows from settings → CSS variables → applied via classes. This makes the theme highly configurable but means analyze-theme must read settings thoroughly."
+  }
+}

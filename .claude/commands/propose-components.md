@@ -25,6 +25,26 @@ This is a theme-wide analysis — not tied to any specific template. The templat
 
 ---
 
+## Scope Selection
+
+Before scanning, ask the user what scope they want for the design system:
+
+> **What scope do you want for the design system?**
+>
+> 1. **Core pages only** — The essential transactional pages of an e-commerce store: home, product detail, collection/category, and cart. Plus structural sections (header, footer) and reusable content sections that appear across these pages.
+>
+> 2. **Core + secondary pages** — Everything above, plus supporting pages like blog, articles, generic content pages, error pages, etc.
+>
+> _(Default: 1 — you can always expand later)_
+
+**Wait for the user's answer before proceeding.**
+
+Use this scope choice when evaluating sections in Step 1. Sections that serve only secondary page types should be excluded when the user picks "Core only", but included when they pick "Core + secondary". Reusable sections (hero, media-with-content, carousels, etc.) and structural sections (header, footer) are always included regardless of scope — they appear across all page types.
+
+Store the chosen scope in the manifest under `components.scope` (`"core"` or `"core+secondary"`).
+
+---
+
 # Phase A: Select Components
 
 ## Step 1: Scan All Sections
@@ -37,10 +57,26 @@ Read every `.liquid` file in `sections/` (excluding JSON group files). For each 
    - `blocks`: block type definitions the section accepts
    - `presets`: default configurations
 
-2. **Classify the section's purpose:**
-   - **Page-specific sections** (`main-*`): Only used on specific page types (main-collection, main-product, etc.)
-   - **Reusable sections**: Can appear on any page (hero, product-list, collection-list, etc.)
+2. **Classify the section's purpose** (for reference — classification does NOT determine inclusion):
+   - **Page-specific sections** (`main-*`): The primary content section for a specific page type (e.g., main-collection, main-cart). These are essential components — `/compose-page` will need them to assemble page templates.
+   - **Reusable sections**: Can appear on any page via the theme editor (hero, product-list, etc.)
    - **Structural sections**: Header, footer, announcements — always present
+
+   **Important:** All three types are valid candidates for Figma components. To decide whether a section belongs in the design system, evaluate it against these criteria:
+
+   **Include** if the section:
+   - Represents a core shopping experience (browsing, product detail, cart, blog)
+   - Contains reusable layout patterns that designers will iterate on
+   - Is part of the store's primary navigation flow (header, footer)
+   - Will be assembled into page compositions via `/compose-page`
+
+   **Skip** if the section:
+   - Is an internal rendering helper or developer tool (no fixed visual layout)
+   - Represents a rarely-touched, low-design-value page (e.g., password gates, error pages with minimal layout)
+   - Is a dynamic overlay or ephemeral UI state (e.g., predictive search)
+   - Duplicates another section's purpose without meaningful visual differences
+
+   The goal is a focused, maintainable design system — not an exhaustive 1:1 mirror of every Liquid file in the theme.
 
 Also read `sections/header-group.json` and `sections/footer-group.json` to understand the structural section groups.
 
@@ -69,25 +105,19 @@ Scan section and block code for UI primitives that should become reusable Figma 
 
 ### Mandatory Atom Checklist
 
-Regardless of what the theme scan finds, these atoms MUST be proposed. They are foundational to every design system:
+**If the theme profile includes `recommendations.components.mandatoryAtoms`**, use that list as the full checklist — it contains theme-specific atoms already validated for the theme.
+
+**If no theme profile exists**, these atoms are the universal minimum:
 
 | Atom | Variants | Required |
 |------|----------|----------|
 | Button | Primary, Secondary | Always |
 | Input Field | Default | Always |
-| Checkbox | Checked, Unchecked | Always |
-| Text Link | Default, Accent | Always |
-| Tab | Active, Inactive | Always |
-| Arrow Button | Left, Right | Always |
-| Badge | (per theme — typically Sale, Sold Out) | Always |
-| Variant Swatch | Default, Selected | If theme has variants |
-| Blog Card | Default | If theme has blog |
-| Collection Card | Below Image, On Image | If theme has collections |
-| Product Card | Per image ratio | Always |
-| Quantity Selector | Default | If theme has cart |
-| Spacer | Small, Medium, Large | Always |
-| Divider | Horizontal, Vertical | Always |
+| Badge | (per theme) | Always |
 | Icon | Default | Always |
+| Divider | Horizontal | Always |
+
+Additionally, scan the theme for other common atoms (cards, swatches, tabs, checkboxes, quantity selectors, arrow buttons, spacers) and propose any that are found in the code.
 
 If the theme scan doesn't find a source file for an atom, note it as "create from common patterns" — do NOT skip it.
 
@@ -117,8 +147,10 @@ Show the user a structured proposal with clear recommended/skipped lists:
 | ... | ... | ... |
 
 ### Sections — Skipped
-- `main-404` — utility page
-- `custom-liquid` — developer tool
+Sections that don't earn a place in the design system:
+- `custom-liquid` — developer tool, no fixed layout
+- `section-rendering-product-card` — internal rendering helper
+- `password` — rarely touched, low design iteration value
 - ...
 
 Want to adjust? Remove or add from either list.
@@ -142,24 +174,47 @@ Each independently has its own variant properties (Position, Alignment, etc.). T
 
 ## Step 6: Analyze Section Settings for Variants
 
-For each selected section, read its `{% schema %}` settings and identify settings that:
+For each selected section, read its `{% schema %}` settings and identify settings that should become Figma component variant properties.
 
-1. **Change the visual layout significantly** when switched (e.g., alignment moves content blocks around)
-2. **Have a small number of options** (2-5 values — not infinite ranges)
-3. **Are useful for a designer** to preview different configurations
+### How to identify variant-worthy settings
 
-### What SHOULD become variants:
-- **Content alignment/position** (left/center/right, top/center/bottom) — creates a visible layout change
-- **Layout direction** (media-left/media-right) — flips the composition
-- **Column count** (3 vs 4 columns) — changes grid structure
-- **Display mode** (grid/carousel/editorial) — different visual treatment
+Don't rely on setting `id` names alone — they vary wildly between themes (e.g., `content_position` vs `vertical_alignment_flex_direction_column`). Instead, analyze each setting holistically:
+
+1. **Check the setting's `type`**: Must be `select` with 2-5 discrete options (not `range`, `checkbox`, `text`, `image_picker`, etc.)
+2. **Check what the options represent**: Look at the option `value` and `label` fields. Settings whose options describe spatial positions (top/center/bottom, left/right, flex-start/flex-end), layout modes (grid/carousel/editorial), or structural changes (column/row, wide/narrow) are strong candidates.
+3. **Ask: "Would switching this option produce a visually distinct layout?"** If yes → variant. If it's a subtle tweak → skip.
+
+### Priority tiers (highest → lowest):
+
+**Tier 1 — Almost always variants** (these change the fundamental composition):
+- **Content position/alignment**: Settings whose options map to spatial placement (top/center/bottom, left/center/right, flex-start/center/flex-end). Look for labels like `t:settings.alignment`, `t:settings.position`, `t:options.left`, `t:options.top`, etc.
+- **Layout mode**: Settings that switch between fundamentally different visual treatments (grid/carousel/editorial/bento, column/row)
+- **Media/content direction**: Settings that flip which side content appears on (left/right, media-left/media-right)
+
+**Tier 2 — Often variants** (meaningful visual change, case by case):
+- **Content width/proportion**: Settings that change how much space content occupies (wide/medium/narrow, full-width/centered)
+- **Column count**: When limited to 2-3 options that change the grid visibly
+
+**Tier 3 — Rarely variants** (skip unless the section has no Tier 1/2 options):
+- **Section width** (page-width/full-width) — minor container change
+- **Section height** (small/medium/large) — unless it's the primary visual differentiator
 
 ### What should NOT become variants:
-- `color_scheme` — handled via Figma variable modes, not component variants
-- Padding/spacing ranges — too many values, minor visual impact
-- Font overrides — handled by text styles
-- Show/hide toggles for minor elements
-- Content settings (text, images, URLs)
+- `color_scheme` — handled via Figma variable modes (see "Variable properties" below)
+- `range` type settings (padding, spacing, gap, border-width) — infinite values
+- Font/typography overrides — handled by text styles
+- Show/hide toggles (`checkbox` type) — minor visual impact
+- Content settings (text, images, URLs, video pickers)
+- Settings gated by `visible_if` that depend on another setting's value — these are conditional sub-settings, not independent variants. However, the **parent setting they depend on** may itself be a variant (e.g., `content_direction: column|row` is a variant; the alignment settings that change based on it are not separate variants — they describe what alignment means within each direction)
+
+### Variable properties (not variants — controlled via Figma variable modes)
+
+Some settings are NOT component variants but are still important to document because they are applied to components through **Figma variable modes** at the instance level. Identify these for each section:
+
+- **`color_scheme`**: Present in almost every section. In Figma, the component instance is placed inside a frame that applies the corresponding color scheme variable mode. The component itself doesn't need variants for this — the variable modes switch all bound colors automatically.
+- Any other settings that map directly to Figma variables defined in `/build-foundations` (e.g., spacing tokens if the theme uses them as settings).
+
+For each section, note which `color_scheme`-type settings exist (some sections have multiple, e.g., header has `color_scheme_top`, `color_scheme_bottom`, `color_scheme_transparent`). These will be listed in the proposal alongside variants so the user sees the full picture of how the component is configured.
 
 ## Step 7: Present Variant Proposal
 
@@ -169,23 +224,23 @@ For each section, show the proposed variant properties:
 ## Proposed Variants per Section
 
 ### Hero
-- **Position:** Top, Center, Bottom (from `content_position` setting)
-- **Alignment:** Left, Center, Right (from `content_alignment` setting)
-→ Creates a 3×3 matrix = 9 variants per viewport (desktop + mobile)
+**Variants:**
+- **Position:** Top, Center, Bottom
+- **Alignment:** Left, Center, Right
+→ 3 × 3 = 9 variants per viewport
+
+**Variable properties:** `color_scheme`
 
 ### Media with Content
-- **Media position:** Left, Right (from `media_position` setting)
+**Variants:**
+- **Media position:** Left, Right
 → 2 variants per viewport
 
-### Product List
-- **Layout:** Grid, Carousel (from `layout_type` setting)
-→ 2 variants per viewport
+**Variable properties:** `color_scheme`
 
 ### Header
-- No variants recommended (layout is fixed)
-
-### Footer
-- No variants recommended (layout is fixed)
+**Variants:** None (layout is fixed)
+**Variable properties:** `color_scheme_top`, `color_scheme_bottom`, `color_scheme_transparent`
 
 ...
 
@@ -199,29 +254,15 @@ Want to adjust? Add or remove variant properties for any section.
 
 ### Template Coverage Plan
 
-Present the complete template coverage that `/compose-page` will build:
+Scan the `templates/` directory to discover all available page types. Present them grouped by priority:
 
-```
-Templates to build (desktop + mobile pairs):
-- Homepage (index.json)
-- Product Page (product.json)
-- Collection Page (collection.json)
-- Cart Page (cart.json)
-- Search Results (search.json)
-- Blog Listing (blog.json)
-- Blog Article (article.json)
-- 404 Page (404.json)
-- Generic Page (page.json)
-- Contact Page (page.contact.json)
-- All Collections (list-collections.json)
-- Password Page (password.json)
-- Gift Card (gift_card.liquid)
-- Policy Page (custom — legal/policy content)
+- **P1 (core):** index, product, collection, cart — always included
+- **P2 (secondary):** search, blog, article, page, 404 — included if user chose "Core + secondary" scope
+- **P3 (tertiary):** any remaining templates found — propose but let user decide
 
-Total: 14 desktop + 14 mobile = 28 template frames
-```
+If the theme profile includes `recommendations.templates.coverage`, use its priority assignments instead of the defaults above.
 
-Each template will be composed entirely from component instances. Desktop and mobile will be paired side by side in the Templates section.
+Each template will be composed as a desktop + mobile pair, side by side in the Templates section.
 
 ---
 
@@ -260,13 +301,12 @@ Once both phases are confirmed, update the manifest:
           "Position": ["Top", "Center", "Bottom"],
           "Alignment": ["Left", "Center", "Right"]
         },
+        "variableProperties": ["color_scheme"],
         "blocks": ["text", "button"],
         "integratedBlocks": ["_slide", "_carousel-content"]
       }
     ],
-    "skippedSections": ["main-404", "custom-liquid", "password", "password-footer"],
-    "templateCoverage": ["index", "product", "collection", "cart", "search", "blog", "article", "404", "page", "page.contact", "list-collections", "password", "gift_card", "policy"],
-    "mandatoryAtoms": ["Button", "Input Field", "Checkbox", "Text Link", "Tab", "Arrow Button", "Badge", "Variant Swatch", "Product Card", "Quantity", "Spacer", "Divider", "Icon"]
+    "skippedSections": ["custom-liquid", "section-rendering-product-card"]
   }
 }
 ```

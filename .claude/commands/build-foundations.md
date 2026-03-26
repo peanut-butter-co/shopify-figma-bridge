@@ -17,7 +17,13 @@ You are building the design system foundations in Figma: pages, variable collect
 2. Verify `foundations` is not null. If null → tell user: "Run `/analyze-theme` first."
 3. Verify `config.figmaFileKey` exists. If missing → tell user: "Run `/setup` first."
 4. Read `config.desktopWidth` and `config.mobileWidth` for later use.
-5. If `buildStatus.foundations === "complete"` → warn user: "Foundations were already built. Re-running will recreate everything. Proceed?"
+5. **Check for theme profile:** If `theme.hasProfile === true`, read `.claude/figma-sync/theme-profiles/{theme_slug}.json`. But **only use profile guidance for areas that passed validation** — check `theme.profileValidation` in the manifest (set by `/analyze-theme`). For validated areas, use the profile's `figmaMapping` sections:
+   - `typography.figmaMapping` — which font roles map to which heading levels, line-height conversion from semantic presets
+   - `colorSchemes.figmaMapping` — collection structure, alpha variant requirements, mode application strategy
+   - `spacing.figmaMapping` — which values come from settings vs hardcoded CSS scales
+   - `quirks` — theme-specific behaviors that affect how foundations are built
+   - If a section shows `"diverged"` in profileValidation → ignore the profile for that area, use only the manifest's detected data.
+6. If `buildStatus.foundations === "complete"` → warn user: "Foundations were already built. Re-running will recreate everything. Proceed?"
 
 ---
 
@@ -45,8 +51,10 @@ After creating pages, switch to the Foundations page for the next steps.
 Create variable collection "Theme Colors" with a single mode.
 
 From `foundations.colors.uniqueColors.themeColors`, create one COLOR variable per entry:
-- Variable name: use the `name` field from the manifest (e.g., `Porcelain/100`, `Cinder/900`)
+- Variable name: use the `name` field from the manifest (e.g., `Porcelain/Base`, `Cinder/900`)
 - Value: convert `hex` + `opacity` to `{r, g, b, a}` floats (r,g,b: 0-1 range, a = opacity)
+
+**Naming:** Use `{Group}/Base` for the primary (fully opaque) swatch in each color group (e.g., `Porcelain/Base`, `Linen/Base`). If the manifest uses a numeric suffix like `Porcelain/100`, rename it to `Porcelain/Base`.
 
 **Always include** a `Transparent` variable with value `{r: 0, g: 0, b: 0, a: 0}`.
 
@@ -62,18 +70,63 @@ From `foundations.colors.uniqueColors.greyScale`, create one COLOR variable per 
 
 ---
 
+## Step 3.5: Alpha Variant Variables
+
+**This step is critical.** Many scheme colors include alpha/opacity (e.g., `#000000cf` = black at 81%, `#0000000f` = black at 6%). The base collections from Steps 2-3 only contain fully opaque colors. Before building Color Schemas, you MUST create alpha variant variables so that every scheme color has a matching base variable to alias to.
+
+### How to find needed alpha variants
+
+Scan ALL color values across ALL schemes in `foundations.colors.schemes`. For each color value:
+
+1. **Parse the color** — extract RGB hex and alpha:
+   - `#RRGGBBAA` (8-char hex): alpha = `AA/255`
+   - `rgba(R,G,B,A)`: alpha = A (already 0-1)
+   - `#RRGGBB` (6-char hex): alpha = 1.0
+   - If alpha >= 0.99 → skip (already covered by opaque base variables)
+   - If alpha <= 0.01 → skip (use `Transparent`)
+
+2. **Find the parent base variable** by matching RGB to an existing Theme Colors or Grey Scale variable (ignore alpha for this match)
+
+3. **Create the alpha variant** in the SAME collection as the parent:
+   - **Name:** `{ParentGroup}/{round(alpha * 100)}` — e.g., `Grey/900` at 81% → `Grey/900/81`, `Grey/0` at 78% → `Grey/0/78`
+   - **Value:** `{r, g, b, a}` where RGB comes from the parent and `a` is the parsed alpha
+   - If the parent is `Porcelain/Base` at 80% → name it `Porcelain/80`
+   - Group alpha variants under the parent's group in the variable panel
+
+4. **Deduplicate:** If two scheme colors resolve to the same base + alpha percentage, create only one variable. Use a tolerance of ±1% for alpha matching.
+
+### Example
+
+Given scheme-1 colors:
+- `foreground`: `#000000cf` → RGB=#000000 matches `Grey/900`, alpha=0.81 → create `Grey/900/81` = `{0,0,0,0.81}`
+- `border`: `#0000000f` → RGB=#000000 matches `Grey/900`, alpha=0.06 → create `Grey/900/6` = `{0,0,0,0.06}`
+- `primary`: `#000000cf` → same as foreground, already created
+- `secondary_button_background`: `rgba(0,0,0,0)` → alpha=0, use existing `Transparent`
+
+Given warm-cream colors:
+- `primary`: `#2b1c14cc` → RGB=#2b1c14 matches `Cinder/900`, alpha=0.80 → create `Cinder/900/80` = `{0.169,0.110,0.078,0.80}`
+- `border`: `#2b1c141a` → matches `Cinder/900`, alpha=0.10 → create `Cinder/900/10`
+
+**Batch strategy:** Collect all needed alpha variants first (deduplicated), then create them in one or two `use_figma` calls — group by collection (Theme Colors variants, Grey Scale variants).
+
+---
+
 ## Step 4: Color Schemas Collection
 
 This is the most complex step. Create collection "Color Schemas" with **one mode per color scheme**.
 
 1. **Create the collection** with modes named after each scheme key from `foundations.colors.schemes`
 2. **Create semantic variables** organized by the groups in `foundations.colors.semanticGroups`. Each variable is named `{GroupName}/{PropertyLabel}` (e.g., `Essential/Background`, `Primary button/Label`)
-3. **For each variable in each mode:** set the value as a `VARIABLE_ALIAS` pointing to the Theme Colors or Grey Scale variable whose hex matches the scheme's color value for that field.
+3. **For each variable in each mode:** set the value as a `VARIABLE_ALIAS` pointing to the Theme Colors or Grey Scale variable whose hex AND alpha match the scheme's color value for that field.
 
 **Critical rules:**
-- Color Schemas NEVER holds raw color values — only VARIABLE_ALIAS references
-- Match colors by hex value (with tolerance for float rounding: r,g,b within 0.005, alpha within 0.01)
-- If no matching variable is found for a color → warn the user and create a new variable in the appropriate collection (grey if R≈G≈B, otherwise theme colors)
+- Color Schemas NEVER holds raw color values — only VARIABLE_ALIAS references to Theme Colors or Grey Scale variables
+- Match by **both RGB and alpha**. The alpha variants from Step 3.5 ensure every scheme color has an exact match.
+  - Opaque colors (a >= 0.99) → alias to the base variable (e.g., `Grey/900`)
+  - Alpha colors (0.01 < a < 0.99) → alias to the alpha variant (e.g., `Grey/900/81`)
+  - Fully transparent (a <= 0.01) → alias to `Transparent`
+- Match tolerance: RGB within 0.005, alpha within 0.02
+- If no matching variable is found → **STOP and warn the user.** This means Step 3.5 missed a variant. Do NOT alias to a wrong variable.
 
 **Batch strategy:** Process one semantic group at a time (Essential, Primary Button, Secondary Button, etc.) to stay within the ~20KB response limit.
 
@@ -198,26 +251,7 @@ A frame with one row per spacing value:
 
 ### 8e. Instance Architecture Reference
 
-Create a reference frame documenting the instance rules:
-
-**Title:** "Component Instance Rules"
-
-**Content (as text nodes):**
-```
-RULE: Every sub-element that exists as a component MUST be instanced.
-Never recreate buttons, inputs, or blocks as inline frames.
-
-✓ Button in a section → instance of Button component
-✓ Product card in a grid → instance of Product Card component
-✓ Input in a form → instance of Input Field component
-✗ Recreating a button-like frame with manual styling
-✗ Building a card from scratch instead of instancing
-
-WHY: One change to Button updates every button everywhere.
-Without instances, it's a mockup, not a design system.
-```
-
-This frame serves as a visual reminder on the Foundations page.
+Create a reference frame on the Foundations page titled "Component Instance Rules". Include a brief text reminder that every sub-element that exists as a component must be instanced (never recreated as an inline frame), and why — one change to a component updates every instance everywhere.
 
 ---
 

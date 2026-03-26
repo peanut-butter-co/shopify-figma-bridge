@@ -24,7 +24,6 @@ You are generating a design system rules file that maps every Figma component to
 Use `use_figma` to scan the Figma file and build an inventory of all components:
 
 ```javascript
-const page = figma.root.children.find(p => p.name === "Horizon" || p.name === "Atoms" || p.name === "Blocks");
 // Scan all pages for components
 const results = [];
 for (const pg of figma.root.children) {
