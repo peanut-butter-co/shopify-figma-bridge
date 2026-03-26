@@ -21,5 +21,11 @@
 !docs/
 !docs/**
 
+# Theme profiles (pre-loaded knowledge, committed)
+!.claude/figma-sync/
+!.claude/figma-sync/theme-profiles/
+!.claude/figma-sync/theme-profiles/*.json
+!.claude/figma-sync/theme-profiles/README.md
+
 # Always ignore runtime state (generated per project)
-.claude/figma-sync/
+.claude/figma-sync/theme-profiles/manifest.json

@@ -14,7 +14,12 @@ You are analyzing a Shopify theme's configuration files to extract design tokens
 
 1. Read `.claude/figma-sync/manifest.json`. If it doesn't exist, tell the user: "Run `/setup` first to configure the pipeline."
 2. Verify `config` section exists with `storeUrl` and `figmaFileKey`.
-3. Check if `theme.hasProfile` is true. If so, read the theme profile from `.claude/figma-sync/theme-profiles/{theme_name_lowercase}.json` and use its `recommendations.foundations` to guide which settings to prioritize.
+3. **Check for theme profile:** Look for `.claude/figma-sync/theme-profiles/{theme_slug}.json` (e.g., `horizon.json`, `dawn.json`). If found, read it — it contains pre-loaded knowledge about how this theme structures typography, colors, spacing, etc. Use it to:
+   - Know where to find font roles and how many to expect (e.g., Horizon has 4 font roles in settings; other themes may hardcode fonts)
+   - Know the color scheme structure (e.g., Horizon has 6+ schemes with 35+ semantic roles; others may have fewer or none)
+   - Know which values are settings-driven vs CSS-hardcoded (e.g., Horizon spacing is CSS-hardcoded, radii are in settings)
+   - Know about theme-specific quirks (e.g., Horizon uses semantic line-height presets like "display-tight" that need conversion to percentages)
+   - Set `theme.hasProfile = true` in the manifest. If no profile exists, set `theme.hasProfile = false` and fall back to generic heuristics for all extraction.
 
 ---
 

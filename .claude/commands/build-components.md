@@ -14,7 +14,9 @@ You are building the confirmed component inventory in Figma: atoms, blocks, and 
 - **Figma MCP** (`use_figma` + `get_screenshot`) — all Figma creation and validation
 - **Chrome DevTools MCP** — reference capture only (store navigation, DOM measurements, store screenshots)
 
-**Reference:** Before building, read `.claude/figma-best-practices.md` for Figma design engineering patterns (auto-layout strategies, responsive components, image aspect ratios, grid layouts, component architecture). Consult it when facing layout decisions — it contains expert-sourced patterns that prevent common mistakes.
+**References:**
+- `.claude/figma-best-practices.md` — Figma design engineering patterns (auto-layout, responsive components, grids). Consult when facing layout decisions.
+- `.claude/figma-sync/theme-profiles/{slug}.json` — If `theme.hasProfile === true` in the manifest, read the theme profile. It contains theme-specific knowledge about section patterns (grid settings, block nesting, color scheme application), icon handling, and layout quirks that inform how components should be built.
 
 ---
 
