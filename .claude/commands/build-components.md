@@ -484,6 +484,59 @@ This makes it easy for designers to compare desktop and mobile side by side.
 **Naming:** Desktop = "Header", Mobile = "Header / Mobile"
 **Spacing:** 40px gap between desktop and mobile variants
 
+### Mobile Section Components
+
+**Every visually distinct section in a mobile template MUST be its own component.** Never build mobile template content as inline frames.
+
+For each desktop section component, create a corresponding mobile variant:
+
+**Pattern: Viewport variants on the same component set**
+```
+Collection Header (COMPONENT_SET)
+├── Viewport=Desktop (1440px, H2, 48px padding)
+└── Viewport=Mobile (375px, H3, 24px padding)
+```
+
+**Required mobile viewport variants:**
+- Collection Header (Desktop/Mobile)
+- Blog Header (Desktop/Mobile)
+- 404 Content (Desktop/Mobile)
+- Article Hero (Desktop/Mobile)
+- Page Header (Desktop/Mobile)
+- Search Header (Desktop/Mobile)
+
+**Mobile-only components (no desktop equivalent):**
+- Mobile Product Info (PDP product details at mobile sizing)
+- Mobile Hero (hero section at 375px)
+- Mobile Media Section
+- Mobile Collection List
+
+### Text Style Enforcement
+
+**EVERY text node must have:**
+1. A `textStyleId` set to one of the 50 local text styles
+2. A fill bound to a token variable via `setBoundVariableForPaint`
+
+**No exceptions.** If a text node is created without both of these, it's a violation.
+
+Before creating ANY text node:
+```javascript
+// Load font first
+await figma.loadFontAsync(style.fontName);
+// Create text
+const text = figma.createText();
+text.characters = "My Text";
+// Apply text style
+text.textStyleId = style.id;
+// Bind fill to token
+text.fills = [figma.variables.setBoundVariableForPaint(basePaint, "color", tokenVar)];
+```
+
+**Use Mobile text styles for mobile components:**
+- Heading/H3/Mobile (not H3/Desktop) for mobile headings
+- Body/Paragraph/Mobile for mobile body text
+- Subheading/H6/Mobile for mobile labels
+
 ### For each section:
 
 1. Use the mobile reference screenshots and measurements
