@@ -7,51 +7,57 @@ argument-hint: <shopify-to-figma|figma-to-shopify>
 
 **Direction:** `$ARGUMENTS`
 
-You are syncing color scheme data between the Figma file (via Chrome DevTools MCP + `evaluate_script`) and Shopify's `config/settings_data.json`.
+You are syncing color scheme data between the Figma file (via Figma MCP `use_figma` tool) and Shopify's `config/settings_data.json`.
 
-**Pre-flight check — Figma tab detection:**
+**Method:** Figma MCP (`use_figma` for reading/writing variables). Always pass `skillNames: "figma-use"` to every `use_figma` call.
 
-Before doing anything, run this sequence:
+**Manifest path:** `.claude/figma-sync/manifest.json`
 
-1. Use `list_pages` (Chrome DevTools MCP) to check if there's already a Figma tab open (URL contains `figma.com/design`).
-2. If a Figma tab is found → `select_page` to it, then run a quick `evaluate_script` to verify `typeof figma !== 'undefined'`. If `figma` is undefined, tell the user to open and close any Figma plugin once (known bug where the global isn't available until a plugin has run).
-3. If NO Figma tab is found → ask the user for the Figma file URL, then use `navigate_page` to open it. Wait for load, then verify `figma` global.
-4. If the `figma` global check fails after navigation → stop and ask the user for help. Do NOT try workarounds.
+**After syncing:** Run `/validate-instances` to verify all components still reference variables correctly.
+
+---
+
+## Pre-flight
+
+1. Read `.claude/figma-sync/manifest.json` to get `config.figmaFileKey`
+2. Verify the Figma MCP server is connected by calling `use_figma` with a simple read script
+3. If `use_figma` fails → tell the user to check their Figma MCP connection (`/mcp` to authenticate)
 
 ---
 
 ## Architecture
 
-Colors flow through 3 layers:
+Colors flow through the variable collections (adapts to either 2-collection or 3-collection architecture):
 
+**2-collection (Primitives + Tokens):**
 ```
 Shopify settings_data.json (hex values)
     ↕ conversion
-Theme Colors / Grey Scale collections (raw {r,g,b,a} values)
+Primitives collection (raw {r,g,b,a} values, single mode)
     ↕ VARIABLE_ALIAS
-Color Schemas collection (semantic aliases, 8 modes)
+Tokens collection (semantic aliases, 6 modes)
 ```
 
-**Color Schemas NEVER holds raw color values** — only `VARIABLE_ALIAS` references to Theme Colors or Grey Scale. This invariant must be maintained in both directions.
+**3-collection (Theme Colors + Grey Scale + Color Schemas):**
+```
+Shopify settings_data.json (hex values)
+    ↕ conversion
+Theme Colors / Grey Scale collections (raw values)
+    ↕ VARIABLE_ALIAS
+Color Schemas collection (semantic aliases, multi-mode)
+```
+
+**Invariant:** The semantic collection (Tokens or Color Schemas) NEVER holds raw color values — only `VARIABLE_ALIAS` references. This must be maintained in both directions.
+
+**Auto-detect architecture:** Use `use_figma` to list collections. If "Primitives" + "Tokens" exist → 2-collection. If "Theme Colors" + "Grey Scale" + "Color Schemas" exist → 3-collection.
 
 ---
 
 ## Mappings
 
-### Scheme Names: Figma mode ↔ Shopify key
-
-| Figma Mode Name | Shopify Key |
-|---|---|
-| `scheme-1` | `scheme-1` |
-| `scheme-2` | `scheme-2` |
-| `scheme-3` | `scheme-3` |
-| `scheme-4` | `scheme-4` |
-| `scheme-5` | `scheme-5` |
-| `scheme-6` | `scheme-6` |
-| `transparent-dark-on-light` | `scheme-58084d4c-a86e-4d0a-855e-a0966e5043f7` |
-| `warm-cream` | `scheme-a90ef358-2055-47a9-8aa5-43e27902b46c` |
-
 ### Variable Names: Figma ↔ Shopify field
+
+**Note:** The Figma variable group names below (e.g., `Input/`, `Variant/`, `Variant Selected/`) are defaults. If the Figma file uses different group names (e.g., `Inputs/`, `Variants/`), match the existing names in the file rather than forcing these defaults. Read the actual variable names from the Figma file first.
 
 | Figma Variable | Shopify Field |
 |---|---|
@@ -63,33 +69,33 @@ Color Schemas collection (semantic aliases, 8 modes)
 | `Essential/Outline` | `border` |
 | `Essential/Shadow` | `shadow` |
 | `Primary Button/Background` | `primary_button_background` |
-| `Primary Button/Label` | `primary_button_text` |
+| `Primary Button/Text` | `primary_button_text` |
 | `Primary Button/Border` | `primary_button_border` |
 | `Primary Button/Background Hover` | `primary_button_hover_background` |
-| `Primary Button/Label Hover` | `primary_button_hover_text` |
+| `Primary Button/Text Hover` | `primary_button_hover_text` |
 | `Primary Button/Border Hover` | `primary_button_hover_border` |
 | `Secondary Button/Background` | `secondary_button_background` |
-| `Secondary Button/Label` | `secondary_button_text` |
+| `Secondary Button/Text` | `secondary_button_text` |
 | `Secondary Button/Border` | `secondary_button_border` |
 | `Secondary Button/Background Hover` | `secondary_button_hover_background` |
-| `Secondary Button/Label Hover` | `secondary_button_hover_text` |
+| `Secondary Button/Text Hover` | `secondary_button_hover_text` |
 | `Secondary Button/Border Hover` | `secondary_button_hover_border` |
-| `Inputs/Background` | `input_background` |
-| `Inputs/Label` | `input_text_color` |
-| `Inputs/Border` | `input_border_color` |
-| `Inputs/Background Hover` | `input_hover_background` |
-| `Variants/Background` | `variant_background_color` |
-| `Variants/Label` | `variant_text_color` |
-| `Variants/Border` | `variant_border_color` |
-| `Variants/Background Hover` | `variant_hover_background_color` |
-| `Variants/Label Hover` | `variant_hover_text_color` |
-| `Variants/Border Hover` | `variant_hover_border_color` |
-| `Variants/Background Selected` | `selected_variant_background_color` |
-| `Variants/Label Selected` | `selected_variant_text_color` |
-| `Variants/Border Selected` | `selected_variant_border_color` |
-| `Variants/Background Selected Hover` | `selected_variant_hover_background_color` |
-| `Variants/Label Selected Hover` | `selected_variant_hover_text_color` |
-| `Variants/Border Selected Hover` | `selected_variant_hover_border_color` |
+| `Input/Background` | `input_background` |
+| `Input/Text` | `input_text_color` |
+| `Input/Border` | `input_border_color` |
+| `Input/Background Hover` | `input_hover_background` |
+| `Variant/Background` | `variant_background_color` |
+| `Variant/Text` | `variant_text_color` |
+| `Variant/Border` | `variant_border_color` |
+| `Variant/Background Hover` | `variant_hover_background_color` |
+| `Variant/Text Hover` | `variant_hover_text_color` |
+| `Variant/Border Hover` | `variant_hover_border_color` |
+| `Variant Selected/Background` | `selected_variant_background_color` |
+| `Variant Selected/Text` | `selected_variant_text_color` |
+| `Variant Selected/Border` | `selected_variant_border_color` |
+| `Variant Selected/Background Hover` | `selected_variant_hover_background_color` |
+| `Variant Selected/Text Hover` | `selected_variant_hover_text_color` |
+| `Variant Selected/Border Hover` | `selected_variant_hover_border_color` |
 
 ---
 
@@ -106,7 +112,6 @@ Shopify uses three formats:
 ```javascript
 function shopifyHexToRGBA(hex) {
   hex = hex.trim();
-  // Handle rgba(r,g,b,a) format
   if (hex.startsWith('rgba')) {
     const m = hex.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
     return { r: +m[1]/255, g: +m[2]/255, b: +m[3]/255, a: +m[4] };
@@ -125,7 +130,6 @@ function shopifyHexToRGBA(hex) {
 ```javascript
 function rgbaToShopifyHex(rgba) {
   const { r, g, b, a } = rgba;
-  // Transparent special case
   if (r === 0 && g === 0 && b === 0 && a === 0) return 'rgba(0,0,0,0)';
   const toHex = (v) => Math.round(v * 255).toString(16).padStart(2, '0');
   const hex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
@@ -134,9 +138,9 @@ function rgbaToShopifyHex(rgba) {
 }
 ```
 
-### Matching colors: how to find if a color already exists
+### Matching colors
 
-Two colors match if their `{r, g, b}` values are within `0.005` tolerance AND their `a` values are within `0.01` tolerance. This accounts for float rounding.
+Two colors match if `{r, g, b}` within `0.005` tolerance AND `a` within `0.01` tolerance.
 
 ---
 
@@ -144,45 +148,97 @@ Two colors match if their `{r, g, b}` values are within `0.005` tolerance AND th
 
 ### Step 1: Read Shopify data
 
-Read `config/settings_data.json` with the Read tool. Parse `current.color_schemes` to get all 8 schemes and their color values.
+Read `config/settings_data.json`. Parse `current.color_schemes` to get all schemes and their color values.
 
 ### Step 2: Read Figma state
 
-Use `evaluate_script` to read the current state of all three collections:
-- Theme Colors: all variables with their `{r,g,b,a}` values
-- Grey Scale: all variables with their `{r,g,b,a}` values
-- Color Schemas: all variables with their alias targets per mode
+Use `use_figma` to read the current state of variable collections:
+
+```javascript
+// Detect architecture and read all variables
+const collections = await figma.variables.getLocalVariableCollectionsAsync();
+
+// Find raw color collection(s)
+const primitives = collections.find(c => c.name === "Primitives");
+const themeColors = collections.find(c => c.name === "Theme Colors");
+const greyScale = collections.find(c => c.name === "Grey Scale");
+
+// Find semantic collection
+const tokens = collections.find(c => c.name === "Tokens");
+const colorSchemas = collections.find(c => c.name === "Color Schemas");
+
+const rawCollection = primitives || themeColors; // primary raw collection
+const semanticCollection = tokens || colorSchemas;
+
+// Read all raw variables
+const rawVars = {};
+const rawCollectionIds = [];
+if (primitives) rawCollectionIds.push(...primitives.variableIds);
+if (themeColors) rawCollectionIds.push(...themeColors.variableIds);
+if (greyScale) rawCollectionIds.push(...greyScale.variableIds);
+
+for (const vid of rawCollectionIds) {
+  const v = await figma.variables.getVariableByIdAsync(vid);
+  if (v.resolvedType === "COLOR") {
+    const modeId = v.variableCollectionId === (primitives || themeColors).id
+      ? (primitives || themeColors).modes[0].modeId
+      : greyScale.modes[0].modeId;
+    rawVars[v.id] = { name: v.name, value: v.valuesByMode[modeId] };
+  }
+}
+
+// Read semantic variables with their aliases per mode
+const semanticVars = {};
+for (const vid of semanticCollection.variableIds) {
+  const v = await figma.variables.getVariableByIdAsync(vid);
+  semanticVars[v.name] = { id: v.id, valuesByMode: v.valuesByMode };
+}
+
+return {
+  architecture: primitives ? "two-collection" : "three-collection",
+  rawVarCount: Object.keys(rawVars).length,
+  semanticVarCount: Object.keys(semanticVars).length,
+  modes: semanticCollection.modes.map(m => ({ name: m.name, id: m.modeId })),
+  rawVars,
+  semanticVars
+};
+```
 
 ### Step 3: Build the change plan
 
 For each scheme (mode) × each color field:
 1. Convert the Shopify hex to `{r,g,b,a}`
-2. Check if a variable with that exact color exists in Theme Colors or Grey Scale
+2. Check if a raw variable with that exact color exists
 3. If yes → that's the alias target
-4. If no → plan to create a new variable in the appropriate collection:
-   - If `r ≈ g ≈ b` (within 0.01) → Grey Scale
-   - Otherwise → Theme Colors
-   - Name it based on existing naming conventions (e.g., `Grey/500` for a mid-grey, or `NewColor/Base` for new brand colors)
+4. If no → plan to create a new variable in the raw collection:
+   - If `r ≈ g ≈ b` (within 0.01) → Grey Scale (or `Color/Gray/*` in Primitives)
+   - Otherwise → Theme Colors (or `Color/Brand/*` in Primitives)
 
 ### Step 4: Show diff to user
 
-Before making any changes, display a summary:
-- New variables to create in Theme Colors / Grey Scale
-- Changed aliases in Color Schemas (old target → new target)
-- Orphaned variables to remove (if any color is no longer referenced by ANY scheme)
+Before making any changes, display:
+- New variables to create
+- Changed aliases (old target → new target)
+- Orphaned variables to remove (no longer referenced)
 
-**Wait for user approval before proceeding.**
+**Wait for user approval.**
 
 ### Step 5: Apply changes in Figma
 
-Execute via `evaluate_script`:
-1. Create any new variables in Theme Colors / Grey Scale
-2. Update Color Schemas aliases for changed values
-3. Remove orphaned variables from Theme Colors / Grey Scale
+Use `use_figma` to:
+1. Create any new raw variables
+2. Update semantic aliases for changed values
+3. Optionally remove orphaned raw variables
+
+```javascript
+// Example: update an alias
+const semanticVar = await figma.variables.getVariableByIdAsync(semanticVarId);
+semanticVar.setValueForMode(modeId, { type: "VARIABLE_ALIAS", id: targetRawVarId });
+```
 
 ### Step 6: Verify
 
-Read back the Color Schemas collection and spot-check a few values to confirm aliases resolve correctly.
+Use `use_figma` to read back the semantic collection and spot-check values.
 
 ---
 
@@ -190,93 +246,79 @@ Read back the Color Schemas collection and spot-check a few values to confirm al
 
 ### Step 1: Read Figma data
 
-Use `evaluate_script` to read all Color Schemas variables. For each variable in each mode:
-1. Get the alias target (the Theme Colors or Grey Scale variable it points to)
-2. Read that target variable's actual `{r,g,b,a}` value
-3. Convert to Shopify hex format
+Use `use_figma` to read all semantic variables with resolved values:
 
 ```javascript
-// Read all Color Schemas with resolved values
-async () => {
-  const collections = await figma.variables.getLocalVariableCollectionsAsync();
-  const csCollection = collections.find(c => c.name === "Color Schemas");
-  const tcCollection = collections.find(c => c.name === "Theme Colors");
-  const gsCollection = collections.find(c => c.name === "Grey Scale");
+const collections = await figma.variables.getLocalVariableCollectionsAsync();
+const primitives = collections.find(c => c.name === "Primitives");
+const tokens = collections.find(c => c.name === "Tokens");
+const semantic = tokens || collections.find(c => c.name === "Color Schemas");
+const rawCols = [primitives, collections.find(c => c.name === "Theme Colors"), collections.find(c => c.name === "Grey Scale")].filter(Boolean);
 
-  // Build ID → variable map for resolving aliases
-  const allVars = {};
-  for (const id of [...tcCollection.variableIds, ...gsCollection.variableIds]) {
-    const v = await figma.variables.getVariableByIdAsync(id);
-    const val = v.valuesByMode[v.variableCollectionId === tcCollection.id
-      ? tcCollection.modes[0].modeId
-      : gsCollection.modes[0].modeId];
-    allVars[v.id] = { name: v.name, value: val };
-  }
-
-  // Read Color Schemas
-  const result = {};
-  for (const varId of csCollection.variableIds) {
-    const v = await figma.variables.getVariableByIdAsync(varId);
-    result[v.name] = {};
-    for (const mode of csCollection.modes) {
-      const val = v.valuesByMode[mode.modeId];
-      if (val && val.type === "VARIABLE_ALIAS") {
-        const target = allVars[val.id];
-        result[v.name][mode.name] = {
-          aliasTo: target.name,
-          resolved: target.value  // {r, g, b, a}
-        };
-      }
+// Build ID → value map for resolving aliases
+const rawVarValues = {};
+for (const col of rawCols) {
+  for (const vid of col.variableIds) {
+    const v = await figma.variables.getVariableByIdAsync(vid);
+    if (v.resolvedType === "COLOR") {
+      rawVarValues[v.id] = v.valuesByMode[col.modes[0].modeId];
     }
   }
-  return result;
 }
+
+// Read semantic variables with resolved colors
+const result = {};
+for (const vid of semantic.variableIds) {
+  const v = await figma.variables.getVariableByIdAsync(vid);
+  result[v.name] = {};
+  for (const mode of semantic.modes) {
+    const val = v.valuesByMode[mode.modeId];
+    if (val && val.type === "VARIABLE_ALIAS" && rawVarValues[val.id]) {
+      result[v.name][mode.name] = rawVarValues[val.id]; // resolved {r,g,b,a}
+    }
+  }
+}
+return { modes: semantic.modes.map(m => m.name), variables: result };
 ```
 
 ### Step 2: Build the change plan
 
-For each scheme, map each Figma variable to its Shopify field (using the mapping table above) and convert the resolved `{r,g,b,a}` to Shopify hex format.
+Map each Figma variable to its Shopify field (using mapping table). Convert resolved `{r,g,b,a}` to Shopify hex.
 
 ### Step 3: Show diff to user
 
-Read the current `config/settings_data.json` and compare against the planned values. Show:
-- Changed values: `scheme-1.background: #ffffff → #faf7f2`
-- Unchanged values: skip
+Read current `config/settings_data.json` and compare. Show changed values only.
 
-**Wait for user approval before writing.**
+**Wait for user approval.**
 
 ### Step 4: Write to Shopify
 
-Use the Edit tool to update `config/settings_data.json` at path `current.color_schemes.[scheme-key].settings.[field]`.
+Use the Edit tool to update `config/settings_data.json` at `current.color_schemes.[scheme-key].settings.[field]`.
 
-**Important:** Only modify color fields. Do not touch any other settings in the file.
+**Only modify color fields. Do not touch other settings.**
 
 ### Step 5: Verify
 
-Re-read the modified file and confirm the values match expectations.
+Re-read the file and confirm values match.
 
 ---
 
 ## Error Handling
 
-- If a Color Schemas variable has a raw color value instead of an alias → warn the user (this breaks the architecture)
+- If a semantic variable has a raw color instead of an alias → warn (architecture violation)
 - If a Shopify scheme key doesn't match any Figma mode → warn and skip
-- If `evaluate_script` fails → stop and ask user to check the Figma tab
-- Never silently overwrite — always show the diff first
+- If `use_figma` fails → check Figma MCP connection, ask user to re-authenticate
+- Never silently overwrite — always show diff first
 
 ---
 
 ## Naming Conventions for New Variables
 
-When creating new variables in Theme Colors or Grey Scale (Shopify → Figma direction):
+### Grey variants (r ≈ g ≈ b)
+- `Color/Gray/{shade}` in Primitives, or `Grey/{shade}` in Grey Scale collection
+- Shade: round `(1 - r) * 900` to nearest 50
 
-### Grey Scale (when r ≈ g ≈ b)
-- Use `Grey/{luminance}` where luminance is `0` (white) to `900` (black)
-- For alpha variants: `Grey/{luminance}/{alpha_percent}` (e.g., `Grey/900/53`)
-- Luminance mapping: round `(1 - r) * 900` to nearest 100
-
-### Theme Colors (when colored)
-- Try to match existing group names (Porcelain, Linen, Sky, Cinder, Navy)
-- A color "matches" a group if its RGB (ignoring alpha) is within 0.01 of another color in that group
-- Alpha variants: append `/{alpha_percent}` (e.g., `Cinder/900/80`)
-- Genuinely new colors: ask the user for a name
+### Colored variants
+- `Color/Brand/{name}` in Primitives, or match existing Theme Colors group
+- Alpha variants: append opacity percentage (e.g., `Color/Black/87`)
+- New colors: ask user for a name

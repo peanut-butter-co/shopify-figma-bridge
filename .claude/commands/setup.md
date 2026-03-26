@@ -100,7 +100,9 @@ Create the directory `.claude/figma-sync/` if it doesn't exist, then write `mani
     "desktopWidth": 1440,
     "mobileWidth": 390,
     "pages": ["Foundations", "Atoms", "Blocks", "Sections"],
-    "mobileNaming": "{name} / Mobile"
+    "mobileNaming": "{name} / Mobile",
+    "instancePolicy": "strict",
+    "mobilePlacement": "adjacent"
   },
   "theme": {
     "name": "<from settings_schema>",

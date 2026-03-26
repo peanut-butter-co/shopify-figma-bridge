@@ -241,6 +241,54 @@ Scan the remaining settings groups and extract anything that affects visual styl
 
 Only include tokens that are relevant for the design system. Skip functional settings (cart type, currency display, search behavior, etc.).
 
+### 2e. Mobile Typography Variance
+
+For each heading preset (h1-h6) and paragraph, check if there are separate mobile size settings:
+- Look for `type_size_h{N}_mobile` or `mobile_type_size_h{N}` in settings_schema.json
+- If mobile sizes exist, extract them alongside desktop sizes
+- If not, note which presets share desktop/mobile sizes
+
+This determines whether the Figma system needs separate Desktop/Mobile text styles (our standard: YES — always create both, even if sizes match, for future flexibility).
+
+**Output addition to typography:**
+```json
+{
+  "presets": {
+    "h1": {
+      "fontRole": "heading",
+      "desktop": { "size": 72, "lineHeight": 120 },
+      "mobile": { "size": 56, "lineHeight": 120 }
+    }
+  }
+}
+```
+
+### 2f. Required Atom Inventory
+
+Every Shopify design system needs a core set of UI atoms. Scan the theme for each of these — search `snippets/`, `blocks/`, and `sections/` for matching patterns:
+
+| Atom | Where to look | When required |
+|------|--------------|---------------|
+| Button (Primary/Secondary) | Search for button snippets, button blocks, or `.btn` CSS classes | Always |
+| Input Field | Search for form inputs, `.input` CSS class, contact form blocks | Always |
+| Checkbox (Checked/Unchecked) | Search for form elements, checkbox patterns in blocks | Always |
+| Text Link (Default/Accent) | Search for link styling in CSS, underlined text patterns | Always |
+| Tab (Active/Inactive) | Search for tab or accordion patterns in sections/blocks | If theme has tabs/accordions |
+| Arrow Button (Left/Right) | Search for carousel/slideshow navigation arrows | If theme has carousels |
+| Badge (Sale/Sold Out) | Search for badge/label patterns in product cards | If theme has products |
+| Variant Swatch (Default/Selected) | Search for swatch or color picker patterns | If theme has product variants |
+| Product Card | Search for product card snippets or blocks | If theme has products |
+| Blog Card | Search for blog post card patterns in blocks | If theme has blog |
+| Collection Card | Search for collection card or list patterns | If theme has collections |
+| Quantity Selector | Search for quantity input/stepper patterns | If theme has cart |
+| Spacer | Search for spacer blocks or spacing utility sections | Always |
+| Divider | Search for divider/separator blocks or snippets | Always |
+| Icon | Search for SVG icons in `assets/`, icon blocks or snippets | Always |
+
+For each atom found, note its source file. For atoms not found in theme code, mark as "create from common patterns". If the theme profile includes `recommendations.components.mandatoryAtoms`, cross-reference with that list for theme-specific additions.
+
+These atoms will be built FIRST in `/build-components` before any composites or sections.
+
 ---
 
 ## Step 3: Propose Foundations
@@ -273,6 +321,11 @@ Present the extracted data to the user in a readable format. Organize by categor
 
 ### Additional Tokens
 - {list any additional tokens found}
+
+### Required Atoms
+- **{N} atoms identified** from theme code
+- **{N} atoms to create** from common patterns
+- Priority build order: core interactive atoms (Button, Input) → content atoms (Cards, Badges) → utility atoms (Spacer, Divider, Icon)
 
 ---
 

@@ -185,6 +185,24 @@ await figma.loadFontAsync({ family: "Inter", style: "Bold" });
 
 ---
 
+## Step 7b: Mobile Text Styles
+
+For EVERY text style created in Step 7, also create a mobile variant:
+
+**Naming:** If the desktop style is `Heading/H1`, create `Heading/H1 / Mobile` at the mobile size.
+
+If the theme has separate mobile font sizes (from `foundations.typography.presets.{preset}.mobile`), use those. If desktop and mobile sizes are the same, still create both styles — this allows future per-client customization.
+
+**When using font roles (Body, Heading, Subheading, Accent):**
+Create styles organized by role:
+- `Heading/H1` (desktop) and `Heading/H1 / Mobile`
+- `Body/H1` (desktop) and `Body/H1 / Mobile`
+- etc.
+
+This gives 4 roles × (H1-H6 + Paragraph) × 2 breakpoints = up to 56 styles (minus roles that don't use Paragraph). Always create both breakpoints.
+
+---
+
 ## Step 8: Foundations Style Guide Page
 
 On the "Foundations" page, create visual documentation frames. Each frame is a white card with auto-layout, padding, and subtle shadow.
@@ -230,6 +248,10 @@ A frame with one row per spacing value:
 - Value label (e.g., "16px")
 - Horizontal bar whose width equals the spacing value (max 320px for display)
 - Fill bound to a neutral color
+
+### 8e. Instance Architecture Reference
+
+Create a reference frame on the Foundations page titled "Component Instance Rules". Include a brief text reminder that every sub-element that exists as a component must be instanced (never recreated as an inline frame), and why — one change to a component updates every instance everywhere.
 
 ---
 

@@ -103,6 +103,32 @@ Scan section and block code for UI primitives that should become reusable Figma 
 - **Badges** (sale, sold out)
 - **Icons**, **Dividers**, **Checkboxes** — only if widely used
 
+### Mandatory Atom Checklist
+
+These atoms should be proposed if they exist in the theme. Search `snippets/`, `blocks/`, and `sections/` for each:
+
+| Atom | Variants | When required |
+|------|----------|---------------|
+| Button | Primary, Secondary | Always |
+| Input Field | Default | Always |
+| Checkbox | Checked, Unchecked | Always |
+| Text Link | Default, Accent | Always |
+| Tab | Active, Inactive | If theme has tabs/accordions |
+| Arrow Button | Left, Right | If theme has carousels |
+| Badge | (per theme — e.g., Sale, Sold Out) | If theme has products |
+| Variant Swatch | Default, Selected | If theme has product variants |
+| Product Card | Per image ratio | If theme has products |
+| Blog Card | Default | If theme has blog |
+| Collection Card | Below Image, On Image | If theme has collections |
+| Quantity Selector | Default | If theme has cart |
+| Spacer | Small, Medium, Large | Always |
+| Divider | Horizontal, Vertical | Always |
+| Icon | Default | Always |
+
+If the theme profile includes `recommendations.components.mandatoryAtoms`, cross-reference with that list for theme-specific additions.
+
+If the theme scan doesn't find a source file for an atom, note it as "create from common patterns" — do NOT skip it.
+
 ## Step 5: Present Selection Proposal
 
 Show the user a structured proposal with clear recommended/skipped lists:
@@ -233,6 +259,31 @@ Want to adjust? Add or remove variant properties for any section.
 ```
 
 **Wait for user confirmation.**
+
+### Template Coverage Plan
+
+Scan `templates/` and present the standard Shopify templates that exist in the theme, grouped by priority:
+
+| Template | Source file | Priority |
+|----------|-----------|----------|
+| Homepage | `templates/index.json` | P1 |
+| Product Page | `templates/product.json` | P1 |
+| Collection Page | `templates/collection.json` | P1 |
+| Cart Page | `templates/cart.json` | P1 |
+| Search Results | `templates/search.json` | P2 |
+| Blog Listing | `templates/blog.json` | P2 |
+| Blog Article | `templates/article.json` | P2 |
+| 404 Page | `templates/404.json` | P2 |
+| Generic Page | `templates/page.json` | P2 |
+| Contact Page | `templates/page.contact.json` | P2 |
+| All Collections | `templates/list-collections.json` | P3 |
+| Password Page | `templates/password.json` | P3 |
+| Gift Card | `templates/gift_card.liquid` | P3 |
+| Policy Page | Custom (legal content layout) | P3 |
+
+Skip any that don't exist in the theme. Include any custom templates found (e.g., `page.lookbook.json`) at P3.
+
+Each template will be composed as a desktop + mobile pair, side by side in the Templates section.
 
 ---
 

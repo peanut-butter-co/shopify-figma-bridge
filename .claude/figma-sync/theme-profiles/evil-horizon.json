@@ -1,0 +1,85 @@
+{
+  "theme": "Evil Horizon",
+  "basedOn": "Shopify Horizon v3.0.0",
+  "recommendations": {
+    "foundations": {
+      "colorArchitecture": "two-collection",
+      "collections": {
+        "primitives": {
+          "name": "Primitives",
+          "description": "Raw values that change per client",
+          "groups": ["Color/Black", "Color/White", "Color/Gray", "Color/Brand", "Color/Status", "Color/Transparent", "Spacing", "Radius", "Border"]
+        },
+        "tokens": {
+          "name": "Tokens",
+          "description": "Semantic aliases with 6 scheme modes",
+          "groups": ["Essential", "Primary Button", "Secondary Button", "Input", "Variant", "Variant Selected", "Selection"],
+          "modes": ["Scheme 1", "Scheme 2", "Scheme 3", "Scheme 4", "Scheme 5", "Scheme 6"]
+        }
+      },
+      "typography": {
+        "roles": ["Heading", "Body", "Subheading", "Accent"],
+        "roleMapping": {
+          "Heading": { "weight": "Bold", "shopifySetting": "type_heading_font" },
+          "Body": { "weight": "Regular", "shopifySetting": "type_body_font" },
+          "Subheading": { "weight": "Medium", "shopifySetting": "type_subheading_font" },
+          "Accent": { "weight": "Bold", "shopifySetting": "type_accent_font" }
+        },
+        "styleNaming": "{Role}/{Preset}/{Breakpoint}",
+        "alwaysCreateMobile": true,
+        "bodyIncludesParagraph": true
+      },
+      "spacing": {
+        "source": "snippets/theme-styles-variables.liquid",
+        "scale": [2, 4, 8, 11, 13, 16, 20, 24, 28, 32, 48, 80]
+      }
+    },
+    "components": {
+      "mandatoryAtoms": [
+        "Button", "Input Field", "Checkbox", "Text Link", "Tab", "Arrow Button",
+        "Badge", "Variant Swatch", "Product Card", "Blog Card", "Collection Card",
+        "Quantity", "Spacer", "Divider", "Icon", "Accelerated Checkout", "Variant Picker"
+      ],
+      "prioritySections": [
+        "hero", "slideshow", "media-with-content", "marquee", "divider",
+        "featured-product", "product-list", "collection-list", "product-recommendations",
+        "featured-blog-posts", "carousel", "layered-slideshow", "product-hotspots"
+      ],
+      "headerBlocks": ["_header-logo", "_header-menu", "_header-cart", "_header-account", "_header-search"],
+      "footerBlocks": ["menu", "social-links", "email-signup", "footer-copyright", "footer-policy-list", "payment-icons"],
+      "cartBlocks": ["_cart-title", "_cart-products", "_cart-summary", "cart-upsell", "cart-discount", "cart-note", "shipping-progress"]
+    },
+    "templates": {
+      "coverage": [
+        { "key": "index", "name": "Homepage", "priority": 1 },
+        { "key": "product", "name": "PDP", "priority": 1 },
+        { "key": "collection", "name": "PLP", "priority": 1 },
+        { "key": "cart", "name": "Cart", "priority": 1 },
+        { "key": "search", "name": "Search", "priority": 1 },
+        { "key": "blog", "name": "Blog Listing", "priority": 2 },
+        { "key": "article", "name": "Article", "priority": 2 },
+        { "key": "404", "name": "404", "priority": 2 },
+        { "key": "page", "name": "Generic Page", "priority": 2 },
+        { "key": "page.contact", "name": "Contact", "priority": 2 },
+        { "key": "list-collections", "name": "All Collections", "priority": 3 },
+        { "key": "password", "name": "Password", "priority": 3 },
+        { "key": "gift_card", "name": "Gift Card", "priority": 3 },
+        { "key": "policy", "name": "Policy", "priority": 3 }
+      ]
+    },
+    "organization": {
+      "sectionFill": "#B3B3B3",
+      "sectionOrder": ["Foundations", "Header", "Footer", "Product Card", "Blocks", "Cart", "Search", "Navigation", "Sections", "Templates"],
+      "mobilePlacement": "adjacent",
+      "templateLayout": "horizontal-pairs"
+    }
+  },
+  "colorSchemes": {
+    "scheme-1": { "name": "Default Light", "background": "#ffffff" },
+    "scheme-2": { "name": "Light Gray", "background": "#f5f5f5" },
+    "scheme-3": { "name": "Sage Green", "background": "#eef1ea", "usage": "Sold Out badge" },
+    "scheme-4": { "name": "Blue", "background": "#e1edf5" },
+    "scheme-5": { "name": "Dark", "background": "#333333", "usage": "Sale badge" },
+    "scheme-6": { "name": "Transparent", "background": "rgba(0,0,0,0)", "usage": "Overlay" }
+  }
+}

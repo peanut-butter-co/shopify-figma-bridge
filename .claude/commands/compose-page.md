@@ -26,6 +26,33 @@ You are assembling a full page composition in Figma by instantiating the section
 
 ---
 
+## Template Coverage
+
+Every Shopify theme follows a standard template structure. Scan `templates/` to confirm which exist, then build them as desktop + mobile pairs in this priority order:
+
+| Template | Source file | Priority |
+|----------|-----------|----------|
+| Homepage | `templates/index.json` | P1 |
+| Product Page | `templates/product.json` | P1 |
+| Collection Page | `templates/collection.json` | P1 |
+| Cart Page | `templates/cart.json` | P1 |
+| Search Results | `templates/search.json` | P2 |
+| Blog Listing | `templates/blog.json` | P2 |
+| Blog Article | `templates/article.json` | P2 |
+| 404 Page | `templates/404.json` | P2 |
+| Generic Page | `templates/page.json` | P2 |
+| Contact Page | `templates/page.contact.json` | P2 |
+| All Collections | `templates/list-collections.json` | P3 |
+| Password Page | `templates/password.json` | P3 |
+| Gift Card | `templates/gift_card.liquid` | P3 |
+| Policy Page | Custom (legal content layout) | P3 |
+
+If a template file doesn't exist in the theme, skip it. If the theme has additional custom templates (e.g., `page.lookbook.json`), add them at P3. If the theme profile includes `recommendations.templates.coverage`, use its priority overrides.
+
+Run `/compose-page all` to build everything, or specify individual templates.
+
+---
+
 ## Step 1: Determine Section Order
 
 Read the template files to get the exact section order:
@@ -49,6 +76,49 @@ If the template's page doesn't exist yet in Figma, create it. The page name shou
 - Other templates → capitalize the template name
 
 Switch to this page for the composition work.
+
+### Desktop + Mobile Pairing
+
+Each page type gets a labeled group in the Templates section:
+
+```
+"Homepage" label (Inter Bold 18px)
+├── Homepage / Desktop (1440px wide) — left
+└── Homepage / Mobile (375px wide) — right, 40px gap
+
+120px gap to next page group
+
+"PDP" label
+├── PDP / Desktop
+└── PDP / Mobile
+```
+
+Desktop and mobile templates are ALWAYS side by side, never in separate areas.
+
+---
+
+## Instance-Only Composition
+
+Templates are composed ENTIRELY from component instances:
+
+```javascript
+// Find section component
+const heroSet = page.findOne(n => n.name === "Hero Section" && n.type === "COMPONENT_SET");
+const overlayVariant = heroSet.children.find(c => c.name.includes("Overlay"));
+const heroInstance = overlayVariant.createInstance();
+
+// Add to template frame
+templateFrame.appendChild(heroInstance);
+heroInstance.layoutSizingHorizontal = "FILL";
+```
+
+**Every element in a template must be an instance:**
+- Header → instance of Header component
+- Hero → instance of Hero Section component
+- Product grid → section that internally instances Product Card components
+- Footer → instance of Footer component
+
+**NEVER build inline frames in templates.** If a section component doesn't exist, build it first in `/build-components`, then instance it here.
 
 ---
 
