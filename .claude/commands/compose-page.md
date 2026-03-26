@@ -28,14 +28,28 @@ You are assembling a full page composition in Figma by instantiating the section
 
 ## Template Coverage
 
-Discover available templates by scanning the `templates/` directory for `.json` and `.liquid` files. Each template file becomes a candidate page type.
+Every Shopify theme follows a standard template structure. Scan `templates/` to confirm which exist, then build them as desktop + mobile pairs in this priority order:
 
-**If the theme profile includes `recommendations.templates.coverage`**, use its priority assignments (P1/P2/P3) to order the build. Otherwise, apply these defaults:
-- **P1 (core):** index, product, collection, cart
-- **P2 (secondary):** search, blog, article, page, 404
-- **P3 (tertiary):** everything else found in `templates/`
+| Template | Source file | Priority |
+|----------|-----------|----------|
+| Homepage | `templates/index.json` | P1 |
+| Product Page | `templates/product.json` | P1 |
+| Collection Page | `templates/collection.json` | P1 |
+| Cart Page | `templates/cart.json` | P1 |
+| Search Results | `templates/search.json` | P2 |
+| Blog Listing | `templates/blog.json` | P2 |
+| Blog Article | `templates/article.json` | P2 |
+| 404 Page | `templates/404.json` | P2 |
+| Generic Page | `templates/page.json` | P2 |
+| Contact Page | `templates/page.contact.json` | P2 |
+| All Collections | `templates/list-collections.json` | P3 |
+| Password Page | `templates/password.json` | P3 |
+| Gift Card | `templates/gift_card.liquid` | P3 |
+| Policy Page | Custom (legal content layout) | P3 |
 
-Each template gets built as a desktop + mobile pair. Run `/compose-page all` to build everything, or specify individual templates.
+If a template file doesn't exist in the theme, skip it. If the theme has additional custom templates (e.g., `page.lookbook.json`), add them at P3. If the theme profile includes `recommendations.templates.coverage`, use its priority overrides.
+
+Run `/compose-page all` to build everything, or specify individual templates.
 
 ---
 

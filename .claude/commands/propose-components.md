@@ -262,13 +262,26 @@ Want to adjust? Add or remove variant properties for any section.
 
 ### Template Coverage Plan
 
-Scan the `templates/` directory to discover all available page types. Present them grouped by priority:
+Scan `templates/` and present the standard Shopify templates that exist in the theme, grouped by priority:
 
-- **P1 (core):** index, product, collection, cart — always included
-- **P2 (secondary):** search, blog, article, page, 404 — included if user chose "Core + secondary" scope
-- **P3 (tertiary):** any remaining templates found — propose but let user decide
+| Template | Source file | Priority |
+|----------|-----------|----------|
+| Homepage | `templates/index.json` | P1 |
+| Product Page | `templates/product.json` | P1 |
+| Collection Page | `templates/collection.json` | P1 |
+| Cart Page | `templates/cart.json` | P1 |
+| Search Results | `templates/search.json` | P2 |
+| Blog Listing | `templates/blog.json` | P2 |
+| Blog Article | `templates/article.json` | P2 |
+| 404 Page | `templates/404.json` | P2 |
+| Generic Page | `templates/page.json` | P2 |
+| Contact Page | `templates/page.contact.json` | P2 |
+| All Collections | `templates/list-collections.json` | P3 |
+| Password Page | `templates/password.json` | P3 |
+| Gift Card | `templates/gift_card.liquid` | P3 |
+| Policy Page | Custom (legal content layout) | P3 |
 
-If the theme profile includes `recommendations.templates.coverage`, use its priority assignments instead of the defaults above.
+Skip any that don't exist in the theme. Include any custom templates found (e.g., `page.lookbook.json`) at P3.
 
 Each template will be composed as a desktop + mobile pair, side by side in the Templates section.
 
