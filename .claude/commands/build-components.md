@@ -21,11 +21,15 @@ You are building the confirmed component inventory in Figma: atoms, blocks, and 
 1. Read `.claude/figma-sync/manifest.json`
 2. Verify `components.status === "confirmed"`. If not → "Run `/propose-components` first."
 3. Verify `buildStatus.foundations === "complete"`. If not → "Run `/build-foundations` first."
-4. Read `config.storeUrl`, `config.storePassword`, `config.figmaFileKey`, `config.desktopWidth`, `config.mobileWidth`
-5. Determine which phase to run based on `$ARGUMENTS`:
+4. **Verify required MCP tools are available:**
+   - **Figma MCP** (`use_figma`, `get_screenshot`) — required for all phases
+   - **Chrome DevTools MCP** (`navigate_page`, `evaluate_script`, `take_screenshot`, `resize_page`) — required for reference capture
+   - If any required MCP tool is missing → **STOP immediately**. Tell the user which MCP server is missing and ask them to configure it before continuing. Do NOT proceed without it. Do NOT fall back to estimates or skip reference capture.
+5. Read `config.storeUrl`, `config.storePassword`, `config.figmaFileKey`, `config.desktopWidth`, `config.mobileWidth`
+6. Determine which phase to run based on `$ARGUMENTS`:
    - `all` → run atoms → blocks → sections-desktop → sections-mobile in sequence
    - Specific phase → run only that phase
-6. Check `buildStatus` for already-completed phases. If re-running a completed phase, warn user.
+7. Check `buildStatus` for already-completed phases. If re-running a completed phase, warn user.
 
 ---
 
@@ -136,13 +140,41 @@ Build all atoms from `components.atoms` on the Atoms page.
 
 ### After all atoms: Validate
 
-For EACH atom component:
-1. Use `get_screenshot` focused on the component at 100%+ zoom
-2. Compare visually against the store reference screenshots
-3. Run programmatic checks:
-   - Buttons: width/height ratio > 2, height < 60px
-   - All fills: verify they're bound to variables, not hardcoded
-4. Fix any issues found
+For EACH atom component individually (NOT the whole page):
+
+**A. Visual validation** — screenshot each component at 100%+ zoom using `get_screenshot` with the component's node ID. Compare against the store reference. Check that all text is readable, colors are correct, and proportions match.
+
+**B. Programmatic integrity check** — run this via `use_figma` on each component:
+
+```javascript
+// Mandatory check: find invisible text, broken fills, unbound colors
+const issues = [];
+const texts = comp.findAll(n => n.type === "TEXT");
+for (const t of texts) {
+  for (const fill of t.fills) {
+    if (fill.opacity !== undefined && fill.opacity < 0.01 && fill.visible !== false) {
+      issues.push(`INVISIBLE TEXT: "${t.characters}" has fill opacity ${fill.opacity}`);
+    }
+    if (!fill.boundVariables?.color) {
+      issues.push(`UNBOUND COLOR: "${t.characters}" text fill is not bound to a variable`);
+    }
+  }
+}
+const frames = comp.findAll(n => n.type === "FRAME" || n.type === "COMPONENT");
+for (const f of frames) {
+  for (const fill of (f.fills || [])) {
+    if (fill.opacity !== undefined && fill.opacity < 0.01 && fill.visible !== false && !f.name.includes("Image")) {
+      issues.push(`INVISIBLE FILL: frame "${f.name}" has fill opacity ${fill.opacity}`);
+    }
+  }
+}
+```
+
+If ANY issues are found → **this may indicate an upstream problem** (see "Upstream Error Protocol" below). Diagnose before fixing locally.
+
+Additional checks:
+- Buttons: width/height ratio > 2, height < 60px
+- All fills: verify they're bound to variables, not hardcoded
 
 Update `buildStatus.atoms = "complete"` in manifest.
 
@@ -171,7 +203,7 @@ Build all blocks from `components.blocks` on the Blocks page.
 
 ### After all blocks: Validate
 
-Same process as atoms — screenshot each block, compare against store, check dimensions, fix issues.
+Same process as atoms — run BOTH visual (A) and programmatic (B) checks on each block individually. Screenshot each block component at 100%+ zoom, and run the integrity check script.
 
 Update `buildStatus.blocks = "complete"` in manifest.
 
@@ -262,14 +294,72 @@ Update `buildStatus["sections-mobile"] = "complete"` in manifest.
 
 ---
 
+## Upstream Error Protocol
+
+This skill depends on outputs from previous pipeline steps (foundations, variables, text styles). When validation catches an issue, **always diagnose whether the root cause is local or upstream** before applying a fix.
+
+### How to diagnose
+
+When a programmatic check flags an issue (e.g., invisible text, broken fill), investigate one level deeper:
+1. **Check the variable value** — does the bound variable resolve to the expected color/value in the active mode?
+2. **Check if the issue is isolated or systemic** — does the same variable cause problems on multiple nodes?
+3. **If it's systemic** (same variable broken everywhere), the issue is upstream — in foundations, not in the component.
+
+### What to do when you find an upstream error
+
+**STOP building components.** Do NOT apply local workarounds (like manually setting opacity) and continue. Instead:
+
+1. Identify the upstream cause (e.g., "Essential/Text variable resolves to alpha=0 because it aliases to Transparent instead of an alpha variant")
+2. Report to the user: explain what's broken, which previous step caused it, and what the fix would be
+3. Ask the user: "Should I fix the [foundations/variables/styles] first, or continue with a workaround?"
+4. Only proceed once the user decides
+
+**Why this matters:** A local patch hides the bug. Every subsequent component will inherit the same issue, and the fix becomes exponentially harder later. It's always cheaper to fix upstream first.
+
+### Examples of upstream vs local issues
+
+| Symptom | Upstream? | Root cause |
+|---------|-----------|------------|
+| Text invisible (opacity=0) on multiple components | Yes | Variable aliases to wrong base color (foundations) |
+| One button's border radius looks wrong | No | Wrong radius variable used (local fix) |
+| All fills show hardcoded color instead of variable | Yes | Variable collection missing or misconfigured |
+| A single text node has wrong font | No | Wrong text style applied (local fix) |
+
+---
+
 ## Important Reminders
 
 ### Figma Plugin API gotchas:
-- `resize()` overrides sizing modes — set `primaryAxisSizingMode`/`counterAxisSizingMode` AFTER `resize()`
-- Set `layoutSizingHorizontal = "FILL"` AFTER appending child to auto-layout parent
-- Text nodes in auto-layout default to HUG width → set `layoutSizingHorizontal = "FILL"` + `textAutoResize = "HEIGHT"`
-- Image frames: `constrainProportions = true` requires `layoutMode = "NONE"`
-- `counterAxisSizingMode` only accepts `"FIXED"` | `"AUTO"` — for fill behavior, use `layoutAlign = "STRETCH"` on children
+
+**Page navigation:**
+- ❌ `figma.currentPage = page`
+- ✅ `await figma.setCurrentPageAsync(page)`
+
+**Binding variables to fills/strokes — use `setBoundVariableForPaint`, not `setBoundVariable`:**
+- ❌ `frame.setBoundVariable('fills', 0, 'color', myVar)`
+- ✅ `frame.fills = [figma.variables.setBoundVariableForPaint(figma.util.solidPaint("#000"), myVar)]`
+- The helper `bindPaint(paint, variable)` pattern: `function bindPaint(p, v) { return figma.variables.setBoundVariableForPaint(p, 'color', v); }`
+
+**`resize()` overrides sizing modes — ALWAYS set sizing modes AFTER `resize()`:**
+- ❌ `frame.primaryAxisSizingMode = "AUTO"; frame.resize(1440, 1);` → sizing mode reverts to FIXED
+- ✅ `frame.resize(1440, 1); frame.primaryAxisSizingMode = "AUTO";` → sizing mode sticks
+- This is the #1 cause of "height is 1" bugs. If the component height is wrong, check this first.
+
+**`counterAxisSizingMode` only accepts `"FIXED"` | `"AUTO"` — never `"FILL"`:**
+- ❌ `content.counterAxisSizingMode = "FILL"` → throws validation error
+- ✅ Set `layoutSizingHorizontal = "FILL"` on the child AFTER appending it to an auto-layout parent
+
+**Child sizing (`layoutSizingHorizontal`/`layoutSizingVertical`) — set AFTER appending to parent:**
+- ❌ `child.layoutSizingHorizontal = "FILL"; parent.appendChild(child)` → error: not in auto-layout
+- ✅ `parent.appendChild(child); child.layoutSizingHorizontal = "FILL"`
+
+**Fixed-height children in vertical auto-layout (e.g., image placeholders):**
+- ❌ A `layoutMode = "NONE"` frame as a child of vertical auto-layout → height collapses to 0
+- ✅ Use `layoutMode = "VERTICAL"` with `primaryAxisSizingMode = "FIXED"` + `counterAxisSizingMode = "FIXED"`, then `resize(w, h)`, then after appending: `child.layoutSizingHorizontal = "FILL"; child.layoutSizingVertical = "FIXED"`
+- For absolute-positioned children inside (e.g., badge overlay), use `child.layoutPositioning = "ABSOLUTE"`
+
+**Other gotchas:**
+- Text nodes in auto-layout default to HUG width → set `layoutSizingHorizontal = "FILL"` + `textAutoResize = "HEIGHT"` after appending
 - Component instances can't be resized via `resize()` with fixed sizing — use `layoutSizingHorizontal = "FILL"` in auto-layout parents
 - Use `await node.getMainComponentAsync()` not `node.mainComponent` (dynamic-page mode)
 - Use `await node.setTextStyleIdAsync(style.id)` not `node.textStyleId = style.id`
