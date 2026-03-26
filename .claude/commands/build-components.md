@@ -32,6 +32,7 @@ You are building the confirmed component inventory in Figma: atoms, blocks, and 
    - `all` → run atoms → blocks → sections-desktop → sections-mobile in sequence
    - Specific phase → run only that phase
 7. Check `buildStatus` for already-completed phases. If re-running a completed phase, warn user.
+8. **Practices version check:** Read the `Version` date from `.claude/figma-best-practices.md`. Compare with `buildMeta.practicesVersion` in the manifest (if it exists). If the cheatsheet version is newer than the last build → warn: "The Figma best practices were updated since the last build ({old date} → {new date}). Building with new practices may introduce inconsistencies with existing components. Continue with new practices or keep old patterns?" Store the version used in `buildMeta.practicesVersion` when the build completes.
 
 ---
 
@@ -138,7 +139,94 @@ Build all atoms from `components.atoms` on the Atoms page.
 - **Inputs:** Bind to `Inputs/*` variables. Use `radius/input`. Include placeholder text.
 - **Badges:** Use the color schemes specified in settings (`badge_sale_color_scheme`, `badge_sold_out_color_scheme`). Use `radius/badge`.
 - **Dividers:** Simple line, stroke bound to `Essential/Outline`.
-- **Icons:** 24x24 placeholder frame, fill bound to `Essential/Text`.
+- **Icons:** Build the full theme icon library (see "Icon Library" below).
+
+### Icon Library
+
+After building the other atoms, create an **Icons** frame on the Atoms page containing every SVG icon from the theme.
+
+#### Discovery
+
+1. **Glob** for `assets/icon-*.svg` in the theme directory
+2. Read each SVG file and collect `{ name, svgContent }` pairs
+3. The icon name is derived from the filename: `icon-cart.svg` → `cart`
+
+#### SVG Cleanup (before sending to Figma)
+
+Theme SVGs often contain CSS custom properties and tokens that Figma cannot parse. Clean each SVG string before passing to `figma.createNodeFromSvg()`:
+
+1. **Replace CSS variables in stroke-width:** `var(--icon-stroke-width)` → `1.5` (the default Shopify icon stroke). If the theme has a custom stroke width in its CSS, use that value instead.
+2. **Replace `currentColor`** → `#000000` (Figma doesn't support `currentColor`)
+3. **Remove `class` attributes** — they have no effect in Figma and can cause parse issues
+4. **Remove `vector-effect` attributes** — not supported by the Figma SVG parser
+5. **Remove `aria-hidden` attributes**
+6. **Fix malformed SVG tags** — e.g., `<svg svg` → `<svg` (seen in some theme icons like `icon-inventory.svg`)
+7. **Preserve hardcoded colors** — some status icons (error, available, unavailable) use specific colors like `#EB001B`, `#108043`, `#DE3618`. Do NOT replace these with `#000000`.
+
+#### Building in Figma
+
+```javascript
+// 1. Create the Icons container frame on the Atoms page
+const iconsFrame = figma.createFrame();
+iconsFrame.name = 'Icons';
+iconsFrame.layoutMode = 'HORIZONTAL';
+iconsFrame.layoutWrap = 'WRAP';
+iconsFrame.itemSpacing = 40;
+iconsFrame.counterAxisSpacing = 48;
+iconsFrame.paddingTop = 32;
+iconsFrame.paddingBottom = 32;
+iconsFrame.paddingLeft = 32;
+iconsFrame.paddingRight = 32;
+iconsFrame.primaryAxisSizingMode = 'FIXED';
+iconsFrame.counterAxisSizingMode = 'AUTO';
+iconsFrame.resize(800, 100);
+iconsFrame.fills = [];
+
+// 2. For each icon SVG:
+await figma.loadFontAsync({ family: "Inter", style: "Regular" });
+
+for (const { name, svg } of cleanedIcons) {
+  const svgNode = figma.createNodeFromSvg(svg);
+
+  // Wrapper frame: icon + label
+  const wrapper = figma.createFrame();
+  wrapper.name = name;
+  wrapper.layoutMode = 'VERTICAL';
+  wrapper.itemSpacing = 8;
+  wrapper.primaryAxisSizingMode = 'AUTO';
+  wrapper.counterAxisSizingMode = 'AUTO';
+  wrapper.counterAxisAlignItems = 'CENTER';
+  wrapper.fills = [];
+
+  // Normalize to 24x24 bounding box
+  const maxDim = Math.max(svgNode.width, svgNode.height);
+  const scale = 24 / maxDim;
+  svgNode.resize(Math.round(svgNode.width * scale), Math.round(svgNode.height * scale));
+  svgNode.name = name;
+
+  // Label
+  const label = figma.createText();
+  label.fontName = { family: "Inter", style: "Regular" };
+  label.characters = name;
+  label.fontSize = 10;
+  label.fills = [{ type: 'SOLID', color: { r: 0.4, g: 0.4, b: 0.4 } }];
+
+  wrapper.appendChild(svgNode);
+  wrapper.appendChild(label);
+  iconsFrame.appendChild(wrapper);
+}
+```
+
+#### Batching
+
+If the theme has many icons (20+), split the `use_figma` calls into batches of ~15 icons each, because embedding all SVG strings in a single call can exceed the code size limit. Create the Icons frame in the first call, then find it by name in subsequent calls to append more icons.
+
+#### Validation
+
+After all icons are placed, take a `get_screenshot` of the Icons frame and visually verify:
+- All icons rendered correctly (no broken/empty frames)
+- Labels are readable
+- Grid layout is clean and even
 
 ### After all atoms: Validate
 
@@ -204,6 +292,7 @@ Build all blocks from `components.blocks` on the Blocks page.
 - **Text nodes in auto-layout:** Always set `layoutSizingHorizontal = "FILL"` and `textAutoResize = "HEIGHT"` after appending to prevent overflow.
 - **Product cards:** Include image placeholder, title (text style), price (text style), and optionally badge instance.
 - **Use atom instances** where applicable — if a button atom exists, instantiate it instead of rebuilding.
+- **Use icon instances** where sections or blocks reference icons — find the matching icon frame in the Icons container on the Atoms page and clone or reference it. If the icon doesn't exist in the library, create it inline as a fallback.
 
 ### After all blocks: Validate
 

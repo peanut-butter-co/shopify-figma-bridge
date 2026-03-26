@@ -1,6 +1,11 @@
 # Figma Design Engineering Cheatsheet
 
+**Version:** 2026-03-26
+**Last researched:** 2026-03-26
+
 Distilled from official Figma docs and expert practitioners (Joey Banks, Ridd, Alice Packard, Nathan Curtis, Luis Ouriach, Christine Vallaure). This is the reference for building design system components programmatically via the Plugin API.
+
+Run `/refresh-figma-practices` to update this cheatsheet with the latest Figma features and community best practices.
 
 ---
 
