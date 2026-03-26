@@ -82,6 +82,23 @@ Configuration for your design system:
 
 ---
 
+## Step 4b: Instance Architecture Rules
+
+Configure the component instance policy for this project:
+
+```
+Instance architecture:
+- Component instances required: YES (never use inline frames for reusable elements)
+- Mobile placement: NEXT TO desktop counterpart (not in separate section)
+- Template composition: ALL sub-elements must be component instances
+- Section fill for Figma: #B3B3B3
+- Spacing: 60px between components, 80px between rows, 120px between page groups
+```
+
+These rules are non-negotiable. They ensure design system cascade — one change updates everywhere.
+
+---
+
 ## Step 5: Write Manifest
 
 Create the directory `.claude/figma-sync/` if it doesn't exist, then write `manifest.json`:
@@ -96,7 +113,14 @@ Create the directory `.claude/figma-sync/` if it doesn't exist, then write `mani
     "desktopWidth": 1440,
     "mobileWidth": 390,
     "pages": ["Foundations", "Atoms", "Blocks", "Sections"],
-    "mobileNaming": "{name} / Mobile"
+    "mobileNaming": "{name} / Mobile",
+    "instancePolicy": "strict",
+    "mobilePlacement": "adjacent",
+    "sectionFill": "#B3B3B3",
+    "componentSpacing": 60,
+    "rowSpacing": 80,
+    "pageGroupSpacing": 120,
+    "templateCoverage": ["index", "product", "collection", "cart", "search", "blog", "article", "404", "page", "contact", "list-collections", "password", "gift_card", "policy"]
   },
   "theme": {
     "name": "<from settings_schema>",

@@ -67,6 +67,30 @@ Scan section and block code for UI primitives that should become reusable Figma 
 - **Badges** (sale, sold out)
 - **Icons**, **Dividers**, **Checkboxes** — only if widely used
 
+### Mandatory Atom Checklist
+
+Regardless of what the theme scan finds, these atoms MUST be proposed. They are foundational to every design system:
+
+| Atom | Variants | Required |
+|------|----------|----------|
+| Button | Primary, Secondary | Always |
+| Input Field | Default | Always |
+| Checkbox | Checked, Unchecked | Always |
+| Text Link | Default, Accent | Always |
+| Tab | Active, Inactive | Always |
+| Arrow Button | Left, Right | Always |
+| Badge | (per theme — typically Sale, Sold Out) | Always |
+| Variant Swatch | Default, Selected | If theme has variants |
+| Blog Card | Default | If theme has blog |
+| Collection Card | Below Image, On Image | If theme has collections |
+| Product Card | Per image ratio | Always |
+| Quantity Selector | Default | If theme has cart |
+| Spacer | Small, Medium, Large | Always |
+| Divider | Horizontal, Vertical | Always |
+| Icon | Default | Always |
+
+If the theme scan doesn't find a source file for an atom, note it as "create from common patterns" — do NOT skip it.
+
 ## Step 5: Present Selection Proposal
 
 Show the user a structured proposal with clear recommended/skipped lists:
@@ -173,6 +197,32 @@ Want to adjust? Add or remove variant properties for any section.
 
 **Wait for user confirmation.**
 
+### Template Coverage Plan
+
+Present the complete template coverage that `/compose-page` will build:
+
+```
+Templates to build (desktop + mobile pairs):
+- Homepage (index.json)
+- Product Page (product.json)
+- Collection Page (collection.json)
+- Cart Page (cart.json)
+- Search Results (search.json)
+- Blog Listing (blog.json)
+- Blog Article (article.json)
+- 404 Page (404.json)
+- Generic Page (page.json)
+- Contact Page (page.contact.json)
+- All Collections (list-collections.json)
+- Password Page (password.json)
+- Gift Card (gift_card.liquid)
+- Policy Page (custom — legal/policy content)
+
+Total: 14 desktop + 14 mobile = 28 template frames
+```
+
+Each template will be composed entirely from component instances. Desktop and mobile will be paired side by side in the Templates section.
+
 ---
 
 ## Step 8: Write to Manifest
@@ -214,7 +264,9 @@ Once both phases are confirmed, update the manifest:
         "integratedBlocks": ["_slide", "_carousel-content"]
       }
     ],
-    "skippedSections": ["main-404", "custom-liquid", "password", "password-footer"]
+    "skippedSections": ["main-404", "custom-liquid", "password", "password-footer"],
+    "templateCoverage": ["index", "product", "collection", "cart", "search", "blog", "article", "404", "page", "page.contact", "list-collections", "password", "gift_card", "policy"],
+    "mandatoryAtoms": ["Button", "Input Field", "Checkbox", "Text Link", "Tab", "Arrow Button", "Badge", "Variant Swatch", "Product Card", "Quantity", "Spacer", "Divider", "Icon"]
   }
 }
 ```

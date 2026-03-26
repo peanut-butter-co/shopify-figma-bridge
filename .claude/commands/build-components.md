@@ -107,6 +107,55 @@ Keep the measurements and screenshots in memory for the build phases. These do N
 
 ---
 
+## CRITICAL: Instance-Only Architecture
+
+**This is the #1 rule for the entire build process.**
+
+Every sub-element that exists as a component MUST be created as an instance, never as an inline frame. This means:
+
+1. **Build atoms FIRST.** Before building any block or section, ALL atoms from the mandatory checklist must exist as Figma components.
+2. **Blocks instance atoms.** A "Buy Buttons" block instances the Quantity component, Button component, and Accelerated Checkout component — it never recreates them.
+3. **Sections instance blocks and atoms.** A "Product List" section instances Product Card components — it never builds inline product cards.
+4. **Templates instance sections.** A "Homepage" template instances Header, Hero, Product List, Footer components.
+
+**How to instance in use_figma:**
+```javascript
+// Find a component
+const comp = page.findOne(n => n.name === "Button" && n.type === "COMPONENT_SET");
+const variant = comp.children.find(c => c.name.includes("Primary"));
+const instance = variant.createInstance();
+
+// Add to parent and configure
+parent.appendChild(instance);
+instance.layoutSizingHorizontal = "FILL"; // AFTER appendChild
+
+// Override text (load font first!)
+await figma.loadFontAsync({family: "Inter", style: "Regular"});
+const textNode = instance.findOne(n => n.type === "TEXT");
+if (textNode) textNode.characters = "Add to Cart";
+```
+
+**Instance lookup table (use for every build):**
+| Sub-element needed | Instance of |
+|---|---|
+| Any button | Button (Primary/Secondary variant) |
+| Express checkout | Accelerated Checkout |
+| Quantity stepper | Quantity |
+| Text input | Input Field |
+| Checkbox | Checkbox (Checked/Unchecked) |
+| Underlined link | Text Link (Default/Accent) |
+| Tab | Tab (Active/Inactive) |
+| Carousel arrow | Arrow Button (Left/Right) |
+| Product card | Product Card |
+| Blog card | Blog Card |
+| Collection card | Collection Card |
+| Color swatch | Variant Swatch (Default/Selected) |
+| Size picker | Variant Picker (Buttons/Dropdown) |
+
+**Before building ANY composite:** List sub-elements needed. For each, check if the component exists. If yes → instance. If no → build the atom first.
+
+---
+
 ## Phase: Atoms
 
 Build all atoms from `components.atoms` on the Atoms page.
@@ -247,6 +296,19 @@ For each desktop section, create a mobile variant on the same Sections page.
 - **Padding:** Use mobile measurements from reference capture
 - **Typography:** Same text styles (responsive sizing is NOT handled in Figma variants — keep same styles, let the narrower width create natural wrapping)
 
+### Mobile Component Placement
+
+Mobile components go NEXT TO their desktop counterpart, not in a separate mobile section.
+
+- Desktop Header component → Mobile Header component right next to it
+- Desktop Footer → Mobile Footer right next to it
+- Desktop Product Card → Mobile Product Card right next to it
+
+This makes it easy for designers to compare desktop and mobile side by side.
+
+**Naming:** Desktop = "Header", Mobile = "Header / Mobile"
+**Spacing:** 40px gap between desktop and mobile variants
+
 ### For each section:
 
 1. Use the mobile reference screenshots and measurements
@@ -279,6 +341,19 @@ Update `buildStatus["sections-mobile"] = "complete"` in manifest.
 - `blendMode: "NORMAL"` is required in shadow effects — omitting causes validation error
 - `primaryAxisSizingMode` rejects `"HUG"` — use `"AUTO"` instead
 - Paint `color` objects don't accept `a` (alpha) — use `opacity` on the paint: `{ type: "SOLID", color: { r, g, b }, opacity: 0.8 }`
+
+### Visual Validation Checklist
+
+After building EACH component, run this checklist:
+
+1. **Screenshot:** `get_screenshot` of the component
+2. **Overlap check:** No components overlapping or stacked on top of each other
+3. **Instance check:** All sub-elements should appear as purple-linked instances in Figma (not blue unlinked frames)
+4. **Token check:** All colors should come from variables (no hardcoded hex)
+5. **Text style check:** All text should use a local text style (not unstyled text)
+6. **Layout check:** Auto-layout working, no clipped text, proper spacing
+
+**Do NOT move to the next component until the current one passes all 6 checks.**
 
 ### Validation discipline:
 - NEVER validate at zoomed-out scale — always 100%+ zoom

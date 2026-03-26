@@ -176,6 +176,52 @@ Scan the remaining settings groups and extract anything that affects visual styl
 
 Only include tokens that are relevant for the design system. Skip functional settings (cart type, currency display, search behavior, etc.).
 
+### 2e. Mobile Typography Variance
+
+For each heading preset (h1-h6) and paragraph, check if there are separate mobile size settings:
+- Look for `type_size_h{N}_mobile` or `mobile_type_size_h{N}` in settings_schema.json
+- If mobile sizes exist, extract them alongside desktop sizes
+- If not, note which presets share desktop/mobile sizes
+
+This determines whether the Figma system needs separate Desktop/Mobile text styles (our standard: YES — always create both, even if sizes match, for future flexibility).
+
+**Output addition to typography:**
+```json
+{
+  "presets": {
+    "h1": {
+      "fontRole": "heading",
+      "desktop": { "size": 72, "lineHeight": 120 },
+      "mobile": { "size": 56, "lineHeight": 120 }
+    }
+  }
+}
+```
+
+### 2f. Required Atom Inventory
+
+Regardless of theme, these atoms MUST be identified or created:
+
+| Atom | Source | Priority |
+|------|--------|----------|
+| Button (Primary/Secondary) | `snippets/button.liquid` or `blocks/button.liquid` | Required |
+| Input Field | CSS `.input` class or `blocks/contact-form.liquid` | Required |
+| Checkbox (Checked/Unchecked) | Form elements in blocks | Required |
+| Text Link (Default/Accent) | Link styling in CSS | Required |
+| Tab (Active/Inactive) | Tab/accordion patterns | Required |
+| Arrow Button (Left/Right) | Carousel/slideshow navigation | Required |
+| Badge (Sale/Sold Out) | `snippets/product-card.liquid` | Required |
+| Variant Swatch (Default/Selected) | `snippets/swatch.liquid` | Required |
+| Blog Card | `blocks/_featured-blog-posts-card.liquid` | Required |
+| Collection Card | `blocks/collection-card.liquid` | Required |
+| Product Card | `blocks/_product-card.liquid` | Required |
+| Quantity Selector | Quantity input patterns | Required |
+| Spacer | `blocks/spacer.liquid` | Required |
+| Divider | `blocks/_divider.liquid` | Required |
+| Icon | `blocks/icon.liquid` | Required |
+
+Scan the theme for each. If a source file exists, note it. If not, mark as "create from patterns". These atoms will be built FIRST in `/build-components` before any composites or sections.
+
 ---
 
 ## Step 3: Propose Foundations
@@ -208,6 +254,11 @@ Present the extracted data to the user in a readable format. Organize by categor
 
 ### Additional Tokens
 - {list any additional tokens found}
+
+### Required Atoms
+- **{N} atoms identified** from theme code
+- **{N} atoms to create** from common patterns
+- Priority build order: Button → Input → Checkbox → Text Link → Tab → Arrow → Badge → Swatch → Cards → Quantity → Spacer → Divider → Icon
 
 ---
 
