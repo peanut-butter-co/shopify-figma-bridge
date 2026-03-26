@@ -105,19 +105,27 @@ Scan section and block code for UI primitives that should become reusable Figma 
 
 ### Mandatory Atom Checklist
 
-**If the theme profile includes `recommendations.components.mandatoryAtoms`**, use that list as the full checklist — it contains theme-specific atoms already validated for the theme.
+These atoms should be proposed if they exist in the theme. Search `snippets/`, `blocks/`, and `sections/` for each:
 
-**If no theme profile exists**, these atoms are the universal minimum:
-
-| Atom | Variants | Required |
-|------|----------|----------|
+| Atom | Variants | When required |
+|------|----------|---------------|
 | Button | Primary, Secondary | Always |
 | Input Field | Default | Always |
-| Badge | (per theme) | Always |
+| Checkbox | Checked, Unchecked | Always |
+| Text Link | Default, Accent | Always |
+| Tab | Active, Inactive | If theme has tabs/accordions |
+| Arrow Button | Left, Right | If theme has carousels |
+| Badge | (per theme — e.g., Sale, Sold Out) | If theme has products |
+| Variant Swatch | Default, Selected | If theme has product variants |
+| Product Card | Per image ratio | If theme has products |
+| Blog Card | Default | If theme has blog |
+| Collection Card | Below Image, On Image | If theme has collections |
+| Quantity Selector | Default | If theme has cart |
+| Spacer | Small, Medium, Large | Always |
+| Divider | Horizontal, Vertical | Always |
 | Icon | Default | Always |
-| Divider | Horizontal | Always |
 
-Additionally, scan the theme for other common atoms (cards, swatches, tabs, checkboxes, quantity selectors, arrow buttons, spacers) and propose any that are found in the code.
+If the theme profile includes `recommendations.components.mandatoryAtoms`, cross-reference with that list for theme-specific additions.
 
 If the theme scan doesn't find a source file for an atom, note it as "create from common patterns" — do NOT skip it.
 

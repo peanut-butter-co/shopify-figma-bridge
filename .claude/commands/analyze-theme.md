@@ -265,17 +265,29 @@ This determines whether the Figma system needs separate Desktop/Mobile text styl
 
 ### 2f. Required Atom Inventory
 
-Scan the theme for UI primitives that should become reusable atoms. At minimum, every design system needs: **Button**, **Input**, **Badge**, **Icon**, and **Divider**.
+Every Shopify design system needs a core set of UI atoms. Scan the theme for each of these — search `snippets/`, `blocks/`, and `sections/` for matching patterns:
 
-**If the theme profile includes `recommendations.components.mandatoryAtoms`**, use that list as the full atom checklist — it will include theme-specific atoms (cards, swatches, navigation elements) with their source files already mapped.
+| Atom | Where to look | When required |
+|------|--------------|---------------|
+| Button (Primary/Secondary) | Search for button snippets, button blocks, or `.btn` CSS classes | Always |
+| Input Field | Search for form inputs, `.input` CSS class, contact form blocks | Always |
+| Checkbox (Checked/Unchecked) | Search for form elements, checkbox patterns in blocks | Always |
+| Text Link (Default/Accent) | Search for link styling in CSS, underlined text patterns | Always |
+| Tab (Active/Inactive) | Search for tab or accordion patterns in sections/blocks | If theme has tabs/accordions |
+| Arrow Button (Left/Right) | Search for carousel/slideshow navigation arrows | If theme has carousels |
+| Badge (Sale/Sold Out) | Search for badge/label patterns in product cards | If theme has products |
+| Variant Swatch (Default/Selected) | Search for swatch or color picker patterns | If theme has product variants |
+| Product Card | Search for product card snippets or blocks | If theme has products |
+| Blog Card | Search for blog post card patterns in blocks | If theme has blog |
+| Collection Card | Search for collection card or list patterns | If theme has collections |
+| Quantity Selector | Search for quantity input/stepper patterns | If theme has cart |
+| Spacer | Search for spacer blocks or spacing utility sections | Always |
+| Divider | Search for divider/separator blocks or snippets | Always |
+| Icon | Search for SVG icons in `assets/`, icon blocks or snippets | Always |
 
-**If no theme profile exists**, scan these locations for common atoms:
-- `snippets/` and `blocks/` for button, input, badge, swatch, and card patterns
-- CSS for form elements (`.input`, `.checkbox`, link styles)
-- SVG assets in `assets/` for icons
-- Carousel/slideshow sections for arrow/navigation buttons
+For each atom found, note its source file. For atoms not found in theme code, mark as "create from common patterns". If the theme profile includes `recommendations.components.mandatoryAtoms`, cross-reference with that list for theme-specific additions.
 
-For each atom found, note its source file. For atoms not found in theme code, mark as "create from common patterns". These atoms will be built FIRST in `/build-components` before any composites or sections.
+These atoms will be built FIRST in `/build-components` before any composites or sections.
 
 ---
 
