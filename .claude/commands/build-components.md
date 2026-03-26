@@ -264,14 +264,21 @@ Update `buildStatus["sections-mobile"] = "complete"` in manifest.
 
 ## Important Reminders
 
-### From CLAUDE.md gotchas:
+### Figma Plugin API gotchas:
 - `resize()` overrides sizing modes — set `primaryAxisSizingMode`/`counterAxisSizingMode` AFTER `resize()`
 - Set `layoutSizingHorizontal = "FILL"` AFTER appending child to auto-layout parent
 - Text nodes in auto-layout default to HUG width → set `layoutSizingHorizontal = "FILL"` + `textAutoResize = "HEIGHT"`
 - Image frames: `constrainProportions = true` requires `layoutMode = "NONE"`
-- `use_figma` requires `blendMode: "NORMAL"` in shadow effects
-- `use_figma` rejects `"HUG"` for `primaryAxisSizingMode` — use `"AUTO"`
-- Paint `color` objects don't accept `a` (alpha) via `use_figma` — use `opacity` on the paint
+- `counterAxisSizingMode` only accepts `"FIXED"` | `"AUTO"` — for fill behavior, use `layoutAlign = "STRETCH"` on children
+- Component instances can't be resized via `resize()` with fixed sizing — use `layoutSizingHorizontal = "FILL"` in auto-layout parents
+- Use `await node.getMainComponentAsync()` not `node.mainComponent` (dynamic-page mode)
+- Use `await node.setTextStyleIdAsync(style.id)` not `node.textStyleId = style.id`
+- `createVariable(name, collectionObject, type)` — pass collection OBJECT, not ID
+
+### `use_figma` MCP gotchas (validation layer):
+- `blendMode: "NORMAL"` is required in shadow effects — omitting causes validation error
+- `primaryAxisSizingMode` rejects `"HUG"` — use `"AUTO"` instead
+- Paint `color` objects don't accept `a` (alpha) — use `opacity` on the paint: `{ type: "SOLID", color: { r, g, b }, opacity: 0.8 }`
 
 ### Validation discipline:
 - NEVER validate at zoomed-out scale — always 100%+ zoom

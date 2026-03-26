@@ -187,7 +187,15 @@ After creating EACH style guide frame:
 2. Verify the content is legible and properly laid out
 3. If something looks broken (text overlapping, invisible swatches, cramped rows) → fix it before moving on
 
-**Do NOT batch-create all frames without validation.** This has caused problems before (see CLAUDE_FEEDBACK.md).
+**Do NOT batch-create all frames without validation.**
+
+### Figma API gotchas for this skill:
+- `createVariable(name, collectionObject, type)` — pass collection OBJECT, not ID
+- `setBoundVariable('lineHeight', var)` forces `unit: "PIXELS"` — always set lineHeight directly: `{ value: 110, unit: "PERCENT" }`
+- `use_figma` requires `blendMode: "NORMAL"` in shadow effects
+- `use_figma` rejects `"HUG"` for `primaryAxisSizingMode` — use `"AUTO"`
+- Paint `color` objects don't accept `a` (alpha) via `use_figma` — use `opacity` on the paint
+- Text nodes in auto-layout: set `layoutSizingHorizontal = "FILL"` + `textAutoResize = "HEIGHT"` after appending
 
 ---
 
@@ -212,7 +220,7 @@ Variable collections:
 Text styles:       {N} styles
 Style guide:       {N} documentation frames on Foundations page
 
-Next step: Run /propose-components <template> to plan which components to build.
+Next step: Run /propose-components to plan which components to build.
 ```
 
 ---
