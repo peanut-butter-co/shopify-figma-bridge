@@ -17,11 +17,12 @@ You are building the design system foundations in Figma: pages, variable collect
 2. Verify `foundations` is not null. If null → tell user: "Run `/analyze-theme` first."
 3. Verify `config.figmaFileKey` exists. If missing → tell user: "Run `/setup` first."
 4. Read `config.desktopWidth` and `config.mobileWidth` for later use.
-5. **Check for theme profile:** If `theme.hasProfile === true`, read `.claude/figma-sync/theme-profiles/{theme_slug}.json`. Use its `figmaMapping` sections to guide how you create variables, text styles, and collections. Key guidance includes:
+5. **Check for theme profile:** If `theme.hasProfile === true`, read `.claude/figma-sync/theme-profiles/{theme_slug}.json`. But **only use profile guidance for areas that passed validation** — check `theme.profileValidation` in the manifest (set by `/analyze-theme`). For validated areas, use the profile's `figmaMapping` sections:
    - `typography.figmaMapping` — which font roles map to which heading levels, line-height conversion from semantic presets
    - `colorSchemes.figmaMapping` — collection structure, alpha variant requirements, mode application strategy
    - `spacing.figmaMapping` — which values come from settings vs hardcoded CSS scales
    - `quirks` — theme-specific behaviors that affect how foundations are built
+   - If a section shows `"diverged"` in profileValidation → ignore the profile for that area, use only the manifest's detected data.
 6. If `buildStatus.foundations === "complete"` → warn user: "Foundations were already built. Re-running will recreate everything. Proceed?"
 
 ---
