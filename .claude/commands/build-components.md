@@ -14,6 +14,8 @@ You are building the confirmed component inventory in Figma: atoms, blocks, and 
 - **Figma MCP** (`use_figma` + `get_screenshot`) — all Figma creation and validation
 - **Chrome DevTools MCP** — reference capture only (store navigation, DOM measurements, store screenshots)
 
+**Reference:** Before building, read `.claude/figma-best-practices.md` for Figma design engineering patterns (auto-layout strategies, responsive components, image aspect ratios, grid layouts, component architecture). Consult it when facing layout decisions — it contains expert-sourced patterns that prevent common mistakes.
+
 ---
 
 ## Pre-flight
@@ -196,7 +198,9 @@ Build all blocks from `components.blocks` on the Blocks page.
 
 ### Design rules for blocks:
 
-- **Cards with images:** Use `constrainProportions = true` + `layoutMode = "NONE"` on the image placeholder frame to maintain aspect ratio. Set a grey placeholder fill.
+- **Cards with images:** The image placeholder frame must maintain its aspect ratio at any card width. Use `layoutMode = "VERTICAL"` with `primaryAxisSizingMode = "FIXED"` + `counterAxisSizingMode = "FIXED"`, then `resize(w, h)`. After appending to the card, set `layoutSizingHorizontal = "FILL"` and **`constrainProportions = true`**. This ensures the image stays square (or whatever ratio) when the card is resized for mobile grids. Set a grey placeholder fill. For absolute-positioned children inside (e.g., badge), use `layoutPositioning = "ABSOLUTE"`.
+  - ❌ `layoutMode = "NONE"` → height collapses to 0 in auto-layout parent
+  - ✅ `layoutMode = "VERTICAL"` + `constrainProportions = true` + `layoutSizingHorizontal = "FILL"` → maintains aspect ratio at any width
 - **Text nodes in auto-layout:** Always set `layoutSizingHorizontal = "FILL"` and `textAutoResize = "HEIGHT"` after appending to prevent overflow.
 - **Product cards:** Include image placeholder, title (text style), price (text style), and optionally badge instance.
 - **Use atom instances** where applicable — if a button atom exists, instantiate it instead of rebuilding.
@@ -251,14 +255,60 @@ grid.gridRowGap = rowGap;
 
 ### Section variants:
 
-If the section has variants beyond Desktop/Mobile (e.g., alignment), create a Component Set with properties:
-- `Viewport = Desktop` (this phase)
-- `Alignment = Left, Center, Right` (if applicable)
-- etc.
+If the section has `variants` defined in the manifest, you MUST build it as a **Component Set** with all variant combinations — not a single Component.
+
+**Process for each section with variants:**
+
+1. Read the `variants` object from the manifest (e.g., `{ "Position": ["Top", "Center", "Bottom"], "Alignment": ["Left", "Center", "Right"] }`)
+2. Calculate the total combinations (e.g., 3 × 3 = 9)
+3. Build EACH combination as a separate component frame, adjusting the layout to reflect the variant:
+   - **Position (Top/Center/Bottom):** Change `primaryAxisAlignItems` — `"MIN"` for Top, `"CENTER"` for Center, `"MAX"` for Bottom
+   - **Alignment (Left/Center/Right):** Change `counterAxisAlignItems` — `"MIN"` for Left, `"CENTER"` for Center, `"MAX"` for Right
+   - **Layout mode (Grid/Carousel/Editorial):** Change grid structure, card arrangement, or content treatment
+   - **Media position (Left/Right):** Reverse the order of children in horizontal auto-layout
+   - **Media width (Wide/Medium/Narrow):** Adjust the proportional width of the media frame
+4. Name each variant following Figma convention: `Position=Top, Alignment=Left`
+5. Combine all variants into a Component Set using `figma.combineAsVariants(components, page)`
+
+**Do NOT skip variants.** A section with variants defined in the manifest that is built as a single Component is incomplete. The variant combinations are the primary deliverable — they let designers pick configurations in the Figma properties panel.
 
 ### After all desktop sections: Validate
 
-Screenshot each section, compare against desktop store reference, fix issues.
+**A. Visual validation** — Screenshot each section (or each variant of a Component Set) and compare against desktop store reference.
+
+**B. Variant completeness check** — run this via `use_figma` after all sections are built:
+
+```javascript
+// Check every section with variants in manifest was built as a Component Set
+const manifest = /* read from manifest */;
+const sectionsPage = figma.root.children.find(p => p.name === "Sections");
+const issues = [];
+
+for (const section of manifest.components.sections) {
+  if (!section.variants) continue; // No variants expected
+
+  const node = sectionsPage.findOne(n => n.name === section.name);
+  if (!node) {
+    issues.push(`MISSING: ${section.name} not found on Sections page`);
+    continue;
+  }
+  if (node.type !== "COMPONENT_SET") {
+    issues.push(`NOT A VARIANT SET: ${section.name} is a ${node.type}, expected COMPONENT_SET`);
+    continue;
+  }
+
+  // Count expected combinations
+  const propArrays = Object.values(section.variants);
+  const expectedCount = propArrays.reduce((acc, arr) => acc * arr.length, 1);
+  const actualCount = node.children.length;
+
+  if (actualCount < expectedCount) {
+    issues.push(`INCOMPLETE: ${section.name} has ${actualCount}/${expectedCount} variants`);
+  }
+}
+```
+
+If any issues are found → fix them before marking the phase complete.
 
 Update `buildStatus["sections-desktop"] = "complete"` in manifest.
 
@@ -353,9 +403,10 @@ When a programmatic check flags an issue (e.g., invisible text, broken fill), in
 - ❌ `child.layoutSizingHorizontal = "FILL"; parent.appendChild(child)` → error: not in auto-layout
 - ✅ `parent.appendChild(child); child.layoutSizingHorizontal = "FILL"`
 
-**Fixed-height children in vertical auto-layout (e.g., image placeholders):**
-- ❌ A `layoutMode = "NONE"` frame as a child of vertical auto-layout → height collapses to 0
-- ✅ Use `layoutMode = "VERTICAL"` with `primaryAxisSizingMode = "FIXED"` + `counterAxisSizingMode = "FIXED"`, then `resize(w, h)`, then after appending: `child.layoutSizingHorizontal = "FILL"; child.layoutSizingVertical = "FIXED"`
+**Image placeholders that must maintain aspect ratio (e.g., product card images):**
+- ❌ `layoutMode = "NONE"` → height collapses to 0 in auto-layout parent
+- ❌ `layoutSizingVertical = "FIXED"` without `constrainProportions` → image stays 334px tall even when card shrinks to 175px (not square on mobile)
+- ✅ Use `layoutMode = "VERTICAL"` + `primaryAxisSizingMode = "FIXED"` + `counterAxisSizingMode = "FIXED"`, then `resize(w, h)`. After appending to parent: `child.layoutSizingHorizontal = "FILL"` + **`child.constrainProportions = true`**. This keeps the image square (or any ratio) at any parent width.
 - For absolute-positioned children inside (e.g., badge overlay), use `child.layoutPositioning = "ABSOLUTE"`
 
 **Other gotchas:**

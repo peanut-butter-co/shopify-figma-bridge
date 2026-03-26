@@ -15,6 +15,7 @@
 !.claude/
 !.claude/commands/
 !.claude/commands/*.md
+!.claude/figma-best-practices.md
 
 # Docs
 !docs/
