@@ -1,0 +1,24 @@
+# Whitelist approach: ignore everything, then un-ignore tooling files.
+# This lets us have a Shopify theme in the same directory for testing
+# without committing any theme code.
+
+# Ignore everything
+*
+
+# Un-ignore the tooling
+!.gitignore
+!README.md
+!install.sh
+!LICENSE
+
+# Skills
+!.claude/
+!.claude/commands/
+!.claude/commands/*.md
+
+# Docs
+!docs/
+!docs/**
+
+# Always ignore runtime state (generated per project)
+.claude/figma-sync/
