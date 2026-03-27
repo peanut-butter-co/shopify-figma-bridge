@@ -476,27 +476,58 @@ The agent maps each section type → Figma component, each setting → component
 
 ---
 
-## Open Questions for Review
+## Open Questions (Posted for Review — See PR #5 Comments)
 
-1. **Responsive components:** Pablo's research suggests variables with breakpoint modes over Viewport variants. Should we convert existing Viewport=Desktop/Mobile component sets to single components with breakpoint variables? Or keep variants for structurally different components only?
+1. **Responsive components** — Hybrid approach proposed: breakpoint variables for shared-structure components, Viewport variants for structurally different ones. **Awaiting Pablo's input on the split list.**
+2. **Design agent scope** — Our position: layout-only to start. Content generation as future add-on.
+3. **Brand onboarding format** — Our position: structured `brand-brief.md` template + optional URL scraping.
+4. **Shopify validation depth** — Our position: structural AND semantic (range/step math, setting dependencies).
+5. **Sync direction** — Our position: manual with diff preview. Auto-sync too risky.
 
-2. **Design agent scope:** Should the agent handle content generation (product descriptions, placeholder images via AI) or stay focused on layout/composition only?
+---
 
-3. **Brand onboarding input format:** PDF parsing is unreliable. Should we define a standard `brand-brief.md` template that clients/PMs fill out, rather than trying to parse arbitrary PDFs?
+## What We Can Start NOW (No Blockers)
 
-4. **Shopify validation depth:** How deep should schema validation go? Just structural (valid JSON, correct types) or also semantic (this combination of settings doesn't make visual sense)?
+These items have no dependencies on open questions:
 
-5. **Figma ↔ Shopify sync direction:** Should sync be manual (user triggers) or automatic (hook-based, fires on template file save)?
+### Immediate: Phase 1 — Skills Migration (excluding responsive conversion)
+- Create `.claude/skills/` directory structure
+- Migrate 11 commands to skill folders with SKILL.md frontmatter
+- Rewrite descriptions as triggers
+- Split large files, extract reference material
+- Create gotchas.md per skill
+- Add dynamic gotcha injection
+- Test each skill
+
+**Responsive component conversion deferred** until Pablo confirms the split list.
+
+### Immediate: Phase 3 — Shopify Validation Skill
+- Create `/validate-shopify` SKILL.md
+- Build schema parser
+- Implement all validation checks
+- Test against Evil Horizon templates
+
+### Immediate: GitHub Pages Landing Page
+- Create `docs/index.html`
+- Capture screenshots from Figma
+- Enable GitHub Pages
+- See `docs/github-pages-plan.md` for full spec
+
+### Blocked: Waiting on Pablo
+- Responsive component conversion (Phase 1 subtask)
+- Phase 4 Design Agent (depends on Phase 1 + 3 completion)
 
 ---
 
 ## Timeline Estimate
 
-| Phase | Effort | Dependencies |
-|-------|--------|-------------|
-| Phase 1: Skills migration | 1-2 sessions | None |
-| Phase 2: Hooks + learning | 1 session | Phase 1 |
-| Phase 3: Shopify validation | 1-2 sessions | None (can parallel Phase 1) |
-| Phase 4: Design agent | 2-3 sessions | Phase 1 + 3 |
+| Phase | Effort | Status |
+|-------|--------|--------|
+| Phase 1: Skills migration (core) | 1 session | **Ready to start** |
+| Phase 1: Responsive conversion | 0.5 session | Blocked — awaiting Pablo |
+| Phase 2: Hooks + learning | 1 session | After Phase 1 core |
+| Phase 3: Shopify validation | 1-2 sessions | **Ready to start** (parallel with Phase 1) |
+| Phase 4: Design agent | 2-3 sessions | After Phase 1 + 3 |
+| Landing page | 1 session | **Ready to start** (parallel with anything) |
 
-Phases 1 and 3 can run in parallel. Phase 4 depends on both.
+Phases 1 (core), 3, and landing page can all run in parallel starting now.
