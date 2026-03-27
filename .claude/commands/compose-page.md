@@ -120,6 +120,32 @@ heroInstance.layoutSizingHorizontal = "FILL";
 
 **NEVER build inline frames in templates.** If a section component doesn't exist, build it first in `/build-components`, then instance it here.
 
+### Mobile Template Rules
+
+**Every section in a mobile template must be a component instance.** The mobile template should contain ZERO inline frames with text content.
+
+**Before building a mobile template section inline, STOP and check:**
+1. Does a Viewport=Mobile variant exist for this component? → Instance it
+2. Does a mobile-specific component exist? → Instance it
+3. Neither exists? → **Create the component first** in `/build-components`, then instance it
+
+**Common mistake:** Building mobile template sections with inline text ("Collection Name" as a raw text node). This creates unlinked content that doesn't cascade.
+
+**Correct approach:**
+```javascript
+// Find the Collection Header component set
+const collHeader = page.findOne(n => n.name === "Collection Header" && n.type === "COMPONENT_SET");
+// Find the Mobile variant
+const mobileVariant = collHeader.children.find(c => c.name.includes("Mobile"));
+// Instance it
+const instance = mobileVariant.createInstance();
+templateFrame.appendChild(instance);
+instance.layoutSizingHorizontal = "FILL";
+// Override the title text
+await figma.loadFontAsync({family: "Inter", style: "Bold"});
+instance.findOne(n => n.type === "TEXT" && n.characters === "Collection Name").characters = "Summer Collection";
+```
+
 ### Text Audit After Composition
 
 After composing each template, run a quick audit:
