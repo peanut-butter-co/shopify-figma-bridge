@@ -127,7 +127,7 @@ After composing each template, run a quick audit:
 const texts = templateFrame.findAll(n => n.type === "TEXT");
 for (const t of texts) {
   if (!t.textStyleId) console.warn("UNSTYLED:", t.characters);
-  if (!t.fills[0]?.boundVariables?.color) console.warn("UNBOUND:", t.characters);
+  if (t.fills[0]?.type === "SOLID" && !t.fills[0]?.boundVariables?.color) console.warn("UNBOUND:", t.characters);
 }
 ```
 Log warnings but don't stop — fix them before moving to the next template.
