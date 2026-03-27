@@ -66,6 +66,17 @@ For each template and section composition, check if there are frames that LOOK l
    - NOT an instance
    → Likely should be an Input Field instance
 
+4. **Unstyled text nodes:** Any text node where:
+   - `textStyleId` is empty or null
+   - NOT inside a component definition (only check in templates/sections)
+   → Must have a text style applied
+
+5. **Unbound text fills:** Any text node where:
+   - `fills[0].type === "SOLID"` and `fills[0].boundVariables.color` is undefined
+   - Has visible characters (not empty)
+   - NOT inside a component definition
+   → Solid fills must be bound to a token variable (skip gradient/image fills)
+
 ### Scan scope:
 - All children of the Templates section
 - All children of the Sections section
@@ -95,6 +106,14 @@ Present findings:
 | ... | ... | ... | ... |
 
 ### Clean: {N} components with all instances correct
+
+### Text Style Violations: {N}
+| Location | Text | Font Size | Node ID |
+|----------|------|-----------|---------|
+
+### Unbound Fill Violations: {N}
+| Location | Text | Node ID |
+|----------|------|---------|
 ```
 
 ---
