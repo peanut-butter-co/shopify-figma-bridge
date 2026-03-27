@@ -271,6 +271,7 @@ After creating EACH style guide frame:
 - `use_figma` rejects `"HUG"` for `primaryAxisSizingMode` — use `"AUTO"`
 - Paint `color` objects don't accept `a` (alpha) via `use_figma` — use `opacity` on the paint
 - Text nodes in auto-layout: set `layoutSizingHorizontal = "FILL"` + `textAutoResize = "HEIGHT"` after appending
+- **Never call `resize()` on auto-layout frames.** `resize()` forces a fixed dimension that overrides `primaryAxisSizingMode = "AUTO"`, causing children to clip instead of the frame growing to fit. If you need a fixed width, set `counterAxisSizingMode = "FIXED"` and only resize the counter axis BEFORE adding children. The primary axis must always be `"AUTO"` with no `resize` call.
 
 ---
 
