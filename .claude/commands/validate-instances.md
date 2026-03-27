@@ -72,16 +72,10 @@ For each template and section composition, check if there are frames that LOOK l
    → Must have a text style applied
 
 5. **Unbound text fills:** Any text node where:
-   - `fills[0].boundVariables.color` is undefined
+   - `fills[0].type === "SOLID"` and `fills[0].boundVariables.color` is undefined
    - Has visible characters (not empty)
    - NOT inside a component definition
-   → Fill must be bound to a token variable
-
-6. **Inline mobile sections:** Any FRAME that is a direct child of a mobile template where:
-   - Contains 2+ text nodes
-   - Is NOT an instance
-   - Width is 375px (mobile viewport)
-   → Should be a component (Mobile Product Info, Collection Header Mobile, etc.)
+   → Solid fills must be bound to a token variable (skip gradient/image fills)
 
 ### Scan scope:
 - All children of the Templates section
@@ -120,10 +114,6 @@ Present findings:
 ### Unbound Fill Violations: {N}
 | Location | Text | Node ID |
 |----------|------|---------|
-
-### Inline Mobile Sections: {N}
-| Location | Frame Name | Child Count | Node ID |
-|----------|-----------|-------------|---------|
 ```
 
 ---

@@ -484,33 +484,6 @@ This makes it easy for designers to compare desktop and mobile side by side.
 **Naming:** Desktop = "Header", Mobile = "Header / Mobile"
 **Spacing:** 40px gap between desktop and mobile variants
 
-### Mobile Section Components
-
-**Every visually distinct section in a mobile template MUST be its own component.** Never build mobile template content as inline frames.
-
-For each desktop section component, create a corresponding mobile variant:
-
-**Pattern: Viewport variants on the same component set**
-```
-Collection Header (COMPONENT_SET)
-├── Viewport=Desktop (1440px, H2, 48px padding)
-└── Viewport=Mobile (375px, H3, 24px padding)
-```
-
-**Required mobile viewport variants:**
-- Collection Header (Desktop/Mobile)
-- Blog Header (Desktop/Mobile)
-- 404 Content (Desktop/Mobile)
-- Article Hero (Desktop/Mobile)
-- Page Header (Desktop/Mobile)
-- Search Header (Desktop/Mobile)
-
-**Mobile-only components (no desktop equivalent):**
-- Mobile Product Info (PDP product details at mobile sizing)
-- Mobile Hero (hero section at 375px)
-- Mobile Media Section
-- Mobile Collection List
-
 ### Text Style Enforcement
 
 **EVERY text node must have:**

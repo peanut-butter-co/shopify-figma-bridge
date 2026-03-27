@@ -53,7 +53,13 @@ Each skill reads from and writes to a shared manifest (`.claude/figma-sync/manif
 ## Pipeline
 
 ```
-/setup → /analyze-theme → /build-foundations → /propose-components → /build-components → /compose-page
+/setup → /analyze-theme → /build-foundations → /propose-components → /build-components → /compose-page → /build-design-rules
+```
+
+Or run the entire pipeline at once:
+
+```
+/build-design-system [template]    → runs all phases in sequence, resuming from last checkpoint
 ```
 
 - `/setup` runs once — configures environment
@@ -62,6 +68,7 @@ Each skill reads from and writes to a shared manifest (`.claude/figma-sync/manif
 - `/propose-components` scans all sections/blocks and proposes what to build (two phases: select components, then propose variants)
 - `/build-components` captures reference from the live store and builds atoms, blocks, sections
 - `/compose-page <template>` assembles a page composition (e.g., homepage, product page)
+- `/build-design-rules` generates a rules file mapping Figma components to theme code
 
 ## Theme profiles
 
@@ -81,4 +88,8 @@ See [docs/architecture.md](docs/architecture.md) for the full design rationale, 
 | `/propose-components` | Propose component inventory + variants |
 | `/build-components` | Build atoms, blocks, sections in Figma |
 | `/compose-page` | Assemble page compositions from built components |
+| `/build-design-rules` | Generate rules file mapping Figma components to theme code |
+| `/build-design-system` | Run the full pipeline end-to-end (resumes from last checkpoint) |
 | `/sync-colors` | Bidirectional color sync between Figma and Shopify |
+| `/validate-instances` | Audit Figma file for instance compliance |
+| `/refresh-figma-practices` | Research latest Figma best practices and propose cheatsheet updates |
