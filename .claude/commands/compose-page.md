@@ -120,6 +120,18 @@ heroInstance.layoutSizingHorizontal = "FILL";
 
 **NEVER build inline frames in templates.** If a section component doesn't exist, build it first in `/build-components`, then instance it here.
 
+### Text Audit After Composition
+
+After composing each template, run a quick audit:
+```javascript
+const texts = templateFrame.findAll(n => n.type === "TEXT");
+for (const t of texts) {
+  if (!t.textStyleId) console.warn("UNSTYLED:", t.characters);
+  if (!t.fills[0]?.boundVariables?.color) console.warn("UNBOUND:", t.characters);
+}
+```
+Log warnings but don't stop — fix them before moving to the next template.
+
 ---
 
 ## Step 3: Desktop Composition

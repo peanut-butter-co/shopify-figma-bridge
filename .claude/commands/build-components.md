@@ -484,6 +484,32 @@ This makes it easy for designers to compare desktop and mobile side by side.
 **Naming:** Desktop = "Header", Mobile = "Header / Mobile"
 **Spacing:** 40px gap between desktop and mobile variants
 
+### Text Style Enforcement
+
+**EVERY text node must have:**
+1. A `textStyleId` set to one of the 50 local text styles
+2. A fill bound to a token variable via `setBoundVariableForPaint`
+
+**No exceptions.** If a text node is created without both of these, it's a violation.
+
+Before creating ANY text node:
+```javascript
+// Load font first
+await figma.loadFontAsync(style.fontName);
+// Create text
+const text = figma.createText();
+text.characters = "My Text";
+// Apply text style
+text.textStyleId = style.id;
+// Bind fill to token
+text.fills = [figma.variables.setBoundVariableForPaint(basePaint, "color", tokenVar)];
+```
+
+**Use Mobile text styles for mobile components:**
+- Heading/H3/Mobile (not H3/Desktop) for mobile headings
+- Body/Paragraph/Mobile for mobile body text
+- Subheading/H6/Mobile for mobile labels
+
 ### For each section:
 
 1. Use the mobile reference screenshots and measurements
