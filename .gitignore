@@ -12,10 +12,7 @@
 !install.sh
 !LICENSE
 
-# Skills (commands — legacy, kept until skills verified)
 !.claude/
-!.claude/commands/
-!.claude/commands/*.md
 !.claude/figma-best-practices.md
 
 # Skills (new skills directory)

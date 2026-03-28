@@ -6,7 +6,6 @@ builds Figma design systems, and enables design-to-code workflows.
 ## Architecture
 
 - Skills: `.claude/skills/` — pipeline phases and design tools
-- Commands: `.claude/commands/` — legacy (migrating to skills)
 - State: `.claude/figma-sync/manifest.json` — single source of truth
 - Profiles: `.claude/figma-sync/theme-profiles/` — theme knowledge
 - Practices: `.claude/figma-best-practices.md` — Figma engineering ref
