@@ -77,6 +77,12 @@ For each template and section composition, check if there are frames that LOOK l
    - NOT inside a component definition
    → Solid fills must be bound to a token variable (skip gradient/image fills)
 
+6. **Inline mobile sections:** Any FRAME that is a direct child of a mobile template where:
+   - Contains 2+ text nodes
+   - Is NOT an instance
+   - Width is 375px (mobile viewport)
+   → Should be a component (Mobile Product Info, Collection Header Mobile, etc.)
+
 ### Scan scope:
 - All children of the Templates section
 - All children of the Sections section
@@ -114,6 +120,10 @@ Present findings:
 ### Unbound Fill Violations: {N}
 | Location | Text | Node ID |
 |----------|------|---------|
+
+### Inline Mobile Sections: {N}
+| Location | Frame Name | Child Count | Node ID |
+|----------|-----------|-------------|---------|
 ```
 
 ---
