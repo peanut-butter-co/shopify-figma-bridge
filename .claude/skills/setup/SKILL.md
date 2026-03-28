@@ -1,6 +1,15 @@
 ---
-description: Configure the design system pipeline (store URL, Figma file, viewports)
+name: setup
+description: >
+  Use when: configuring a new Shopify-to-Figma pipeline, setting store URL, Figma file, or viewports
+user-invocable: true
+context: inline
+allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, mcp__figma__get_metadata, mcp__chrome-devtools__navigate_page, mcp__chrome-devtools__take_screenshot, mcp__chrome-devtools__fill, mcp__chrome-devtools__click, Read, Write, Glob, Grep]
 ---
+
+```sh
+!cat .claude/skills/setup/gotchas.md 2>/dev/null || echo "No gotchas yet."
+```
 
 # Design System Setup
 
@@ -12,7 +21,7 @@ You are configuring the environment for the Shopify-to-Figma design system pipel
 
 ## Step 1: Reference Store URL and Figma File
 
-**Do NOT use `AskUserQuestion` for this step.** Simply ask the user in plain text to provide two things:
+Ask the user in plain text to provide two things:
 
 1. The URL of their Shopify store (e.g., `https://my-store.myshopify.com` or `http://localhost:9292`)
 2. The Figma file URL or file key where the design system will be built (e.g., `https://www.figma.com/design/ABC123/My-File`)
@@ -77,12 +86,12 @@ Here's the proposed configuration:
 | Mobile variant naming| {name} / Mobile                |
 ```
 
-**Ask the user to confirm using `AskUserQuestion`** with these options:
+Ask the user to confirm:
 
 - **"Accept defaults" (Recommended)** — Use all values as shown
 - **"Adjust values"** — Let me change specific settings
 
-If they choose "Adjust values", ask which settings they want to change and use their new values.
+If they choose to adjust, ask which settings they want to change and use their new values.
 
 ---
 
@@ -141,7 +150,7 @@ Next step: Run /analyze-theme to extract design tokens.
 
 If `.claude/figma-sync/manifest.json` already exists when this skill runs:
 1. Read it and show the current configuration to the user
-2. **Ask the user using `AskUserQuestion`** with these options:
+2. Ask the user with these options:
    - **"Update specific values"** — Change only what I need, keep everything else
    - **"Reconfigure from scratch"** — Start fresh (clears extracted foundations and component inventory)
 3. If updating: only change the values the user specifies, preserve everything else (foundations, components, buildStatus)

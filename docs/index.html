@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopify Figma Bridge — Build design systems from any Shopify theme</title>
+  <meta name="description" content="Automatically extract design tokens from any Shopify theme and build a complete Figma design system. Bidirectional sync powered by Claude Code.">
+  <meta property="og:title" content="Shopify Figma Bridge">
+  <meta property="og:description" content="Build design systems from any Shopify theme. Automatically. Bidirectionally. With Claude Code.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://peanut-butter-co.github.io/shopify-figma-bridge/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Shopify Figma Bridge">
+  <meta name="twitter:description" content="Build design systems from any Shopify theme. Automatically. Bidirectionally. With Claude Code.">
+  <style>
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: local('Inter'), local('Inter-Regular'), url('https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: local('Inter Medium'), local('Inter-Medium'), url('https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fAZ9hiJ-Ek-_EeA.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 600;
+      font-display: swap;
+      src: local('Inter SemiBold'), local('Inter-SemiBold'), url('https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYAZ9hiJ-Ek-_EeA.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: local('Inter Bold'), local('Inter-Bold'), url('https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYAZ9hiJ-Ek-_EeA.woff2') format('woff2');
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: #000;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Dark hero */
+    .hero {
+      background: #333;
+      color: #fff;
+      padding: 120px 24px 80px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      opacity: 0.8;
+      max-width: 600px;
+      margin: 0 auto 32px;
+      line-height: 1.5;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-block;
+      padding: 14px 28px;
+      border-radius: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover {
+      opacity: 0.85;
+    }
+
+    .btn-primary {
+      background: #fff;
+      color: #000;
+    }
+
+    .btn-secondary {
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      color: #fff;
+    }
+
+    /* Content sections */
+    .section {
+      padding: 80px 24px;
+    }
+
+    .section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-alt {
+      background: #f5f5f5;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+
+    .section-subtitle {
+      font-size: 1.1rem;
+      color: rgba(0, 0, 0, 0.6);
+      margin-bottom: 48px;
+      max-width: 600px;
+    }
+
+    /* Steps */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      text-align: center;
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #000;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-weight: 700;
+      font-size: 1.125rem;
+    }
+
+    .step h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .step p {
+      color: rgba(0, 0, 0, 0.6);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* Cards grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .card {
+      padding: 32px;
+      border: 1px solid #e6e6e6;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      color: rgba(0, 0, 0, 0.6);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* Pipeline */
+    .pipeline-wrapper {
+      padding: 40px 0;
+    }
+
+    .pipeline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .pipeline-step {
+      background: #000;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .pipeline-arrow {
+      color: #999;
+      font-size: 14px;
+    }
+
+    .pipeline-label {
+      text-align: center;
+      color: rgba(0, 0, 0, 0.5);
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .pipeline-secondary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pipeline-secondary .pipeline-step {
+      background: #fff;
+      color: #000;
+      border: 1px solid #e6e6e6;
+    }
+
+    /* Code blocks */
+    pre {
+      background: #1a1a1a;
+      color: #e6e6e6;
+      padding: 24px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    code {
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    pre code {
+      color: inherit;
+    }
+
+    .code-comment {
+      color: #6a9955;
+    }
+
+    .code-command {
+      color: #dcdcaa;
+    }
+
+    .code-prompt {
+      color: #569cd6;
+    }
+
+    /* Requirements list */
+    .requirements-list {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .requirements-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 1rem;
+    }
+
+    .requirements-list li::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #000;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 8px;
+    }
+
+    /* Table */
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #e6e6e6;
+    }
+
+    th {
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(0, 0, 0, 0.5);
+    }
+
+    td {
+      font-size: 0.95rem;
+    }
+
+    td:first-child {
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    td code {
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    /* Footer */
+    .footer {
+      padding: 40px 24px;
+      text-align: center;
+      border-top: 1px solid #e6e6e6;
+      color: rgba(0, 0, 0, 0.5);
+      font-size: 0.9rem;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links span {
+      color: rgba(0, 0, 0, 0.3);
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .hero {
+        padding: 80px 24px 60px;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1.1rem;
+      }
+
+      .section {
+        padding: 60px 24px;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pipeline {
+        gap: 6px;
+      }
+
+      .pipeline-step {
+        font-size: 12px;
+        padding: 6px 12px;
+      }
+
+      table {
+        font-size: 0.85rem;
+      }
+
+      th, td {
+        padding: 10px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <header class="hero">
+    <h1>Shopify &#8596; Figma Bridge</h1>
+    <p>Build design systems from any Shopify theme.<br>Automatically. Bidirectionally. With Claude Code.</p>
+    <div class="hero-buttons">
+      <a href="#quick-start" class="btn btn-primary">Get Started</a>
+      <a href="https://github.com/peanut-butter-co/shopify-figma-bridge" class="btn btn-secondary">GitHub</a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- How It Works -->
+    <section class="section">
+      <div class="section-inner">
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-subtitle">Three phases. One command to run them all.</p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <h3>Analyze</h3>
+            <p>Point at any Shopify theme. Tokens extracted automatically.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <h3>Build</h3>
+            <p>Variables, text styles, components created in Figma.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <h3>Design</h3>
+            <p>Compose pages from real components. Desktop + mobile.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section section-alt">
+      <div class="section-inner">
+        <h2 class="section-title">Features</h2>
+        <p class="section-subtitle">Everything you need to bridge the design-development gap.</p>
+        <div class="grid">
+          <div class="card">
+            <h3>Any Shopify Theme</h3>
+            <p>Works with Horizon, Dawn, Refresh, or any custom theme. Theme profiles accelerate known themes.</p>
+          </div>
+          <div class="card">
+            <h3>Token Extraction</h3>
+            <p>Colors, typography, spacing, radii -- extracted from settings_schema.json and settings_data.json automatically.</p>
+          </div>
+          <div class="card">
+            <h3>Variable Architecture</h3>
+            <p>Primitives to Tokens with color scheme modes. Changes cascade everywhere.</p>
+          </div>
+          <div class="card">
+            <h3>Component Library</h3>
+            <p>Atoms, blocks, sections -- all as Figma components with proper auto-layout and variable bindings.</p>
+          </div>
+          <div class="card">
+            <h3>Page Composition</h3>
+            <p>14 template types supported. Desktop + mobile paired. Built from real component instances.</p>
+          </div>
+          <div class="card">
+            <h3>Instance Enforcement</h3>
+            <p>Every sub-element is a component instance. Built-in audit catches violations.</p>
+          </div>
+          <div class="card">
+            <h3>Shopify Validation</h3>
+            <p>Schema-aware JSON validation catches range errors, dependency issues, and block type mismatches.</p>
+          </div>
+          <div class="card" style="opacity: 0.5;">
+            <h3>Brand Onboarding (coming soon)</h3>
+            <p>Brand guidelines to Primitives to all templates. New client setup in minutes, not days.</p>
+          </div>
+          <div class="card">
+            <h3>Bidirectional Sync</h3>
+            <p>Figma to Shopify and back. Design changes update template JSON. Code changes update Figma.</p>
+          </div>
+          <div class="card">
+            <h3>Self-Learning</h3>
+            <p>Gotchas files per skill. The system gets smarter with every build it completes.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pipeline -->
+    <section class="section">
+      <div class="section-inner">
+        <h2 class="section-title">Pipeline</h2>
+        <p class="section-subtitle">Skills run in sequence. Each phase builds on the last.</p>
+        <div class="pipeline-wrapper">
+          <div class="pipeline-label">Build pipeline</div>
+          <div class="pipeline">
+            <span class="pipeline-step">/setup</span>
+            <span class="pipeline-arrow">&rarr;</span>
+            <span class="pipeline-step">/analyze-theme</span>
+            <span class="pipeline-arrow">&rarr;</span>
+            <span class="pipeline-step">/build-foundations</span>
+            <span class="pipeline-arrow">&rarr;</span>
+            <span class="pipeline-step">/propose-components</span>
+            <span class="pipeline-arrow">&rarr;</span>
+            <span class="pipeline-step">/build-components</span>
+            <span class="pipeline-arrow">&rarr;</span>
+            <span class="pipeline-step">/compose-page</span>
+          </div>
+          <div class="pipeline-label" style="margin-top: 32px;">Maintenance &amp; design</div>
+          <div class="pipeline-secondary">
+            <span class="pipeline-step">/sync-colors</span>
+            <span class="pipeline-step">/validate-instances</span>
+            <span class="pipeline-step" style="opacity: 0.5; border-style: dashed;">/design (coming soon)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Start -->
+    <section id="quick-start" class="section section-alt">
+      <div class="section-inner">
+        <h2 class="section-title">Quick Start</h2>
+        <p class="section-subtitle">Up and running in three steps.</p>
+        <pre><code><span class="code-comment"># Install</span>
+<span class="code-command">curl -sfL https://raw.githubusercontent.com/peanut-butter-co/shopify-figma-bridge/main/install.sh | bash</span>
+
+<span class="code-comment"># Configure</span>
+<span class="code-command">claude</span>
+<span class="code-prompt">&gt; /setup</span>
+
+<span class="code-comment"># Build everything</span>
+<span class="code-prompt">&gt; /build-design-system</span></code></pre>
+      </div>
+    </section>
+
+    <!-- Requirements -->
+    <section class="section">
+      <div class="section-inner">
+        <h2 class="section-title">Requirements</h2>
+        <p class="section-subtitle">What you need to get started.</p>
+        <ul class="requirements-list">
+          <li>Claude Code CLI</li>
+          <li>Shopify theme codebase</li>
+          <li>Figma file + Figma MCP server</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Skills Reference -->
+    <section class="section section-alt">
+      <div class="section-inner">
+        <h2 class="section-title">Skills Reference</h2>
+        <p class="section-subtitle">Every skill in the system, at a glance.</p>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Skill</th>
+                <th>Phase</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/setup</code></td>
+                <td>Configure</td>
+                <td>Store URL, Figma file, design widths</td>
+              </tr>
+              <tr>
+                <td><code>/analyze-theme</code></td>
+                <td>Extract</td>
+                <td>Design tokens from theme settings</td>
+              </tr>
+              <tr>
+                <td><code>/build-foundations</code></td>
+                <td>Build</td>
+                <td>Variables, text styles, style guide</td>
+              </tr>
+              <tr>
+                <td><code>/propose-components</code></td>
+                <td>Plan</td>
+                <td>Component inventory + variants</td>
+              </tr>
+              <tr>
+                <td><code>/build-components</code></td>
+                <td>Build</td>
+                <td>Atoms, blocks, sections in Figma</td>
+              </tr>
+              <tr>
+                <td><code>/compose-page</code></td>
+                <td>Compose</td>
+                <td>Page templates from component instances</td>
+              </tr>
+              <tr>
+                <td><code>/build-design-system</code></td>
+                <td>All</td>
+                <td>Full pipeline, one command</td>
+              </tr>
+              <tr>
+                <td><code>/build-design-rules</code></td>
+                <td>Document</td>
+                <td>Figma-to-code mapping rules</td>
+              </tr>
+              <tr>
+                <td><code>/sync-colors</code></td>
+                <td>Maintain</td>
+                <td>Bidirectional color sync</td>
+              </tr>
+              <tr>
+                <td><code>/validate-instances</code></td>
+                <td>Audit</td>
+                <td>Instance compliance check</td>
+              </tr>
+              <tr>
+                <td><code>/validate-shopify</code></td>
+                <td>Audit</td>
+                <td>Schema + JSON validation</td>
+              </tr>
+              <tr>
+                <td><code>/refresh-figma-practices</code></td>
+                <td>Update</td>
+                <td>Best practices cheatsheet</td>
+              </tr>
+              <tr style="opacity: 0.5;">
+                <td><code>/design</code></td>
+                <td>Create</td>
+                <td>Compose designs from the system (coming soon)</td>
+              </tr>
+              <tr>
+                <td><code>/learnings</code></td>
+                <td>Improve</td>
+                <td>Review and consolidate gotchas</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-links">
+      <span>Built by Peak Perspective Media + Peanut Butter Co.</span>
+      <span>|</span>
+      <span>Powered by Claude Code + Figma MCP</span>
+      <span>|</span>
+      <span>MIT License</span>
+    </div>
+  </footer>
+
+</body>
+</html>
