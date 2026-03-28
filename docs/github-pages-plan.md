@@ -150,7 +150,7 @@ claude
 ### Footer
 
 ```
-Built by Willa Creative + Peanut Butter Co.
+Built by Peak Perspective Media + Peanut Butter Co.
 Powered by Claude Code + Figma MCP
 MIT License
 ```
