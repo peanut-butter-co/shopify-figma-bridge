@@ -125,11 +125,13 @@ This is a Phase 1 task since it affects the component architecture before the de
 - [ ] Rewrite all descriptions as triggers
 - [ ] Split `build-components.md` into SKILL.md + reference files (it's the largest)
 - [ ] Create `gotchas.md` per skill, seeded from memory files
-- [ ] Add dynamic gotcha injection to each SKILL.md
+- [ ] Add gotcha lookup section to each SKILL.md (loaded on demand via explicit !cat, not auto-injected)
 - [ ] Create "Breakpoint" variable collection pattern doc
 - [ ] Convert Viewport variant components to variable-driven responsive
 - [ ] Test each skill still works via `/skill-name`
-- [ ] Remove old `.claude/commands/` directory
+- [ ] Rewrite all internal cross-references (build-design-system hardcodes command paths)
+- [ ] Create thin `.claude/commands/` wrappers that redirect to skills (don't delete commands until verified)
+- [ ] Run parity tests: same inputs produce same outputs for commands vs skills
 
 ---
 
@@ -198,13 +200,24 @@ builds Figma design systems, and enables design-to-code workflows.
 
 ### Self-Learning (`/learnings` skill)
 
+**Safety controls (Codex finding):** Auto-persisting corrections creates a prompt injection
+surface. Mitigations:
+
+1. **V1 is review-only** — `/learnings` reads gotchas but does NOT auto-persist into
+   active prompts. It presents suggestions, user explicitly approves each one.
+2. **Structured format** — gotchas stored as structured entries (date, skill, issue,
+   fix, approved_by), not freeform prompt text.
+3. **No automatic injection** — gotchas are loaded via `!cat` on demand, not injected
+   into system prompts by default.
+
 Each skill adds an "After Completion" section:
 ```markdown
 ## After Completion
 If the user corrected your approach:
 1. Read `.claude/skills/{this-skill}/gotchas.md`
-2. Append the correction with date and context
-3. Future executions will read this automatically
+2. PROPOSE the correction to the user — do not auto-append
+3. If user approves, append with date, context, and "approved" flag
+4. Only approved entries are eligible for explicit lookup in future executions
 ```
 
 The `/learnings` skill reviews all gotchas across skills, consolidates, and lets the user approve/reject.
@@ -216,7 +229,7 @@ The `/learnings` skill reviews all gotchas across skills, consolidates, and lets
 - [ ] Create `/learnings` skill
 - [ ] Add "After Completion" section to all skills
 - [ ] Test hooks don't interfere with workflows
-- [ ] Test learning cycle: correction → gotcha → next run uses it
+- [ ] Test learning cycle: correction → gotcha → next run can look up approved gotchas via explicit skill-time lookup
 
 ---
 
@@ -226,7 +239,7 @@ The `/learnings` skill reviews all gotchas across skills, consolidates, and lets
 
 Shopify template JSON (`templates/*.json`) and section schemas are strict. Common failures:
 - Setting value outside schema range (slider max exceeded)
-- Setting dependency violations (setting A requires setting B to be enabled)
+- `visible_if` expression warnings (v1 subset; full dependency evaluation in v2)
 - Block type not allowed in section
 - Block count exceeds `max_blocks`
 - Invalid `color_scheme` reference
@@ -243,7 +256,7 @@ name: validate-shopify
 description: >
   Use when: writing or modifying Shopify template JSON files,
   section schemas, or settings. Also use before any shopify theme push.
-  Catches schema violations, setting dependency issues, and range errors.
+  Catches schema violations, range/step errors, and visible_if subset warnings.
 user-invocable: true
 context: fork
 ---
@@ -253,8 +266,13 @@ context: fork
 
 **Template JSON validation:**
 ```
-1. Parse JSON — is it valid?
-2. For each section in "sections":
+0. Strip leading comment banners before parsing — Shopify JSON files often start
+   with comment lines (e.g., "/*" blocks in settings_data.json). Strip on read,
+   preserve and restore on write.
+1. Parse JSON — is it valid after stripping comments?
+2. Also validate sections/header-group.json and sections/footer-group.json
+   (these are separate template-like files for header/footer groups)
+3. For each section in "sections":
    a. Does the section type exist in sections/ directory?
    b. Read the section's {% schema %} block
    c. For each setting value:
@@ -264,8 +282,14 @@ context: fork
    d. For each block:
       - Is the block type in the section's allowed blocks list?
       - Block count <= max_blocks?
-3. Cross-reference: if setting A has "condition" on setting B, verify B is set correctly
-4. Color scheme references: do they exist in settings_data.json?
+   e. Preserve generated IDs, block_order, static flags, and unknown keys
+      — never strip or rewrite keys the validator doesn't understand
+4. Setting dependencies: the theme uses `visible_if` expressions (Liquid-like
+   with and/or precedence), NOT simple `condition` fields. V1: limit to
+   documented subset of visible_if patterns, report unsupported expressions
+   as warnings (not errors). Full evaluator deferred to v2.
+5. Color scheme references: do they exist in settings_data.json? Support
+   both scheme-N keys and UUID keys (scheme-a90ef358-...).
 ```
 
 **Section schema validation:**
@@ -279,24 +303,34 @@ context: fork
 
 **Settings data validation:**
 ```
-1. Every color_scheme referenced by templates exists
-2. Font values decode correctly (family_style format)
+1. Every color_scheme referenced by templates exists (support UUID keys)
+2. Font values decode correctly (family_style format: inter_n4 = Inter Normal 400)
 3. No orphaned settings (defined in data but not in schema)
+4. Strip/preserve comment banners on read/write
+```
+
+**Write safety (all Shopify JSON writes):**
+```
+1. Backup original file before any write (cp to .bak with timestamp)
+2. Patch-based writes — only modify the fields being changed, preserve everything else
+3. Preserve generated IDs, block_order, static flags, and unknown keys
+4. Show diff preview before writing — require user approval
+5. Run /validate-shopify on the result before finalizing
 ```
 
 ### Integration with Design Agent
 
-When the Design Agent modifies a template JSON (Phase 4), it runs `/validate-shopify` before writing. Failed validation blocks the write and shows the specific error.
+When any skill writes Shopify JSON files (e.g., `/sync-colors` writing `settings_data.json`), it runs `/validate-shopify` before finalizing. Failed validation blocks the write and shows the specific error. In v2, this also covers Design Agent template JSON writes.
 
 ### Tasks
 
 - [ ] Create `/validate-shopify` skill
 - [ ] Build schema parser (reads `{% schema %}` from .liquid files)
 - [ ] Implement range/step validation
-- [ ] Implement setting dependency checking
+- [ ] Implement visible_if subset validation (warning-only for unsupported expressions)
 - [ ] Implement block type/count validation
 - [ ] Implement cross-file reference validation
-- [ ] Add validation hook to template writes
+- [ ] Add validation + backup + diff to all Shopify JSON writes (templates, settings_data, group JSON)
 - [ ] Test against Evil Horizon's actual templates
 - [ ] Document common Shopify schema gotchas
 
@@ -306,7 +340,7 @@ When the Design Agent modifies a template JSON (Phase 4), it runs `/validate-sho
 
 ### The vision
 
-A design agent that operates the built design system — not generating designs from scratch, but composing from real components and keeping Figma ↔ Shopify in sync.
+A design agent that operates the built design system — not generating designs from scratch, but composing from real components and building Figma compositions from Shopify templates.
 
 ### The agent
 
@@ -351,12 +385,17 @@ Agent builds: Figma frame with Hero instance + Product List instance + Footer in
   → Each section's settings reflected in component properties
 ```
 
-**2. Bidirectional sync**
+**2. Sync (v1: Shopify → Figma only)**
 
-Figma → Shopify:
-- Designer rearranges sections in Figma
-- Agent reads new order, updates template JSON
-- Validates via `/validate-shopify` before writing
+V1 is one-way: Shopify → Figma. Template JSON has nested blocks, `block_order`,
+`static` flags, generated section IDs, and separate group JSON files
+(`header-group.json`, `footer-group.json`). Writing back to these without a stable
+mapping layer from Figma node IDs to Shopify section/block IDs risks data loss.
+
+**V1:** Shopify → Figma only (read template JSON, build/update Figma composition).
+**V2 (future):** Figma → Shopify requires: stable ID mapping layer, non-destructive
+patching (never rewrite the full file), diff preview before write, automatic
+backup of the original file.
 
 Shopify → Figma:
 - Developer changes template JSON
@@ -388,8 +427,11 @@ Step 4: Build templates
   - Take screenshots for review
   ↓
 Step 5: Generate Shopify settings
-  - Write settings_data.json with brand colors/fonts
-  - Validate all templates against schemas
+  - BACKUP settings_data.json before any write (cp to .bak with timestamp)
+  - Patch-based write — only modify color/font fields, preserve all other settings
+  - Show diff preview before writing — user must approve
+  - Validate all templates against schemas via /validate-shopify
+  - Restrict brand URL ingestion to user-provided https:// URLs only
   ↓
 Output: Complete Figma file + Shopify settings, ready for content
 ```
@@ -411,7 +453,8 @@ The `/design` skill's reference docs catalog every operation:
 ```markdown
 ## Section Operations
 - Add section: create instance, insert at position in template frame
-- Remove section: remove instance, update template JSON
+- Remove section: remove instance from Figma frame
+- (v2 future) Remove section: update template JSON to match Figma changes
 - Reorder: change child order in auto-layout
 - Swap type: remove old instance, add new (hero → slideshow)
 
@@ -465,7 +508,7 @@ The agent maps each section type → Figma component, each setting → component
 - [ ] Create `.claude/skills/design/SKILL.md`
 - [ ] Build design operations reference from manifest + existing components
 - [ ] Implement template JSON → Figma composition
-- [ ] Implement Figma → template JSON sync
+- [ ] **v2 (future):** Implement Figma → template JSON sync (requires stable ID mapping layer)
 - [ ] Build brand onboarding workflow (PDF/URL → brand MD → Primitives)
 - [ ] Create brand MD template format
 - [ ] Implement color scheme generation from brand palette
@@ -481,7 +524,7 @@ The agent maps each section type → Figma component, each setting → component
 1. **Responsive components** — Hybrid approach proposed: breakpoint variables for shared-structure components, Viewport variants for structurally different ones. **Awaiting Pablo's input on the split list.**
 2. **Design agent scope** — Our position: layout-only to start. Content generation as future add-on.
 3. **Brand onboarding format** — Our position: structured `brand-brief.md` template + optional URL scraping.
-4. **Shopify validation depth** — Our position: structural AND semantic (range/step math, setting dependencies).
+4. **Shopify validation depth** — Our position: structural (valid JSON, correct types, ranges, step math) plus `visible_if` subset validation with warning-only fallback for unsupported expressions. Full dependency evaluation deferred to v2.
 5. **Sync direction** — Our position: manual with diff preview. Auto-sync too risky.
 
 ---
@@ -496,7 +539,7 @@ These items have no dependencies on open questions:
 - Rewrite descriptions as triggers
 - Split large files, extract reference material
 - Create gotchas.md per skill
-- Add dynamic gotcha injection
+- Add gotcha lookup section to each SKILL.md (on-demand, not auto-injected)
 - Test each skill
 
 **Responsive component conversion deferred** until Pablo confirms the split list.
