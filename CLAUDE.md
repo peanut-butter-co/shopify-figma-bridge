@@ -18,7 +18,7 @@ builds Figma design systems, and enables design-to-code workflows.
 - NEVER skip a pipeline phase — each depends on the previous
 - EVERY text node must have a textStyleId AND a variable-bound fill
 - ALL Shopify JSON writes require backup + diff preview + user approval
-- v1 sync is Shopify → Figma only — Figma → Shopify writes deferred to v2
+- Sync is bidirectional — Figma ↔ Shopify in both directions
 
 ## Pipeline
 

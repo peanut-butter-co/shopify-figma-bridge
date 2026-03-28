@@ -385,22 +385,21 @@ Agent builds: Figma frame with Hero instance + Product List instance + Footer in
   → Each section's settings reflected in component properties
 ```
 
-**2. Sync (v1: Shopify → Figma only)**
+**2. Bidirectional Sync (Figma ↔ Shopify)**
 
-V1 is one-way: Shopify → Figma. Template JSON has nested blocks, `block_order`,
-`static` flags, generated section IDs, and separate group JSON files
-(`header-group.json`, `footer-group.json`). Writing back to these without a stable
-mapping layer from Figma node IDs to Shopify section/block IDs risks data loss.
+Sync works in both directions — the bridge is bidirectional by design.
 
-**V1:** Shopify → Figma only (read template JSON, build/update Figma composition).
-**V2 (future):** Figma → Shopify requires: stable ID mapping layer, non-destructive
-patching (never rewrite the full file), diff preview before write, automatic
-backup of the original file.
-
-Shopify → Figma:
+**Shopify → Figma:**
 - Developer changes template JSON
 - Agent reads changes, updates Figma composition to match
 - Takes screenshot for designer review
+
+**Figma → Shopify:**
+- Designer changes composition in Figma
+- Agent reads Figma state, patches template JSON to match
+- Requires: stable ID mapping layer, non-destructive patching (never rewrite
+  the full file), diff preview before write, automatic backup of the original file
+- All Shopify JSON writes require backup + patch + diff + user approval
 
 **3. Brand onboarding workflow**
 
