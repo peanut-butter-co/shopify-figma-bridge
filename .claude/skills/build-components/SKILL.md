@@ -1,0 +1,244 @@
+---
+name: build-components
+description: >
+  Use when: constructing atoms, blocks, or sections in Figma
+user-invocable: true
+context: fork
+allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, Glob, Grep]
+---
+
+```sh
+!cat .claude/skills/build-components/gotchas.md 2>/dev/null || echo "No gotchas yet."
+```
+
+# Build Components
+
+You are building the confirmed component inventory in Figma: atoms, blocks, and sections. This skill combines reference capture from the live store with Figma construction and validation.
+
+**Manifest path:** `.claude/figma-sync/manifest.json`
+**Phase:** `$ARGUMENTS` — one of `atoms`, `blocks`, `sections-desktop`, `sections-mobile`, or `all` (default)
+
+**Methods:**
+- **Figma MCP** (`use_figma` + `get_screenshot`) — all Figma creation and validation
+- **Chrome DevTools MCP** — reference capture only (store navigation, DOM measurements, store screenshots)
+
+**References:**
+- `.claude/figma-best-practices.md` — Figma design engineering patterns
+- `.claude/figma-sync/theme-profiles/{slug}.json` — Theme-specific knowledge (if `theme.hasProfile === true`)
+
+---
+
+## Pre-flight
+
+1. Read `.claude/figma-sync/manifest.json`
+2. Verify `components.status === "confirmed"`. If not → "Run `/propose-components` first."
+3. Verify `buildStatus.foundations === "complete"`. If not → "Run `/build-foundations` first."
+4. **Verify required MCP tools are available:**
+   - **Figma MCP** (`use_figma`, `get_screenshot`) — required for all phases
+   - **Chrome DevTools MCP** (`navigate_page`, `evaluate_script`, `take_screenshot`, `resize_page`) — required for reference capture
+   - If any required MCP tool is missing → **STOP immediately**. Do NOT proceed without it.
+5. Read `config.storeUrl`, `config.storePassword`, `config.figmaFileKey`, `config.desktopWidth`, `config.mobileWidth`
+6. Determine which phase to run based on `$ARGUMENTS`:
+   - `all` → run atoms → blocks → sections-desktop → sections-mobile in sequence
+   - Specific phase → run only that phase
+7. Check `buildStatus` for already-completed phases. Warn if re-running a completed phase.
+8. **Practices version check:** Read the `Version` date from `.claude/figma-best-practices.md`. Compare with `buildMeta.practicesVersion` in the manifest. If newer → warn about potential inconsistencies.
+
+---
+
+## Reference Capture
+
+Before building any visual components, capture reference data from the live store. See `.claude/skills/build-components/reference/reference-capture.md` for the full procedure including desktop/mobile capture, DOM measurements, and grid analysis.
+
+---
+
+## CRITICAL: Instance-Only Architecture
+
+**This is the #1 rule for the entire build process.**
+
+Every sub-element that exists as a component MUST be created as an instance, never as an inline frame:
+
+1. **Build atoms FIRST.** Before building any block or section, ALL confirmed atoms must exist.
+2. **Blocks instance atoms.** Never recreate them as inline frames.
+3. **Sections instance blocks and atoms.** Never build inline cards.
+4. **Templates instance sections.**
+
+**How to instance in use_figma:**
+```javascript
+const comp = page.findOne(n => n.name === "Button" && n.type === "COMPONENT_SET");
+const variant = comp.children.find(c => c.name.includes("Primary"));
+const instance = variant.createInstance();
+parent.appendChild(instance);
+instance.layoutSizingHorizontal = "FILL"; // AFTER appendChild
+```
+
+See `.claude/skills/build-components/reference/instance-lookup.md` for the full instance lookup table mapping UI patterns to their atom components.
+
+---
+
+## Phase: Atoms
+
+Build all atoms from `components.atoms` on the Atoms page.
+
+### For each atom:
+
+1. **Read the relevant code** — search for the atom's HTML/CSS in snippets, blocks, or section files
+2. **Build in Figma** using `use_figma`:
+   - Use ONLY Color Schemas variables for all fills, strokes, text colors
+   - Use Spacing & Layout variables for padding and radii
+   - Bind font sizes to Typography variables
+   - Apply text styles where appropriate
+3. **Component Sets** for atoms with variants: create a Component Set with each variant named following Figma convention: `Style=Primary, State=Default`
+
+### Design rules for atoms:
+- **Buttons:** Use captured measurements. Bind fills to `Primary Button/*` or `Secondary Button/*` variables.
+- **Inputs:** Bind to `Inputs/*` variables. Use `radius/input`.
+- **Badges:** Use color schemes from settings.
+- **Dividers:** Simple line, stroke bound to `Essential/Outline`.
+- **Icons:** See `.claude/skills/build-components/reference/icon-library.md` for the full icon discovery, SVG cleanup, and Figma build procedure.
+
+### After all atoms: Validate
+
+For EACH atom component individually:
+
+**A. Visual validation** — screenshot each component at 100%+ zoom. Compare against store reference.
+
+**B. Programmatic integrity check** — run via `use_figma` on each component. Check for invisible text, broken fills, unbound colors. See `.claude/skills/build-components/reference/validation.md` for the full checklist.
+
+Update `buildStatus.atoms = "complete"` in manifest.
+
+---
+
+## Phase: Blocks
+
+Build all blocks from `components.blocks` on the Blocks page.
+
+### For each block:
+
+1. **Read source block files** listed in `sourceBlocks`
+2. **Use captured measurements** for dimensions, proportions, spacing
+3. **Build in Figma** following the HTML structure — translate HTML hierarchy to Figma frame hierarchy
+
+### Design rules for blocks:
+- **Cards with images:** See `.claude/skills/build-components/reference/validation.md` for the image placeholder pattern with `constrainProportions = true`.
+- **Text nodes in auto-layout:** Always set `layoutSizingHorizontal = "FILL"` and `textAutoResize = "HEIGHT"` after appending.
+- **Use atom instances** where applicable.
+- **Use icon instances** from the Icons container on the Atoms page.
+
+### After all blocks: Validate
+
+Same process as atoms — BOTH visual (A) and programmatic (B) checks on each block individually.
+
+Update `buildStatus.blocks = "complete"` in manifest.
+
+---
+
+## Phase: Sections Desktop
+
+Build all sections from `components.sections` on the Sections page, desktop variants only.
+
+### General rules:
+- **Width:** `config.desktopWidth`
+- **Background:** Bind to `Essential/Background` variable — NEVER hardcode colors
+- **Color scheme:** Use `setExplicitVariableModeForCollection` for the correct mode
+- **Component description:** Set to `Type: Section, Schema: {name}, File: {file}`
+
+### For each section:
+1. **Read `sections/{type}.liquid`** for HTML structure and settings
+2. **Read template JSON** for actual settings and block instances
+3. **Build the frame hierarchy** matching HTML/CSS structure
+4. **Instantiate blocks and atoms** where they exist as components
+5. **Create as Component** (or Component Set if variants exist)
+
+### Grid layouts:
+```javascript
+grid.layoutMode = "GRID";
+grid.gridColumnCount = N;
+grid.gridColumnSizes = Array(N).fill({ type: "FLEX", value: 1 });
+grid.gridRowSizes = Array(Math.ceil(items / N)).fill({ type: "HUG" });
+grid.gridColumnGap = columnGap;
+grid.gridRowGap = rowGap;
+```
+
+**Fallback** if Grid mode issues: `layoutWrap = "WRAP"` with fixed-width children. **NEVER** use `layoutGrow = 1` or `layoutSizingHorizontal = "FILL"` on wrap children.
+
+### Section variants:
+If the section has `variants` defined in the manifest, build it as a **Component Set** with all variant combinations. See the variant building procedure in the original instructions. Do NOT skip variants.
+
+### After all desktop sections: Validate
+Visual validation + variant completeness check. Update `buildStatus["sections-desktop"] = "complete"`.
+
+---
+
+## Phase: Sections Mobile
+
+For each desktop section, create a mobile variant on the same Sections page.
+
+### General rules:
+- **Width:** `config.mobileWidth`
+- **Naming:** Follow `config.mobileNaming` pattern (default: `{name} / Mobile`)
+- **Grid changes:** Read theme's mobile column settings (typically 2 columns on mobile for product grids)
+- **Padding:** Use mobile measurements from reference capture
+- **Mobile Component Placement:** Mobile components go NEXT TO their desktop counterpart, not separate. 40px gap.
+
+### Text Style Enforcement
+
+**EVERY text node must have:**
+1. A `textStyleId` set to one of the local text styles
+2. A fill bound to a token variable via `setBoundVariableForPaint`
+
+**No exceptions.** Use Mobile text styles for mobile components (e.g., `Heading/H3/Mobile`).
+
+### After all mobile sections: Validate
+Screenshot each section at mobile width. Update `buildStatus["sections-mobile"] = "complete"`.
+
+---
+
+## Upstream Error Protocol
+
+See `.claude/skills/build-components/reference/upstream-errors.md` for the full protocol on diagnosing and handling upstream vs local errors.
+
+Key rule: **STOP building components** if you find a systemic upstream error. Do NOT apply local workarounds.
+
+---
+
+## Important Reminders
+
+See `.claude/skills/build-components/reference/figma-api-gotchas.md` for all Figma Plugin API gotchas and the `use_figma` MCP validation layer quirks.
+
+### Visual Validation Checklist
+
+After building EACH component:
+1. **Screenshot:** `get_screenshot` of the component
+2. **Overlap check:** No overlapping or stacked components
+3. **Instance check:** All sub-elements appear as purple-linked instances
+4. **Token check:** All colors come from variables (no hardcoded hex)
+5. **Text style check:** All text uses a local text style
+6. **Layout check:** Auto-layout working, no clipped text, proper spacing
+
+**Do NOT move to the next component until the current one passes all 6 checks.**
+
+### Validation discipline:
+- NEVER validate at zoomed-out scale — always 100%+ zoom
+- NEVER say "looking good" without actually taking a screenshot and inspecting
+- Screenshot EACH component individually, not the whole page at once
+- If the store is inaccessible at any point → STOP and ask user
+
+---
+
+## Summary
+
+After completing all phases (or the requested phase):
+
+```
+Components built in Figma!
+
+Phase        Status
+-----        ------
+Atoms        {complete|skipped|N built}
+Blocks       {complete|skipped|N built}
+Sections DT  {complete|skipped|N built}
+Sections MB  {complete|skipped|N built}
+
+Next step: Run /compose-page {template} to assemble the page composition.
+```
