@@ -17,7 +17,7 @@ allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, 
 
 You are syncing color scheme data between the Figma file (via Figma MCP `use_figma` tool) and Shopify's `config/settings_data.json`.
 
-**Method:** Figma MCP (`use_figma` for reading/writing variables). Always pass `skillNames: "figma-use"` to every `use_figma` call.
+**Method:** Figma MCP (`use_figma` for reading/writing variables).
 
 **Manifest path:** `.claude/figma-sync/manifest.json`
 

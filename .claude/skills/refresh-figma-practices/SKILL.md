@@ -4,7 +4,7 @@ description: >
   Use when: updating the Figma best practices cheatsheet
 user-invocable: true
 context: inline
-allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, Glob, Grep]
+allowed-tools: [WebSearch, WebFetch, Read, Write, Glob, Grep]
 ---
 
 ```sh

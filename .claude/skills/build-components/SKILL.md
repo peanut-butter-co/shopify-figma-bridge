@@ -4,7 +4,7 @@ description: >
   Use when: constructing atoms, blocks, or sections in Figma
 user-invocable: true
 context: fork
-allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, Glob, Grep]
+allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, mcp__chrome-devtools__navigate_page, mcp__chrome-devtools__take_screenshot, mcp__chrome-devtools__evaluate_script, mcp__chrome-devtools__resize_page, Read, Write, Glob, Grep]
 ---
 
 ```sh

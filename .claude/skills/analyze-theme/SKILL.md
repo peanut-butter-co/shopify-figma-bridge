@@ -3,8 +3,8 @@ name: analyze-theme
 description: >
   Use when: extracting design tokens from a Shopify theme, or when manifest has no foundations data
 user-invocable: true
-context: fork
-allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, Glob, Grep]
+context: inline
+allowed-tools: [Read, Write, Glob, Grep]
 ---
 
 ```sh

@@ -3,8 +3,8 @@ name: propose-components
 description: >
   Use when: planning which sections/blocks become Figma components
 user-invocable: true
-context: fork
-allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, Glob, Grep]
+context: inline
+allowed-tools: [Read, Write, Glob, Grep]
 ---
 
 ```sh

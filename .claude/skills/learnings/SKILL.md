@@ -17,18 +17,13 @@ You are reviewing and consolidating gotchas from recent design system work. This
 
 ## Step 1: Discover All Gotchas
 
-Read every `gotchas.md` file in the skills directory:
+Use Glob to find every `gotchas.md` file in the skills directory:
 
-```sh
-find .claude/skills -name "gotchas.md" -type f
+```
+Glob(".claude/skills/**/gotchas.md")
 ```
 
-Expected locations:
-- `.claude/skills/build-foundations/gotchas.md`
-- `.claude/skills/build-components/gotchas.md`
-- `.claude/skills/compose-page/gotchas.md`
-- `.claude/skills/propose-components/gotchas.md`
-- Any others that have been added
+This will discover all gotchas files across all skills, including any added after the initial setup.
 
 For each file, read the full contents and parse into individual gotcha entries.
 
