@@ -18,20 +18,9 @@ Known issues and lessons learned from building Figma components.
 ## Mobile Components
 
 - Mobile components go NEXT TO their desktop counterpart, not in a separate area. 40px gap between them.
-- Use Mobile text styles (`Heading/H3/Mobile`, not `Heading/H3`) for all text in mobile components.
+- Use Mobile text styles (`Heading/H3 / Mobile`, not `Heading/H3`) for all text in mobile components.
 - Grid changes: product grids typically go from 4 columns (desktop) to 2 columns (mobile). Always verify from the reference capture.
 
-## resize() Ordering
+## Figma API Gotchas
 
-- `resize()` overrides sizing modes. ALWAYS set sizing modes AFTER `resize()`, not before.
-- This is the #1 cause of "height is 1" bugs. If the component height is wrong, check this first.
-
-## Image Placeholders
-
-- Use `constrainProportions = true` on image placeholder frames. Without this, images stay fixed height even when the card shrinks for mobile.
-- Never use `layoutMode = "NONE"` for image placeholders — height collapses to 0 in auto-layout parents.
-
-## Child Sizing
-
-- `layoutSizingHorizontal` and `layoutSizingVertical` must be set AFTER `appendChild()`, not before.
-- `counterAxisSizingMode` only accepts `"FIXED"` or `"AUTO"` — never `"FILL"`.
+See `reference/figma-api-gotchas.md` for all Figma Plugin API gotchas including resize() ordering, child sizing, image placeholders, and paint binding.

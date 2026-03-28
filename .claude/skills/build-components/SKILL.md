@@ -187,7 +187,7 @@ For each desktop section, create a mobile variant on the same Sections page.
 1. A `textStyleId` set to one of the local text styles
 2. A fill bound to a token variable via `setBoundVariableForPaint`
 
-**No exceptions.** Use Mobile text styles for mobile components (e.g., `Heading/H3/Mobile`).
+**No exceptions.** Use Mobile text styles for mobile components (e.g., `Heading/H3 / Mobile`).
 
 ### After all mobile sections: Validate
 Screenshot each section at mobile width. Update `buildStatus["sections-mobile"] = "complete"`.

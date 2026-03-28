@@ -158,7 +158,7 @@ Same process as desktop but using mobile section variants. Apply the same color 
 ## Step 5: Arrange on Canvas
 
 - Desktop frame at position (0, 0)
-- Mobile frame at position (desktopWidth + 100, 0) — to the right with 100px gap
+- Mobile frame at position (desktopWidth + 40, 0) — to the right with 40px gap
 
 ---
 

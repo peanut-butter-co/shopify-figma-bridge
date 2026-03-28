@@ -8,6 +8,7 @@
 # Un-ignore the tooling
 !.gitignore
 !README.md
+!CLAUDE.md
 !install.sh
 !LICENSE
 

@@ -32,7 +32,7 @@ Don't rely on setting `id` names alone — they vary wildly between themes. Inst
 - Font/typography overrides — handled by text styles
 - Show/hide toggles (`checkbox` type) — minor visual impact
 - Content settings (text, images, URLs, video pickers)
-- Settings gated by `visible_if` — these are conditional sub-settings, not independent variants. However, the **parent setting they depend on** may itself be a variant.
+- Settings gated by `condition` — these are conditional sub-settings, not independent variants. However, the **parent setting they depend on** may itself be a variant.
 
 ## Variable properties (not variants — controlled via Figma variable modes)
 

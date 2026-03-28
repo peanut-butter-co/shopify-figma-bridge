@@ -7,10 +7,6 @@ context: fork
 allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, mcp__figma__get_metadata, mcp__chrome-devtools__navigate_page, mcp__chrome-devtools__take_screenshot, mcp__chrome-devtools__evaluate_script, mcp__chrome-devtools__resize_page, mcp__chrome-devtools__fill, mcp__chrome-devtools__click, Read, Write, Glob, Grep]
 ---
 
-```sh
-!cat .claude/skills/build-design-system/gotchas.md 2>/dev/null || echo "No gotchas yet."
-```
-
 # Build Design System
 
 You are running the complete Shopify-to-Figma design system pipeline. This skill orchestrates the individual skills in sequence, checking progress and resuming from where the pipeline left off.

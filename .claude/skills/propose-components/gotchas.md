@@ -16,5 +16,5 @@ Known issues and lessons learned from proposing component inventories.
 ## Variant Over-Specification
 
 - Do NOT make `color_scheme` a variant. It is applied via Figma variable modes, not component variants.
-- Settings gated by `visible_if` are NOT independent variants — only the parent setting they depend on may be a variant.
+- Settings gated by `condition` are NOT independent variants — only the parent setting they depend on may be a variant.
 - Keep variant combinations manageable: 3x3 = 9 is fine, 5x5x3 = 75 is too many. Flatten or prioritize.
