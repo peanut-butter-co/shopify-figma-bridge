@@ -33,23 +33,29 @@ Move 11 commands from `.claude/commands/` to `.claude/skills/`. Each becomes a f
 ├── analyze-theme/
 │   ├── SKILL.md
 │   └── reference/
-│       ├── color-extraction-rules.md
-│       └── typography-mapping.md
+│       ├── profile-validation.md
+│       └── token-extraction.md
 ├── build-foundations/
 │   ├── SKILL.md
 │   ├── reference/
-│   │   ├── variable-structure.md
-│   │   └── text-style-rules.md
+│   │   ├── alpha-variants.md
+│   │   ├── color-schemas.md
+│   │   └── style-guide.md
 │   └── gotchas.md
 ├── propose-components/
 │   ├── SKILL.md
-│   └── reference/selection-criteria.md
+│   └── reference/
+│       ├── mandatory-atoms.md
+│       └── variant-analysis.md
 ├── build-components/
 │   ├── SKILL.md
 │   ├── reference/
-│   │   ├── atoms-guide.md
-│   │   ├── blocks-guide.md
-│   │   ├── sections-guide.md
+│   │   ├── figma-api-gotchas.md
+│   │   ├── icon-library.md
+│   │   ├── instance-lookup.md
+│   │   ├── reference-capture.md
+│   │   ├── upstream-errors.md
+│   │   └── validation.md
 │   │   └── instance-lookup-table.md
 │   └── gotchas.md
 ├── compose-page/SKILL.md

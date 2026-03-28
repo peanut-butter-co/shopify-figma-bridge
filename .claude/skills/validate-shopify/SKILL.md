@@ -199,6 +199,7 @@ For each block definition in the schema's `blocks` array:
 ```
 1. Read the block "type"
 2. If the type starts with "@app" or "@theme", skip (these are special Shopify types)
+3. Strip any namespace prefix (e.g., "shopify://blocks/foo" → "foo") before resolving
 3. Otherwise, look for: blocks/{type}.liquid OR blocks/_{type}.liquid
 4. ERROR if: neither file exists
 ```
