@@ -575,6 +575,7 @@ When a programmatic check flags an issue (e.g., invisible text, broken fill), in
 - ❌ `frame.primaryAxisSizingMode = "AUTO"; frame.resize(1440, 1);` → sizing mode reverts to FIXED
 - ✅ `frame.resize(1440, 1); frame.primaryAxisSizingMode = "AUTO";` → sizing mode sticks
 - This is the #1 cause of "height is 1" bugs. If the component height is wrong, check this first.
+- **Corollary:** Never call `resize()` on a frame whose primary axis should be `"AUTO"`. It forces a fixed dimension that clips children instead of growing to fit. Only use `resize()` for the counter axis (fixed width), never for the primary axis (content height).
 
 **`counterAxisSizingMode` only accepts `"FIXED"` | `"AUTO"` — never `"FILL"`:**
 - ❌ `content.counterAxisSizingMode = "FILL"` → throws validation error
