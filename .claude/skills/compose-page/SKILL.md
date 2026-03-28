@@ -70,6 +70,8 @@ Read the template files to get the exact section order:
 Build the complete ordered list: header sections → body sections → footer sections.
 Map each entry to the corresponding Figma component by matching the section `type` to `components.sections[].type`.
 
+4. If `.claude/figma-sync/design-rules.json` exists, read `componentMap` to cross-reference section types with their Figma component names (useful when template JSON type names don't match Figma component names exactly).
+
 ---
 
 ## Step 2: Create Page

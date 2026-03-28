@@ -63,7 +63,7 @@ Color Schemas collection (semantic aliases, multi-mode)
 
 ## Mappings
 
-**Note:** Figma variable group names may vary. Read the actual variable names from the Figma file first rather than forcing defaults.
+**Note:** Figma variable group names may vary. Read the actual variable names from the Figma file first rather than forcing defaults. If `.claude/figma-sync/design-rules.json` exists, read `tokenMap` to verify the Figma variable → CSS property mapping is current.
 
 | Figma Variable | Shopify Field |
 |---|---|

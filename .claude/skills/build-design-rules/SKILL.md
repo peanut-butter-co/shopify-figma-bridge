@@ -16,7 +16,7 @@ allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, 
 You are generating a design system rules file that maps every Figma component to its corresponding theme code file, documents token mappings, and establishes the Figma-to-code workflow.
 
 **Manifest path:** `.claude/figma-sync/manifest.json`
-**Output path:** `.claude/rules/figma-design-system.md`
+**Output path:** `.claude/figma-sync/design-rules.json`
 
 ---
 
@@ -89,27 +89,59 @@ Map Figma variables to CSS:
 
 ## Step 4: Generate Rules File
 
-Write `.claude/rules/figma-design-system.md` with:
+Write `.claude/figma-sync/design-rules.json` with this structure:
 
-### Part 1: Figma Library Building Rules
-- Variable collections (names, structure, modes)
-- Text styles (naming convention, role mapping)
-- Page organization (section fill, spacing, mobile placement)
-- Component patterns (instance-only, token bindings)
-- Instance lookup table
+```json
+{
+  "generatedAt": "2026-03-28T...",
+  "componentMap": {
+    "Hero Section": {
+      "file": "sections/hero.liquid",
+      "type": "section",
+      "variants": ["Overlay", "Split"]
+    },
+    "Product Card": {
+      "files": ["blocks/_product-card.liquid", "snippets/product-card.liquid"],
+      "type": "block"
+    },
+    "Button": {
+      "file": "snippets/button.liquid",
+      "type": "atom"
+    }
+  },
+  "tokenMap": {
+    "Essential/Background": "rgb(var(--color-background))",
+    "Essential/Heading": "rgb(var(--color-foreground-heading))",
+    "Essential/Text": "rgb(var(--color-foreground))",
+    "Primary Button/Background": "rgb(var(--color-primary-button-background))"
+  },
+  "textStyleMap": {
+    "Heading/H1": {
+      "family": "--font-heading--family",
+      "size": "--font-h1--size",
+      "weight": "--font-heading--weight"
+    },
+    "Text/Body": {
+      "family": "--font-body--family",
+      "size": "--font-body--size",
+      "weight": "--font-body--weight"
+    }
+  },
+  "spacingMap": {
+    "spacing/lg": "var(--padding-lg)",
+    "radius/buttons-primary": "var(--style-border-radius-buttons-primary)"
+  },
+  "collections": {
+    "Theme Colors": { "modes": 1, "type": "COLOR" },
+    "Grey Scale": { "modes": 1, "type": "COLOR" },
+    "Color Schemas": { "modes": 6, "type": "COLOR" },
+    "Typography": { "modes": 1, "type": "FLOAT" },
+    "Spacing & Layout": { "modes": 1, "type": "FLOAT" }
+  }
+}
+```
 
-### Part 2: Figma-to-Code Translation
-- Token mapping tables (Figma variable → CSS property)
-- Text style mapping (Figma style → CSS variables)
-- Component-to-file mapping (every Figma component → its .liquid file)
-- Required implementation flow
-- Styling rules (BEM, specificity, responsive breakpoints)
-- Asset handling rules
-
-### Part 3: Client Template Workflow
-- How to duplicate the file for a new client
-- What to change (Primitives, text style fonts)
-- What cascades automatically (Tokens, component instances)
+Populate each section from the Figma scan (Step 1) and manifest data (Step 3). The `componentMap` keys must match Figma component names exactly.
 
 ---
 
@@ -124,12 +156,11 @@ Set `buildStatus.designRules = "complete"` in the manifest.
 ```
 Design system rules generated!
 
-Output: .claude/rules/figma-design-system.md
+Output: .claude/figma-sync/design-rules.json
 
 Component mappings: {N} Figma components → code files
 Token mappings:     {N} color + {N} spacing + {N} radius
 Text styles:        {N} mapped to CSS variables
 
-The rules file will be automatically loaded by Claude Code
-for all future Figma implementation tasks.
+Used by: /build-components, /compose-page, /sync-colors
 ```
