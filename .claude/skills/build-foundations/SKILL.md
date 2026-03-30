@@ -196,12 +196,21 @@ On the "Foundations" page, create visual documentation frames. See `.claude/skil
 
 ## Validation
 
-After creating EACH style guide frame:
-1. Use `get_screenshot` focused on the frame at 100%+ zoom
-2. Verify the content is legible and properly laid out
-3. If something looks broken → fix it before moving on
+After creating EACH style guide frame, perform a visual review:
+
+1. **Take a screenshot** of the frame using `get_screenshot`.
+2. **Visually inspect the screenshot.** Ask yourself these questions:
+   - Can I read the title and all text labels? If text is microscopic or invisible, something is wrong.
+   - Does the content fill the frame proportionally? A frame with many children should be tall/wide — not a thin sliver.
+   - Are swatches, bars, and visual elements actually visible at reasonable sizes?
+   - Are colors rendering as expected (not all white, not all black, not all identical)?
+   - Is the layout structured (rows, columns, spacing) or is everything collapsed/overlapping?
+3. **If anything looks off — investigate and fix before moving on.** Do not rationalize visual anomalies. A thin horizontal line is not "just a wide frame" — it's a collapsed layout. A frame that looks mostly empty probably is.
+4. **After fixing, re-screenshot to confirm** the fix actually worked.
 
 **Do NOT batch-create all frames without validation.**
+
+**Common failure pattern:** A screenshot that appears as a thin horizontal bar or a nearly empty rectangle almost always means an auto-layout frame collapsed to its initial `resize()` height. Apply the layout flush described in `reference/style-guide.md` to ALL auto-layout frames (inner containers first, then outer), re-screenshot, and verify.
 
 ### Figma API gotchas for this skill:
 - `createVariable(name, collectionObject, type)` — pass collection OBJECT, not ID
@@ -210,6 +219,7 @@ After creating EACH style guide frame:
 - `use_figma` rejects `"HUG"` for `primaryAxisSizingMode` — use `"AUTO"`
 - Paint `color` objects don't accept `a` (alpha) via `use_figma` — use `opacity` on the paint
 - Text nodes in auto-layout: set `layoutSizingHorizontal = "FILL"` + `textAutoResize = "HEIGHT"` after appending
+- **Layout flush is mandatory** — see `reference/style-guide.md` "Flush layout after populating children"
 
 ---
 

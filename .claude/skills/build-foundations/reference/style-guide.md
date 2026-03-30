@@ -15,6 +15,25 @@ frame.primaryAxisSizingMode = "AUTO";
 frame.counterAxisSizingMode = "AUTO";
 ```
 
+### Mandatory: Flush layout after populating children
+
+The Figma Plugin API has a known issue where `primaryAxisSizingMode = "AUTO"` does not reliably recalculate height after children are appended — especially when the frame was created with `resize()` or has nested auto-layout children. The frame can appear to have the correct properties but remain visually collapsed.
+
+**After appending ALL children to ANY auto-layout frame** (including the main frame AND every nested container like column wrappers or row groups), apply this flush as the very last step before returning:
+
+```javascript
+function flushAutoLayout(frame, props) {
+  frame.layoutMode = "NONE";
+  frame.layoutMode = props.layoutMode;          // "VERTICAL" or "HORIZONTAL"
+  frame.primaryAxisSizingMode = props.primaryAxisSizingMode || "AUTO";
+  frame.counterAxisSizingMode = props.counterAxisSizingMode || "AUTO";
+  if (props.paddingLeft != null) frame.paddingLeft = frame.paddingRight = frame.paddingTop = frame.paddingBottom = props.paddingLeft;
+  if (props.itemSpacing != null) frame.itemSpacing = props.itemSpacing;
+}
+```
+
+Apply this bottom-up: flush innermost containers first, then their parents, then the outermost frame. This ensures each level recalculates with accurate child dimensions.
+
 ---
 
 ## 8a. Color Swatches

@@ -32,3 +32,10 @@ Known issues and lessons learned from building foundations in Figma.
 - `primaryAxisSizingMode` rejects `"HUG"` — use `"AUTO"` instead.
 - `use_figma` requires `blendMode: "NORMAL"` in shadow effects — omitting causes validation error.
 - Text nodes in auto-layout: set `layoutSizingHorizontal = "FILL"` + `textAutoResize = "HEIGHT"` AFTER appending to parent.
+- **Layout flush is mandatory after populating children.** `primaryAxisSizingMode = "AUTO"` does not reliably recalculate frame dimensions after children are appended. Always toggle `layoutMode` off and back on as the final step — for EVERY auto-layout frame, including nested containers. Flush bottom-up (innermost first). See `reference/style-guide.md` for the `flushAutoLayout` helper.
+
+## Screenshot Validation
+
+- **Do not rationalize visual anomalies in screenshots.** A thin horizontal sliver is a collapsed frame, not "just a wide frame." A mostly-empty frame is broken, not "zoomed out."
+- After each frame creation, take a screenshot and critically assess: is the content legible, proportionally sized, and properly structured? If not, fix it and re-screenshot.
+- Apply the same scrutiny to every frame — do not fix a problem on one frame and skip the identical symptom on another.
