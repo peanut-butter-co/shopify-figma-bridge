@@ -21,6 +21,12 @@ Known issues and lessons learned from building Figma components.
 - Use Mobile text styles (`Heading/H3 / Mobile`, not `Heading/H3`) for all text in mobile components.
 - Grid changes: product grids typically go from 4 columns (desktop) to 2 columns (mobile). Always verify from the reference capture.
 
+## Page Layout
+
+- Components must be placed directly on the canvas (not nested in wrapper frames) so they appear correctly in the Figma Assets panel.
+- NEVER leave components at default position (0,0) — they will overlap. Always run the page layout arrangement after building all components for a page.
+- See `reference/page-layout.md` for the placement algorithm.
+
 ## Figma API Gotchas
 
 See `reference/figma-api-gotchas.md` for all Figma Plugin API gotchas including resize() ordering, child sizing, image placeholders, and paint binding.

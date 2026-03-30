@@ -98,13 +98,15 @@ Build all atoms from `components.atoms` on the Atoms page.
 - **Dividers:** Simple line, stroke bound to `Essential/Outline`.
 - **Icons:** See `.claude/skills/build-components/reference/icon-library.md` for the full icon discovery, SVG cleanup, and Figma build procedure.
 
-### After all atoms: Validate
+### After all atoms: Validate and Arrange
 
 For EACH atom component individually:
 
 **A. Visual validation** — screenshot each component at 100%+ zoom. Compare against store reference.
 
 **B. Programmatic integrity check** — run via `use_figma` on each component. Check for invisible text, broken fills, unbound colors. See `.claude/skills/build-components/reference/validation.md` for the full checklist.
+
+**C. Arrange page layout** — After all atoms pass validation, arrange them on the Atoms page following `.claude/skills/build-components/reference/page-layout.md`.
 
 Update `buildStatus.atoms = "complete"` in manifest.
 
@@ -126,9 +128,11 @@ Build all blocks from `components.blocks` on the Blocks page.
 - **Use atom instances** where applicable.
 - **Use icon instances** from the Icons container on the Atoms page.
 
-### After all blocks: Validate
+### After all blocks: Validate and Arrange
 
 Same process as atoms — BOTH visual (A) and programmatic (B) checks on each block individually.
+
+**C. Arrange page layout** — After all blocks pass validation, arrange them on the Blocks page following `.claude/skills/build-components/reference/page-layout.md`.
 
 Update `buildStatus.blocks = "complete"` in manifest.
 
@@ -190,8 +194,12 @@ For each desktop section, create a mobile variant on the same Sections page.
 
 **No exceptions.** Use Mobile text styles for mobile components (e.g., `Heading/H3 / Mobile`).
 
-### After all mobile sections: Validate
-Screenshot each section at mobile width. Update `buildStatus["sections-mobile"] = "complete"`.
+### After all mobile sections: Validate and Arrange
+Screenshot each section at mobile width.
+
+**Arrange page layout** — After all mobile sections pass validation, arrange the entire Sections page (desktop + mobile together) following `.claude/skills/build-components/reference/page-layout.md`. Desktop components at x=0, mobile at x=MOBILE_X_OFFSET, same y.
+
+Update `buildStatus["sections-mobile"] = "complete"`.
 
 ---
 
