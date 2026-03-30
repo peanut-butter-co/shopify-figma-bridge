@@ -28,7 +28,23 @@ for (const f of frames) {
 }
 ```
 
+// Text sizing check: every text node in auto-layout must FILL, never HUG
+for (const t of texts) {
+  const parent = t.parent;
+  if (parent && parent.layoutMode && parent.layoutMode !== "NONE") {
+    if (t.layoutSizingHorizontal !== "FILL") {
+      issues.push(`TEXT OVERFLOW: "${t.characters.slice(0,30)}" has layoutSizingHorizontal="${t.layoutSizingHorizontal}" — must be FILL`);
+    }
+    if (t.textAutoResize !== "HEIGHT") {
+      issues.push(`TEXT RESIZE: "${t.characters.slice(0,30)}" has textAutoResize="${t.textAutoResize}" — must be HEIGHT`);
+    }
+  }
+}
+```
+
 If ANY issues are found → this may indicate an upstream problem (see upstream-errors.md). Diagnose before fixing locally.
+
+**Text overflow issues are never upstream** — they are always a local build error. Fix immediately by setting `layoutSizingHorizontal = "FILL"` and `textAutoResize = "HEIGHT"` on the offending text node.
 
 Additional checks:
 - Buttons: width/height ratio > 2, height < 60px

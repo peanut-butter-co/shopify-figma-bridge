@@ -53,9 +53,22 @@ Before building any visual components, capture reference data from the live stor
 
 ---
 
-## CRITICAL: Instance-Only Architecture
+## CRITICAL: Text Nodes Must FILL Their Parent
 
 **This is the #1 rule for the entire build process.**
+
+Every TEXT node inside an auto-layout frame MUST have:
+```javascript
+textNode.layoutSizingHorizontal = "FILL";
+textNode.textAutoResize = "HEIGHT";
+```
+Set these AFTER appending the text node to its parent. No exceptions. A text node set to "HUG" will expand beyond its container, causing overflow — this is an instant-fire offense in any design system.
+
+---
+
+## CRITICAL: Instance-Only Architecture
+
+**This is the #2 rule for the entire build process.**
 
 Every sub-element that exists as a component MUST be created as an instance, never as an inline frame:
 

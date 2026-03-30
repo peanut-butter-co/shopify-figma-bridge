@@ -2,6 +2,13 @@
 
 Known issues and lessons learned from building Figma components.
 
+## Text Nodes Must FILL (Never HUG)
+
+- **EVERY text node inside an auto-layout parent must have `layoutSizingHorizontal = "FILL"` and `textAutoResize = "HEIGHT"`.**
+- A text node set to HUG will expand beyond its container, causing visible overflow. This is the most common and most visible defect in component builds.
+- Set these properties AFTER appending the text node to its parent — setting them before has no effect.
+- The programmatic validation check (see `reference/validation.md`) will catch this, but prevention is better: never create a text node without immediately setting FILL + HEIGHT after appending.
+
 ## Instance Architecture
 
 - **The #1 rule:** Every sub-element that exists as a component MUST be created as an instance, never as an inline frame.
