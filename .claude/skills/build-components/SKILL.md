@@ -109,7 +109,7 @@ Build all atoms from `components.atoms` on the Atoms page.
 - **Inputs:** Bind to `Inputs/*` variables. Use `radius/input`.
 - **Badges:** Use color schemes from settings.
 - **Dividers:** Simple line, stroke bound to `Essential/Outline`.
-- **Icons:** See `.claude/skills/build-components/reference/icon-library.md` for the full icon discovery, SVG cleanup, and Figma build procedure.
+- **Icons:** See `.claude/skills/build-components/reference/icon-library.md` for the full icon discovery, SVG cleanup, and Figma build procedure. Each icon is built as a **Component** (named `Icon/{name}`) so it can be instanced in blocks and sections.
 
 ### After all atoms: Validate and Arrange
 

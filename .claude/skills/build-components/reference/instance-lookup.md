@@ -16,6 +16,7 @@ Common UI patterns and which atom to instance:
 | Blog post card | Blog Card |
 | Collection card | Collection Card |
 | Quantity stepper (+/-) | Quantity Selector |
+| Any icon (cart, search, menu, close, arrows, social) | Icon component from Icons frame (match by name) |
 
 This table covers universal UI patterns. If the theme has additional atoms confirmed in `/propose-components`, add them to this lookup.
 

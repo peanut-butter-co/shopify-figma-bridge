@@ -45,30 +45,43 @@ await figma.loadFontAsync({ family: "Inter", style: "Regular" });
 for (const { name, svg } of cleanedIcons) {
   const svgNode = figma.createNodeFromSvg(svg);
 
-  const wrapper = figma.createFrame();
-  wrapper.name = name;
-  wrapper.layoutMode = 'VERTICAL';
-  wrapper.itemSpacing = 8;
-  wrapper.primaryAxisSizingMode = 'AUTO';
-  wrapper.counterAxisSizingMode = 'AUTO';
-  wrapper.counterAxisAlignItems = 'CENTER';
-  wrapper.fills = [];
-
   // Normalize to 24x24 bounding box
   const maxDim = Math.max(svgNode.width, svgNode.height);
   const scale = 24 / maxDim;
   svgNode.resize(Math.round(svgNode.width * scale), Math.round(svgNode.height * scale));
   svgNode.name = name;
 
+  // Create as COMPONENT so it can be instanced in sections
+  const iconComp = figma.createComponent();
+  iconComp.name = `Icon/${name}`;
+  iconComp.layoutMode = 'VERTICAL';
+  iconComp.primaryAxisSizingMode = 'AUTO';
+  iconComp.counterAxisSizingMode = 'AUTO';
+  iconComp.fills = [];
+  iconComp.appendChild(svgNode);
+
+  // Display wrapper (component + label) for the Icons grid
+  const displayWrapper = figma.createFrame();
+  displayWrapper.name = name;
+  displayWrapper.layoutMode = 'VERTICAL';
+  displayWrapper.itemSpacing = 8;
+  displayWrapper.primaryAxisSizingMode = 'AUTO';
+  displayWrapper.counterAxisSizingMode = 'AUTO';
+  displayWrapper.counterAxisAlignItems = 'CENTER';
+  displayWrapper.fills = [];
+
+  // Instance the component for display
+  const iconInstance = iconComp.createInstance();
+  displayWrapper.appendChild(iconInstance);
+
   const label = figma.createText();
   label.fontName = { family: "Inter", style: "Regular" };
   label.characters = name;
   label.fontSize = 10;
   label.fills = [{ type: 'SOLID', color: { r: 0.4, g: 0.4, b: 0.4 } }];
+  displayWrapper.appendChild(label);
 
-  wrapper.appendChild(svgNode);
-  wrapper.appendChild(label);
-  iconsFrame.appendChild(wrapper);
+  iconsFrame.appendChild(displayWrapper);
 }
 ```
 
