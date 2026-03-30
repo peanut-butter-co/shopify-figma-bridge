@@ -140,16 +140,46 @@ await figma.loadFontAsync({ family: "Inter", style: "Bold" });
 
 ---
 
-## Step 7b: Mobile Text Styles
+## Step 7b: Mobile Text Styles (conditional)
 
-For EVERY text style created in Step 7, also create a mobile variant.
+**Check `foundations.typography.createMobileStyles`:**
 
-**Naming:** If the desktop style is `Heading/H1`, create `Heading/H1 / Mobile` at the mobile size.
+- If `createMobileStyles` is `false` (or missing): **skip this step entirely**. Do not create mobile text styles.
+- If `createMobileStyles` is `true`: create a mobile variant for every text style from Step 7.
 
-If the theme has separate mobile font sizes (from `foundations.typography.presets.{preset}.mobile`), use those. If desktop and mobile sizes are the same, still create both styles — this allows future per-client customization.
+**Sizes:**
+- When `hasMobilePresets` is `true`: use sizes from `foundations.typography.presets.{preset}.mobile`
+- When `hasMobilePresets` is `false`: duplicate desktop sizes (user explicitly chose mobile styles for manual customization)
 
-**When using font roles (Body, Heading, Subheading, Accent):**
-Create styles organized by role. This gives 4 roles x (H1-H6 + Paragraph) x 2 breakpoints. Always create both breakpoints.
+**Naming:** If the desktop style is `Heading/H1`, the mobile variant is `Heading/H1 / Mobile`. This uses Figma's standard `/` hierarchy — the desktop style becomes a collapsible group with `Mobile` nested inside.
+
+**Naming consistency is critical:** Always use spaces around `/` in the mobile suffix: `{name} / Mobile`. Never `{name}/Mobile` without spaces. Inconsistent spacing creates mismatched group names in Figma's style panel.
+
+---
+
+## Step 7c: Validate Text Styles
+
+After creating all text styles (Step 7 + optional Step 7b), verify them:
+
+1. Read back all local text styles via `use_figma`:
+   ```javascript
+   const styles = figma.getLocalTextStyles();
+   return styles.map(s => ({ name: s.name, fontSize: s.fontSize, lineHeight: s.lineHeight }));
+   ```
+
+2. **Count check:** Compare the number of styles against expected:
+   - If `createMobileStyles` is false: expected = number of presets (e.g., 7 for h1-h6 + paragraph)
+   - If `createMobileStyles` is true: expected = number of presets x 2
+
+3. **Naming check:** Verify that:
+   - Desktop style names have exactly 2 `/`-segments (e.g., `Heading/H1`)
+   - Mobile style names (if any) have exactly 3 `/`-segments (e.g., `Heading/H1 / Mobile`)
+   - All mobile suffixes use consistent spacing: ` / Mobile` (with spaces)
+   - No orphaned mobile styles exist without a matching desktop parent
+
+4. **Value check:** For each style, confirm fontSize and lineHeight match the manifest values.
+
+5. If any check fails → log the discrepancy, delete the incorrect style(s), and recreate them before proceeding.
 
 ---
 
@@ -201,7 +231,7 @@ Variable collections:
   - Color Schemas:   {N} semantic variables x {N} modes
   - Typography:      {N} variables
   - Spacing & Layout: {N} variables
-Text styles:       {N} styles
+Text styles:       {N} desktop{, {N} mobile | (no mobile — theme uses CSS scaling)}
 Style guide:       {N} documentation frames on Foundations page
 
 Next step: Run /propose-components to plan which components to build.

@@ -159,14 +159,18 @@ Only include tokens that are relevant for the design system. Skip functional set
 
 For each heading preset (h1-h6) and paragraph, check if there are separate mobile size settings:
 - Look for `type_size_h{N}_mobile` or `mobile_type_size_h{N}` in settings_schema.json
-- If mobile sizes exist, extract them alongside desktop sizes
-- If not, note which presets share desktop/mobile sizes
+- Also check theme CSS for `clamp()` or `@media` rules that scale typography — if sizing is purely CSS-driven with no separate mobile settings, that means no mobile presets
 
-This determines whether the Figma system needs separate Desktop/Mobile text styles (our standard: YES — always create both, even if sizes match, for future flexibility).
+**Set `hasMobilePresets` flag:**
+- If ANY preset has a distinct mobile size setting in `settings_schema.json` → `hasMobilePresets: true`
+- If NO presets have mobile size settings (e.g., theme uses CSS `clamp()`) → `hasMobilePresets: false`
 
-**Output addition to typography:**
+**When `hasMobilePresets` is true**, use nested preset structure:
+
 ```json
 {
+  "hasMobilePresets": true,
+  "createMobileStyles": true,
   "presets": {
     "h1": {
       "fontRole": "heading",
@@ -176,6 +180,22 @@ This determines whether the Figma system needs separate Desktop/Mobile text styl
   }
 }
 ```
+
+**When `hasMobilePresets` is false**, use flat preset structure:
+
+```json
+{
+  "hasMobilePresets": false,
+  "createMobileStyles": false,
+  "presets": {
+    "h1": { "fontRole": "accent", "size": 56, "lineHeight": 110, "letterSpacing": "normal", "case": "none" }
+  }
+}
+```
+
+The `createMobileStyles` flag is set by the user during Step 3 (see analyze-theme SKILL.md). Even when `hasMobilePresets` is false, the user can choose to create mobile styles for manual customization — in that case, desktop values are duplicated.
+
+Do NOT create a nested `desktop`/`mobile` structure with identical values. When `hasMobilePresets` is false, keep the flat format regardless of the user's `createMobileStyles` choice.
 
 ---
 

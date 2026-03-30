@@ -85,6 +85,17 @@ Present the extracted data to the user in a readable format. Organize by categor
   - Subheading: {family} ({weight})
   - Accent: {family} ({weight})
 - **{N} text presets:** {list h1-h6 + paragraph with size}
+- **Mobile presets:** {Yes — {N} presets with distinct mobile sizes | No — theme uses CSS-based responsive scaling}
+
+**If mobile presets were found:**
+> "Found {N} mobile-specific sizes. Recommended: create separate mobile text styles in Figma."
+> Ask user: "Create mobile text styles? (Y/n)"
+
+**If NO mobile presets were found:**
+> "This theme uses CSS-based responsive scaling — no separate mobile sizes found in settings. Do you want to create separate mobile text styles anyway? (Useful if you plan to customize mobile sizes manually in Figma.)"
+> Ask user: "Create mobile text styles? (y/N)" — default is No
+
+The user's answer sets `createMobileStyles` in the foundations data (Step 4).
 
 ### Spacing & Layout
 - **Page width:** {value}px ({setting name})
@@ -132,6 +143,8 @@ Once the user confirms, update `.claude/figma-sync/manifest.json`:
     },
     "typography": {
       "fontRoles": { ... },
+      "hasMobilePresets": false,
+      "createMobileStyles": false,
       "presets": { ... }
     },
     "spacing": {

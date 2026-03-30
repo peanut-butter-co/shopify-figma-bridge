@@ -10,9 +10,12 @@ Known issues and lessons learned from building foundations in Figma.
 
 ## Mobile Text Styles
 
-- Always create mobile text styles even if desktop and mobile sizes are identical — this allows future per-client customization.
-- Mobile style naming: `Heading/H1 / Mobile` (not `Heading/H1/Mobile` — note the spaces around `/`).
-- When using font roles, create styles organized by role: `Body/H1`, `Heading/H1`, etc. for all breakpoints.
+- Mobile text styles are **conditional** — only create them when `foundations.typography.createMobileStyles` is `true`.
+- If the theme has no mobile-specific settings (e.g., Horizon uses CSS `clamp()` for responsive scaling) and the user declined mobile styles, do NOT create them. Duplicate styles with identical values are noise.
+- The `/ Mobile` naming with `/` is correct and intentional — Figma uses `/` for hierarchy, so the desktop style becomes a collapsible group with `Mobile` nested inside. This is standard Figma practice.
+- Naming MUST be consistent: always `{name} / Mobile` with spaces around `/`. Never `{name}/Mobile` without spaces — inconsistent naming is a bug.
+- When mobile styles ARE created, verify the total count is exactly 2x the desktop style count.
+- If `hasMobilePresets` is false but `createMobileStyles` is true (user chose manual mobile), duplicate desktop values for the mobile styles.
 
 ## Line Height Variables
 
