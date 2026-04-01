@@ -1,6 +1,15 @@
 ---
-description: Audit Figma file for instance compliance — find inline frames that should be component instances
+name: validate-instances
+description: >
+  Use when: auditing Figma file for instance compliance
+user-invocable: true
+context: inline
+allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, Glob, Grep]
 ---
+
+```sh
+!cat .claude/skills/validate-instances/gotchas.md 2>/dev/null || echo "No gotchas yet."
+```
 
 # Validate Instances
 
@@ -72,7 +81,7 @@ For each template and section composition, check if there are frames that LOOK l
    → Must have a text style applied
 
 5. **Unbound text fills:** Any text node where:
-   - `fills[0].type === "SOLID"` and `fills[0].boundVariables.color` is undefined
+   - Any fill has `type === "SOLID"` and `boundVariables.color` is undefined (check ALL fills, not just `fills[0]`)
    - Has visible characters (not empty)
    - NOT inside a component definition
    → Solid fills must be bound to a token variable (skip gradient/image fills)
@@ -103,7 +112,6 @@ Present findings:
 |----------|-----------|----------------------|---------|
 | Homepage / Desktop | "Shop Now" button frame | Button (Primary) | 123:456 |
 | PDP / Desktop | Inline product card | Product Card (Portrait) | 789:012 |
-| ... | ... | ... | ... |
 
 ### Clean: {N} components with all instances correct
 

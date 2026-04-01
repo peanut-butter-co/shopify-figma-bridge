@@ -1,6 +1,15 @@
 ---
-description: Research latest Figma best practices and propose updates to the cheatsheet
+name: refresh-figma-practices
+description: >
+  Use when: updating the Figma best practices cheatsheet
+user-invocable: true
+context: inline
+allowed-tools: [WebSearch, WebFetch, Read, Write, Glob, Grep]
 ---
+
+```sh
+!cat .claude/skills/refresh-figma-practices/gotchas.md 2>/dev/null || echo "No gotchas yet."
+```
 
 # Refresh Figma Practices
 
@@ -39,16 +48,10 @@ Focus on changes to:
 
 ### 2b. Expert Community
 
-Search for recent content from the known Figma experts:
+Search for recent content from known Figma experts:
 - Joey Banks, Ridd, Alice Packard, Nathan Curtis, Luis Ouriach, Christine Vallaure, Jan Six, Rogie King
 - Search: `"{expert name}" figma {year}` for blog posts, videos, tweets
 - Search: `figma best practices {year}` for new voices and techniques
-
-Also search for:
-- `figma auto layout advanced techniques {year}`
-- `figma component architecture best practices {year}`
-- `figma variables design tokens {year}`
-- `figma plugin API new features {year}`
 
 Focus on patterns relevant to programmatic component building — not general UI design tips.
 
@@ -68,13 +71,11 @@ For each finding, classify it:
 ### Categories
 
 1. **New pattern** — a technique or feature not covered in the current cheatsheet
-2. **Updated pattern** — an existing recommendation that should be revised (e.g., Grid auto-layout graduating from beta, new API for aspect ratios)
-3. **Deprecated pattern** — something in the cheatsheet that Figma has deprecated or the community has moved away from
+2. **Updated pattern** — an existing recommendation that should be revised
+3. **Deprecated pattern** — something the community has moved away from
 4. **Confirmed** — existing recommendation validated by new sources (no change needed)
 
 ### Present as a diff
-
-Show the user a clear proposal:
 
 ```
 ## Proposed Updates to Figma Best Practices
@@ -119,7 +120,7 @@ Once the user approves:
 1. Update `.claude/figma-best-practices.md` with the approved changes
 2. Update the `Version` date to today
 3. Update the `Last researched` date to today
-4. If any skill files (build-components, build-foundations) reference patterns that changed, flag them: "These skills may need updating to match the new practices: [list]"
+4. If any skill files reference patterns that changed, flag them: "These skills may need updating to match the new practices: [list]"
 
 ---
 
