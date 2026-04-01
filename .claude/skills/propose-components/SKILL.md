@@ -31,6 +31,7 @@ This is a theme-wide analysis — not tied to any specific template. The templat
 3. Verify `foundations` is not null. If null → "Run `/analyze-theme` first."
 4. Verify `buildStatus.foundations === "complete"`. If not → "Run `/build-foundations` first."
 5. If `components` is not null → warn: "Components were already proposed. Re-running will overwrite. Proceed?"
+6. **Load theme profile recommendations:** If `manifest.theme.hasProfile` is true, read `.claude/figma-sync/theme-profiles/{slug}.json` and extract `recommendations.components`, `recommendations.organization`, and `recommendations.templates`. Store as `profileRecs` for use in subsequent steps. If absent or null, `profileRecs = null` — all recommendation-aware steps simply skip their recommendation logic.
 
 ---
 
@@ -68,6 +69,11 @@ Read every `.liquid` file in `sections/` (excluding JSON group files). For each 
 
    **Skip** if the section: is an internal rendering helper, represents a rarely-touched low-design-value page, is a dynamic overlay or ephemeral UI state, or duplicates another section's purpose.
 
+3. **Apply profile recommendations (if `profileRecs` exists):**
+   - If the section slug appears in `profileRecs.components.prioritySections`, mark it as `[recommended]` and record the reason.
+   - If the section slug appears in `profileRecs.components.skipSections`, pre-mark it as skipped with the provided reason. The user can still override during confirmation.
+   - `prioritySections` supports two formats: flat strings (`"hero"`) or rich objects (`{ "slug": "hero", ... }`). Check if the first element is a string or object to detect which format.
+
 Also read `sections/header-group.json` and `sections/footer-group.json` for structural section groups.
 
 ## Step 2: Scan All Blocks
@@ -83,13 +89,23 @@ Read every `.liquid` file in `blocks/`. Parse schemas and build a usage map: `{ 
 
 See `.claude/skills/propose-components/reference/mandatory-atoms.md` for the mandatory atom checklist and identification procedure.
 
+If `profileRecs.components.additionalAtoms` exists, append each to the proposal with its `reason` field. These are theme-specific atoms beyond the standard 15.
+
 ## Step 5: Present Selection Proposal
 
-Show the user a structured proposal with clear recommended/skipped lists. **Wait for user confirmation before proceeding to Phase B.**
+Show the user a structured proposal with clear recommended/skipped lists.
+
+If `profileRecs` exists, enhance the presentation:
+- **Recommended sections** appear first, marked with `[recommended]` and their `reason` from the profile
+- **Detected sections** (found by scanning but not in profile) appear after, marked with `[detected]`
+- **Skipped sections** show the profile's skip reason if available, or the generic reason otherwise
+- If `profileRecs.components.blockGrouping` exists, show the suggested block grouping for the Figma Blocks page
+
+**Wait for user confirmation before proceeding to Phase B.**
 
 ---
 
-# Phase B: Propose Variants
+# Phase B: Propose Variants & Instance Properties
 
 ## Important: Desktop and Mobile
 
@@ -99,18 +115,45 @@ Desktop and Mobile are **separate components**, NOT variants of the same compone
 
 Each independently has its own variant properties.
 
-## Step 6: Analyze Section Settings for Variants
+## Step 6: Analyze Section Settings — Classify into Three Buckets
 
-See `.claude/skills/propose-components/reference/variant-analysis.md` for the detailed procedure on identifying variant-worthy settings, priority tiers, and what should NOT become variants.
+For each section, read its `{% schema %}` settings and classify each `select` setting into one of three categories. See `.claude/skills/propose-components/reference/variant-analysis.md` for the full procedure.
 
-## Step 7: Present Variant Proposal
+**The three buckets:**
+1. **Variants** (Tier 1-2) — Structural/compositional changes → Figma component variants
+2. **Instance properties** (Tier 3) — Container/dimensional settings → Figma component properties (enum/boolean)
+3. **Variable properties** — `color_scheme` and foundation-mapped settings → Figma variable modes
 
-For each section, show the proposed variant properties including:
-- Variant names and values
+**Merging with profile recommendations:** If `profileRecs.components.prioritySections` contains a rich object for this section, merge both `variants` and `instanceProperties`:
+
+1. **Start with profile recommendations** (both `variants` and `instanceProperties`) as the baseline.
+2. **Run generic `select` setting analysis** on the actual `{% schema %}` as normal.
+3. **For each detected setting:**
+   - If it matches a profile `variants` entry → adopt the profile's tier and reason.
+   - If it matches a profile `instanceProperties` entry → classify as instance property with the profile's reason.
+   - If it's a new setting NOT in the profile → classify using generic tier rules and mark as `[detected]`.
+4. **Stale entries:** If a profile recommends a setting ID that doesn't exist in the actual schema → warn and drop.
+5. **Result:** A merged list with `[recommended]` entries first, then `[detected]`.
+
+If `profileRecs` is null or the section has no profile entry, run the generic analysis only (current behavior).
+
+## Step 7: Present Variant & Instance Property Proposal
+
+For each section, show all three buckets clearly:
+
+**Variants** (create separate component variants):
+- Variant names and values, with source indicator: `[recommended]` or `[detected]`
+- The `reason` field from profile recommendations where available
 - Total combination count per viewport
-- Variable properties (e.g., `color_scheme`) that are NOT variants but are applied via Figma variable modes
 
-Include the Template Coverage Plan — scan `templates/` and present standard Shopify templates grouped by priority (P1-P3).
+**Instance properties** (Figma component properties, adjustable per-instance):
+- Property name, type (enum/boolean), values, and default
+- `reason` explaining why this is a property and not a variant
+
+**Variable properties** (Figma variable modes):
+- `color_scheme` and any other foundation-mapped settings
+
+Include the Template Coverage Plan — scan `templates/` and present standard Shopify templates grouped by priority. If `profileRecs.templates.coverage` exists, use those priorities (P1/P2/P3) instead of generic grouping.
 
 **Wait for user confirmation.**
 
@@ -118,7 +161,7 @@ Include the Template Coverage Plan — scan `templates/` and present standard Sh
 
 ## Step 8: Write to Manifest
 
-Once both phases are confirmed, update the manifest with the full `components` object including atoms, blocks, sections, skippedSections, and scope.
+Once both phases are confirmed, update the manifest with the full `components` object including atoms, blocks, sections (with both `variants` and `instanceProperties` per section), skippedSections, and scope.
 
 Note: Desktop/Mobile is NOT in the variants object — it's handled by creating separate components during `/build-components`.
 
@@ -133,6 +176,7 @@ Atoms:    {N} components
 Blocks:   {N} standalone components
 Sections: {N} sections x 2 viewports (desktop + mobile)
           {N} total variant combinations
+          {N} instance properties across all sections
 
 Skipped:  {N} sections (not included)
 
@@ -149,5 +193,5 @@ This skill analyzes the entire theme. Which components appear on which page is d
 ### What "integrated" means
 Section-specific blocks don't get their own component — they're built inline as part of their parent section's Figma frame hierarchy.
 
-### Theme profiles
-If `.claude/figma-sync/theme-profiles/{theme}.json` exists, use its `recommendations.components` to pre-filter sections and suggest variants.
+### Theme profile recommendations
+If `.claude/figma-sync/theme-profiles/{theme}.json` exists and contains a `recommendations` key, it provides curated guidance that is loaded in Pre-flight step 6 and consumed throughout Phase A and Phase B. Recommendations are suggestions — the generic analysis always runs, and the user always confirms. See `theme-profiles/README.md` for the full schema.
