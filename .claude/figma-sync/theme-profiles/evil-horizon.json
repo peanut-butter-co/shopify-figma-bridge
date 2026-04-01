@@ -41,9 +41,71 @@
         "Quantity", "Spacer", "Divider", "Icon", "Accelerated Checkout", "Variant Picker"
       ],
       "prioritySections": [
-        "hero", "slideshow", "media-with-content", "marquee", "divider",
-        "featured-product", "product-list", "collection-list", "product-recommendations",
-        "featured-blog-posts", "carousel", "layered-slideshow", "product-hotspots"
+        {
+          "slug": "hero",
+          "reason": "Primary above-fold section",
+          "variants": {
+            "horizontal_alignment": { "tier": 1, "values": ["left", "center", "right"], "reason": "Left/center/right content placement" },
+            "vertical_alignment": { "tier": 1, "values": ["top", "center", "bottom"], "reason": "Top/center/bottom content placement" }
+          },
+          "instanceProperties": {
+            "section_height": { "type": "enum", "values": ["auto", "small", "medium", "large", "full-screen", "custom"], "default": "medium", "reason": "Dimensional — 6 options, no compositional change" }
+          }
+        },
+        {
+          "slug": "slideshow",
+          "reason": "Carousel hero with multiple slides",
+          "variants": {
+            "content_position": { "tier": 1, "values": ["on-media", "below-media"], "reason": "Overlay vs below layout" },
+            "display_mode": { "tier": 2, "values": ["full_frame", "with_hints"], "reason": "Full frame vs peek of adjacent slides" }
+          }
+        },
+        {
+          "slug": "media-with-content",
+          "reason": "Workhorse content + media pairing",
+          "variants": {
+            "media_position": { "tier": 1, "values": ["left", "right"], "reason": "Which side media appears on" },
+            "media_width": { "tier": 2, "values": ["narrow", "medium", "wide"], "reason": "Media vs content proportion" }
+          },
+          "instanceProperties": {
+            "section_width": { "type": "enum", "values": ["page", "full"], "default": "page", "reason": "Container width" },
+            "media_height": { "type": "enum", "values": ["auto", "small", "medium", "large", "full-screen"], "default": "auto", "reason": "Dimensional — 5 options, no structural change" }
+          }
+        },
+        { "slug": "marquee", "reason": "Scrolling text ribbon", "variants": {} },
+        { "slug": "divider", "reason": "Spacing/divider element", "variants": {} },
+        {
+          "slug": "featured-product",
+          "reason": "Standalone product showcase",
+          "variants": {
+            "layout": { "tier": 1, "values": ["media-left", "media-right"], "reason": "Media side placement" }
+          }
+        },
+        {
+          "slug": "product-list",
+          "reason": "Product card grid/carousel",
+          "variants": {
+            "layout_type": { "tier": 1, "values": ["grid", "carousel", "editorial"], "reason": "Three display modes" }
+          }
+        },
+        {
+          "slug": "collection-list",
+          "reason": "Collection card display with bento layout option",
+          "variants": {
+            "layout_type": { "tier": 1, "values": ["grid", "carousel", "bento", "editorial"], "reason": "Four layout modes including bento" }
+          }
+        },
+        { "slug": "product-recommendations", "reason": "AI-driven product suggestions", "variants": {} },
+        {
+          "slug": "featured-blog-posts",
+          "reason": "Blog post card grid/carousel",
+          "variants": {
+            "layout_type": { "tier": 1, "values": ["grid", "carousel", "editorial"], "reason": "Three layout modes" }
+          }
+        },
+        { "slug": "carousel", "reason": "Generic media/content carousel", "variants": {} },
+        { "slug": "layered-slideshow", "reason": "Stacked/parallax slideshow", "variants": {} },
+        { "slug": "product-hotspots", "reason": "Interactive image with product pins", "variants": {} }
       ],
       "headerBlocks": ["_header-logo", "_header-menu", "_header-cart", "_header-account", "_header-search"],
       "footerBlocks": ["menu", "social-links", "email-signup", "footer-copyright", "footer-policy-list", "payment-icons"],

@@ -48,6 +48,29 @@ Using profile guidance for: color schemes, spacing
 Using detected values for: typography
 ```
 
+### Recommendations (if `recommendations.components` exists)
+
+1. **Priority sections:** For each entry in `prioritySections` (rich objects with `slug`), check that a matching `.liquid` file exists in `sections/`. Report missing slugs — the profile may reference sections that were renamed or removed.
+2. **Skip sections:** Same check — verify each `skipSections[].slug` exists.
+3. **Variant recommendations:** For each priority section that has `variants`, verify that each recommended setting ID exists as a `select` type setting in the section's actual `{% schema %}`. For each recommended value, check it exists in the setting's `options[].value` array. Report mismatches:
+   - Setting ID not found → `⚠ Profile recommends variant '{id}' for section '{slug}' but setting not found`
+   - Value not in options → `⚠ Profile recommends value '{val}' for '{slug}.{id}' but not in schema options`
+4. **Instance property recommendations:** Same validation as variants — for each priority section that has `instanceProperties`, verify each setting ID exists in the actual schema. Values should match the schema's `options[].value` array.
+5. **Additional atoms:** Light check — note them in the report but don't validate (atoms are identified by convention, not by file path).
+
+Classification:
+- All slugs found + all variant settings valid → **Match**
+- 1-2 missing slugs or values → **Minor divergence** — note and proceed
+- Multiple missing sections or settings → **Major divergence** — recommendations are unreliable, warn the user
+
+Include recommendations validation in the report:
+
+```
+Recommendations: MINOR — section 'product-hotspots' not found (may be renamed).
+                 Variant 'content_direction' for hero: OK (2 options match).
+                 Using profile recommendations with noted exceptions.
+```
+
 ## Rules
 - Where the profile matches → use its `figmaMapping` guidance to inform how you build foundations
 - Where it diverges → fall back to generic heuristics, using only the detected data

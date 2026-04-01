@@ -30,6 +30,17 @@ These atoms should be proposed if they exist in the theme. Search `snippets/`, `
 
 ## Cross-referencing
 
-If the theme profile includes `recommendations.components.mandatoryAtoms`, cross-reference with that list for theme-specific additions.
+If the theme profile includes `recommendations.components.mandatoryAtoms`, cross-reference with that list to confirm the standard atoms apply.
+
+If the theme profile includes `recommendations.components.additionalAtoms`, append each to the proposal. These are theme-specific atoms beyond the standard 15, provided as objects with `name` and `reason`:
+
+```json
+"additionalAtoms": [
+  { "name": "Accelerated Checkout", "reason": "Theme renders Apple Pay / Shop Pay buttons" },
+  { "name": "Variant Picker", "reason": "Combined swatch + dropdown selector for PDP" }
+]
+```
+
+Show the `reason` in the proposal so the user understands why each extra atom is recommended.
 
 If the theme scan doesn't find a source file for an atom, note it as "create from common patterns" — do NOT skip it.
