@@ -258,6 +258,331 @@
     }
   },
 
+  "recommendations": {
+    "components": {
+      "mandatoryAtoms": [
+        "Button", "Input Field", "Checkbox", "Text Link", "Tab", "Arrow Button",
+        "Badge", "Variant Swatch", "Product Card", "Blog Card", "Collection Card",
+        "Quantity Selector", "Spacer", "Divider", "Icon"
+      ],
+      "additionalAtoms": [
+        {
+          "name": "Accelerated Checkout",
+          "reason": "Horizon renders Apple Pay / Shop Pay buttons in product and cart pages"
+        },
+        {
+          "name": "Variant Picker",
+          "reason": "Combined swatch + dropdown selector used in PDP variant selection"
+        }
+      ],
+      "prioritySections": [
+        {
+          "slug": "hero",
+          "reason": "Primary above-fold section used on most homepages. Complex layout with overlay content on media.",
+          "variants": {
+            "horizontal_alignment": {
+              "tier": 1,
+              "values": ["left", "center", "right"],
+              "reason": "Left/center/right placement of content overlay on hero image",
+              "cssMapping": { "left": "flex-start", "center": "center", "right": "flex-end" }
+            },
+            "vertical_alignment": {
+              "tier": 1,
+              "values": ["top", "center", "bottom"],
+              "reason": "Top/center/bottom placement of content overlay on hero image",
+              "cssMapping": { "top": "flex-start", "center": "center", "bottom": "flex-end" }
+            }
+          },
+          "instanceProperties": {
+            "section_height": {
+              "type": "enum",
+              "values": ["auto", "small", "medium", "large", "full-screen", "custom"],
+              "default": "medium",
+              "reason": "Dimensional — 6 options, no compositional change"
+            },
+            "toggle_overlay": {
+              "type": "boolean",
+              "default": false,
+              "reason": "Enables/disables media overlay layer — significant visual change but binary toggle"
+            }
+          }
+        },
+        {
+          "slug": "media-with-content",
+          "reason": "Workhorse layout section for content + media pairings. Used heavily on homepages and landing pages.",
+          "variants": {
+            "media_position": {
+              "tier": 1,
+              "values": ["left", "right"],
+              "reason": "Flips which side the media appears on — fundamentally different composition"
+            },
+            "media_width": {
+              "tier": 2,
+              "values": ["narrow", "medium", "wide"],
+              "reason": "Changes the proportion of media vs content columns"
+            }
+          },
+          "instanceProperties": {
+            "section_width": {
+              "type": "enum",
+              "values": ["page", "full"],
+              "default": "page",
+              "reason": "Container width — repeats across all sections, no compositional change"
+            },
+            "media_height": {
+              "type": "enum",
+              "values": ["auto", "small", "medium", "large", "full-screen"],
+              "default": "auto",
+              "reason": "Dimensional — 5 options, no structural change"
+            },
+            "extend_media": {
+              "type": "boolean",
+              "default": true,
+              "reason": "Extends media to screen edge when section_width is page-width — significant layout impact",
+              "condition": "section_width == page-width"
+            }
+          }
+        },
+        {
+          "slug": "slideshow",
+          "reason": "Carousel hero section with multiple slides. Common homepage section.",
+          "variants": {
+            "content_position": {
+              "tier": 1,
+              "values": ["on-media", "below-media"],
+              "reason": "Content overlaid on slide vs placed below — entirely different layout"
+            },
+            "display_mode": {
+              "tier": 2,
+              "values": ["full_frame", "with_hints"],
+              "reason": "Full frame vs showing peek of adjacent slides changes the visual treatment"
+            }
+          },
+          "instanceProperties": {
+            "section_width": {
+              "type": "enum",
+              "values": ["page", "full"],
+              "default": "page",
+              "reason": "Container width"
+            },
+            "slide_height": {
+              "type": "enum",
+              "values": ["auto", "small", "medium", "large"],
+              "default": "medium",
+              "reason": "Dimensional — no structural change"
+            },
+            "slideshow_controls_style": {
+              "type": "enum",
+              "values": ["none", "dots", "counter"],
+              "default": "dots",
+              "reason": "Pagination indicator type — changes visual weight of bottom area"
+            }
+          }
+        },
+        {
+          "slug": "featured-product",
+          "reason": "Standalone product showcase section. Reusable across pages.",
+          "variants": {
+            "layout": {
+              "tier": 1,
+              "values": ["media-left", "media-right"],
+              "reason": "Media/content side placement — same pattern as media-with-content"
+            }
+          }
+        },
+        {
+          "slug": "product-list",
+          "reason": "Grid/carousel of product cards. Core e-commerce section.",
+          "variants": {
+            "layout_type": {
+              "tier": 1,
+              "values": ["grid", "carousel", "editorial"],
+              "reason": "Three fundamentally different display modes for the same product collection"
+            }
+          },
+          "instanceProperties": {
+            "section_width": {
+              "type": "enum",
+              "values": ["page", "full"],
+              "default": "page",
+              "reason": "Container width"
+            },
+            "horizontal_alignment": {
+              "type": "enum",
+              "values": ["left", "center", "right"],
+              "default": "left",
+              "reason": "Content alignment within section header area",
+              "cssMapping": { "left": "flex-start", "center": "center", "right": "flex-end" }
+            }
+          }
+        },
+        {
+          "slug": "collection-list",
+          "reason": "Displays collection cards. Similar to product-list but with an extra bento layout.",
+          "variants": {
+            "layout_type": {
+              "tier": 1,
+              "values": ["grid", "carousel", "bento", "editorial"],
+              "reason": "Four layout modes — bento is unique to collection-list and creates asymmetric featured grid"
+            }
+          },
+          "instanceProperties": {
+            "section_width": {
+              "type": "enum",
+              "values": ["page", "full"],
+              "default": "page",
+              "reason": "Container width"
+            }
+          }
+        },
+        {
+          "slug": "carousel",
+          "reason": "Generic media/content carousel. Reusable across pages.",
+          "variants": {},
+          "instanceProperties": {
+            "section_width": {
+              "type": "enum",
+              "values": ["page", "full"],
+              "default": "page",
+              "reason": "Container width"
+            }
+          }
+        },
+        {
+          "slug": "marquee",
+          "reason": "Scrolling text/content ribbon. Common decorative section.",
+          "variants": {}
+        },
+        {
+          "slug": "featured-blog-posts",
+          "reason": "Blog post card grid/carousel. Shares layout_type pattern with product-list.",
+          "variants": {
+            "layout_type": {
+              "tier": 1,
+              "values": ["grid", "carousel", "editorial"],
+              "reason": "Same three layout modes as product-list"
+            }
+          },
+          "instanceProperties": {
+            "section_width": {
+              "type": "enum",
+              "values": ["page", "full"],
+              "default": "page",
+              "reason": "Container width"
+            }
+          }
+        },
+        {
+          "slug": "layered-slideshow",
+          "reason": "Stacked/parallax slideshow variant. Visually distinct from standard slideshow.",
+          "variants": {},
+          "instanceProperties": {
+            "section_width": {
+              "type": "enum",
+              "values": ["page", "full"],
+              "default": "page",
+              "reason": "Container width"
+            },
+            "height": {
+              "type": "enum",
+              "values": ["auto", "small", "medium", "large"],
+              "default": "medium",
+              "reason": "Dimensional — no structural change"
+            }
+          }
+        },
+        {
+          "slug": "product-hotspots",
+          "reason": "Interactive image with product hotspot pins. Unique interaction pattern.",
+          "variants": {
+            "section_height": {
+              "tier": 2,
+              "values": ["auto", "21:9", "16:9", "4:3"],
+              "reason": "Aspect ratios that fundamentally change image framing and composition",
+              "cssMapping": { "auto": "auto", "21:9": "21 / 9", "16:9": "16 / 9", "4:3": "4 / 3" }
+            }
+          },
+          "instanceProperties": {
+            "section_width": {
+              "type": "enum",
+              "values": ["page", "full"],
+              "default": "page",
+              "reason": "Container width"
+            },
+            "toggle_overlay": {
+              "type": "boolean",
+              "default": false,
+              "reason": "Enables/disables overlay on the hotspot image"
+            }
+          }
+        },
+        {
+          "slug": "divider",
+          "reason": "Simple spacing/divider element. Quick to build, widely used.",
+          "variants": {
+            "alignment_horizontal": {
+              "tier": 2,
+              "values": ["left", "center", "right"],
+              "reason": "Divider position when not full-width — changes visual balance",
+              "cssMapping": { "left": "flex-start", "center": "center", "right": "flex-end" }
+            }
+          },
+          "instanceProperties": {
+            "section_width": {
+              "type": "enum",
+              "values": ["page", "full"],
+              "default": "full",
+              "reason": "Container width"
+            },
+            "corner_radius": {
+              "type": "enum",
+              "values": ["square", "rounded"],
+              "default": "square",
+              "reason": "Subtle visual option — square vs rounded ends"
+            }
+          }
+        }
+      ],
+      "skipSections": [
+        { "slug": "custom-liquid", "reason": "Freeform code injection — no meaningful component structure" },
+        { "slug": "apps", "reason": "Third-party app placeholder — no design to replicate" }
+      ],
+      "headerBlocks": ["_header-logo", "_header-menu", "_header-cart", "_header-account", "_header-search"],
+      "footerBlocks": ["menu", "social-links", "email-signup", "footer-copyright", "footer-policy-list", "payment-icons"],
+      "cartBlocks": ["_cart-title", "_cart-products", "_cart-summary", "cart-upsell", "cart-discount", "cart-note", "shipping-progress"],
+      "blockGrouping": {
+        "description": "Suggested grouping for universal blocks on the Figma Blocks page",
+        "groups": [
+          { "name": "Content", "blocks": ["text", "image", "video", "button", "link-list"] },
+          { "name": "Product", "blocks": ["price", "title", "vendor", "quantity-selector", "variant-picker"] },
+          { "name": "Media", "blocks": ["collage", "gallery", "video-with-text"] },
+          { "name": "Interactive", "blocks": ["accordion", "tabs", "popup", "newsletter"] }
+        ]
+      }
+    },
+    "organization": {
+      "pageOrder": ["Foundations", "Atoms", "Blocks", "Sections", "Templates"],
+      "sectionFill": "#B3B3B3",
+      "componentNaming": "{SectionName} / {Variant}",
+      "mobilePlacement": "adjacent",
+      "templateLayout": "horizontal-pairs"
+    },
+    "templates": {
+      "coverage": [
+        { "key": "index", "name": "Homepage", "priority": 1 },
+        { "key": "product", "name": "PDP", "priority": 1 },
+        { "key": "collection", "name": "PLP", "priority": 1 },
+        { "key": "cart", "name": "Cart", "priority": 1 },
+        { "key": "search", "name": "Search", "priority": 2 },
+        { "key": "blog", "name": "Blog Listing", "priority": 2 },
+        { "key": "article", "name": "Article", "priority": 2 },
+        { "key": "404", "name": "404", "priority": 2 },
+        { "key": "page", "name": "Generic Page", "priority": 3 },
+        { "key": "page.contact", "name": "Contact", "priority": 3 }
+      ]
+    }
+  },
+
   "quirks": {
     "description": "Horizon-specific behaviors that generic heuristics might miss",
 
