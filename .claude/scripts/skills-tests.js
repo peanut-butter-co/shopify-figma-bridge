@@ -281,6 +281,23 @@ check('F014: README Installation targets .claude/skills (not .claude/commands)',
 });
 
 // ---------------------------------------------------------------------------
+// C7 — CLAUDE.md + .gitignore reflect reality (F067/F068)
+// ---------------------------------------------------------------------------
+group('C7: CLAUDE.md + .gitignore reflect reality');
+check('F067: CLAUDE.md represents all skills (pipeline + maintenance in sync)', () => {
+  const md = read('CLAUDE.md');
+  const missing = fs.readdirSync(skillsDir)
+    .filter((n) => fs.existsSync(path.join(skillsDir, n, 'SKILL.md')))
+    .filter((n) => !md.includes(n));
+  ok(missing.length === 0, 'CLAUDE.md omits skill(s): ' + missing.join(', '));
+});
+check('F068: .gitignore names the real runtime-state paths (not theme-profiles/manifest.json)', () => {
+  const gi = read('.gitignore');
+  ok(/^\.claude\/figma-sync\/manifest\.json\s*$/m.test(gi), '.gitignore must explicitly ignore .claude/figma-sync/manifest.json');
+  ok(!/theme-profiles\/manifest\.json/.test(gi), 'the dead theme-profiles/manifest.json rule must be removed');
+});
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {
