@@ -1,7 +1,7 @@
 ---
 name: analyze-theme
 description: >
-  Use when: extracting design tokens from a Shopify theme, or when manifest has no foundations data
+  Use when: EXTRACTING design tokens (colors, fonts, spacing, radii) from a Shopify theme's files into the manifest — e.g. "analyze the theme", "pull the colors/fonts out", "what tokens does this theme have". No Figma writes; the step BEFORE /build-foundations. For a full build use /build-design-system.
 user-invocable: true
 context: inline
 allowed-tools: [Read, Write, Glob, Grep]

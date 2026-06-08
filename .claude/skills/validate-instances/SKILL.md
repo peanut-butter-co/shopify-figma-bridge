@@ -1,7 +1,7 @@
 ---
 name: validate-instances
 description: >
-  Use when: auditing Figma file for instance compliance
+  Use when: auditing the Figma file for instance compliance — finding inline frames that should be component instances, text nodes missing a text style, or fills not bound to variables; also when asked to fix/clean up such violations or verify the design-system cascade is intact.
 user-invocable: true
 context: inline
 allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, Glob, Grep]

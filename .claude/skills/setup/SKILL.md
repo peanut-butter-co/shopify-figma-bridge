@@ -1,7 +1,7 @@
 ---
 name: setup
 description: >
-  Use when: configuring a new Shopify-to-Figma pipeline, setting store URL, Figma file, or viewports
+  Use when: initializing/configuring the Shopify-to-Figma pipeline for the first time — connecting a store URL + Figma file, setting viewports, entering a store password, or when .claude/figma-sync/manifest.json does not yet exist or needs reconfiguring. Run this before any other design-system skill.
 user-invocable: true
 context: inline
 allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, mcp__figma__get_metadata, mcp__chrome-devtools__navigate_page, mcp__chrome-devtools__take_screenshot, mcp__chrome-devtools__fill, mcp__chrome-devtools__click, Read, Write, Glob, Grep]

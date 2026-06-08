@@ -1,7 +1,7 @@
 ---
 name: build-foundations
 description: >
-  Use when: creating Figma variables, text styles, or style guide from analyzed tokens
+  Use when: CREATING the Figma variables, text styles, and style guide FROM already-extracted tokens (requires /analyze-theme to have populated foundations in the manifest first). Use ONLY for foundations alone; for a full build use /build-design-system.
 user-invocable: true
 context: fork
 allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, Glob, Grep]

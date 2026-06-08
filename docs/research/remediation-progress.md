@@ -8,7 +8,7 @@
 
 **Scope:** critical + high + medium (80 findings). Low (48) is out of scope — optional polish.
 
-**Progress:** 22 / 80 done · 58 remaining
+**Progress:** 32 / 80 done · 48 remaining
 
 **Cluster order:** state-contract → triggering → write-safety → evals → consistency → docs-infra → rest
 
@@ -30,18 +30,18 @@
 - [x] **F058** · 🟡 med · `system` · C4 · S — The write contract for `theme.profileValidation` is split across files and under-specified in the authoritative… · ✅ #9
 - [x] **F059** · 🟡 med · `system` · C4 · S — `buildMeta.practicesVersion` is a read-only-by-no-writer field. · ✅ #9
 
-## 2. triggering / descriptions (10) — 0 done, 10 left
+## 2. triggering / descriptions (10) — 10 done, 0 left
 
-- [ ] **F015** · 🟡 med · `analyze-theme` · A1 · S — The description's first clause is good (concrete: 'extracting design tokens from a Shopify theme').
-- [ ] **F016** · 🟡 med · `build-design-rules` · A1 · S — The description correctly uses the 'Use when:' CSO pattern (P3/A1 pass on form), but it is thin on concrete trig…
-- [ ] **F017** · 🟡 med · `refresh-figma-practices` · A1 · S — The description is a single thin trigger phrase.
-- [ ] **F018** · 🟡 med · `setup` · A1 · S — The description follows the project's `Use when:` CSO pattern (P3 satisfied) but is thin and omits the most like…
-- [ ] **F019** · 🟡 med · `validate-instances` · A1 · S — The description is a correctly-formed 'Use when:' trigger (passes P3) but is thin: a single context with no conc…
-- [ ] **F042** · 🟡 med · `system` · C1 · M — The orchestrator and the 6 phase skills share the same intent space ("build the Shopify-to-Figma design system")…
-- [ ] **F043** · 🟡 med · `system` · C1 · S — These are adjacent pipeline phases (analyze-theme extracts tokens into the manifest; build-foundations turns tho…
-- [ ] **F044** · 🟡 med · `system` · C1 · S — propose-components is the planning/selection phase (decide which sections/blocks to include and their variants);…
-- [ ] **F045** · 🟡 med · `system` · C1 · S — build-components has a sub-phase that builds SECTION components, while compose-page INSTANTIATES those section c…
-- [ ] **F046** · 🟡 med · `system` · C1 · S — sync-colors is a bidirectional color writer between Figma variables and Shopify settings_data.json.
+- [x] **F015** · 🟡 med · `analyze-theme` · A1 · S — The description's first clause is good (concrete: 'extracting design tokens from a Shopify theme'). · ✅ #10
+- [x] **F016** · 🟡 med · `build-design-rules` · A1 · S — The description correctly uses the 'Use when:' CSO pattern (P3/A1 pass on form), but it is thin on concrete trig… · ✅ #10
+- [x] **F017** · 🟡 med · `refresh-figma-practices` · A1 · S — The description is a single thin trigger phrase. · ✅ #10
+- [x] **F018** · 🟡 med · `setup` · A1 · S — The description follows the project's `Use when:` CSO pattern (P3 satisfied) but is thin and omits the most like… · ✅ #10
+- [x] **F019** · 🟡 med · `validate-instances` · A1 · S — The description is a correctly-formed 'Use when:' trigger (passes P3) but is thin: a single context with no conc… · ✅ #10
+- [x] **F042** · 🟡 med · `system` · C1 · M — The orchestrator and the 6 phase skills share the same intent space ("build the Shopify-to-Figma design system")… · ✅ #10
+- [x] **F043** · 🟡 med · `system` · C1 · S — These are adjacent pipeline phases (analyze-theme extracts tokens into the manifest; build-foundations turns tho… · ✅ #10
+- [x] **F044** · 🟡 med · `system` · C1 · S — propose-components is the planning/selection phase (decide which sections/blocks to include and their variants);… · ✅ #10
+- [x] **F045** · 🟡 med · `system` · C1 · S — build-components has a sub-phase that builds SECTION components, while compose-page INSTANTIATES those section c… · ✅ #10
+- [x] **F046** · 🟡 med · `system` · C1 · S — sync-colors is a bidirectional color writer between Figma variables and Shopify settings_data.json. · ✅ #10
 
 ## 3. write-safety (4) — 3 done, 1 left
 
@@ -125,6 +125,7 @@
 |----|-----------|-----------------|--------|
 | #8 | foundation: state-contract + write-safety + consistency(MCP-STOP/Edit) + evals(harness) | F001 F002 F003 F004 F005 F009 F010 F011 F012 F032 F060 F061 F065 F071 (14) | merged ✅ |
 | #9 | state-contract: manifest producer/consumer field agreements (C4/B1) | F033 F054 F055 F056 F057 F058 F059 F080 (8) | merged ✅ |
+| #10 | triggering: rewrite + mutually disambiguate 11 skill descriptions (C1/A1) | F015 F016 F017 F018 F019 F042 F043 F044 F045 F046 (10) | merged ✅ |
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: build-components
 description: >
-  Use when: constructing atoms, blocks, or sections in Figma
+  Use when: ACTUALLY CONSTRUCTING the already-confirmed inventory in Figma — atoms, blocks, and section components (requires /propose-components to have confirmed the inventory). Builds the components themselves, not page layouts (for that use /compose-page); for a full build use /build-design-system.
 user-invocable: true
 context: fork
 allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, mcp__chrome-devtools__navigate_page, mcp__chrome-devtools__take_screenshot, mcp__chrome-devtools__evaluate_script, mcp__chrome-devtools__resize_page, Read, Write, Glob, Grep]

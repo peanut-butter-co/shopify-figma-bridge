@@ -1,7 +1,7 @@
 ---
 name: compose-page
 description: >
-  Use when: assembling page templates from section instances
+  Use when: ASSEMBLING a full page/template by INSTANTIATING already-built section components in order. Does not create new components — to build sections/atoms/blocks use /build-components; for a full build use /build-design-system.
 user-invocable: true
 context: fork
 allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, mcp__chrome-devtools__navigate_page, mcp__chrome-devtools__take_screenshot, mcp__chrome-devtools__resize_page, Read, Write, Glob, Grep]

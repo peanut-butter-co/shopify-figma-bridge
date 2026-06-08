@@ -1,7 +1,7 @@
 ---
 name: sync-colors
 description: >
-  Use when: syncing color schemes between Figma and Shopify
+  Use when: actively COPYING/WRITING color-scheme values between Figma and Shopify — Figma->Shopify or Shopify->Figma (takes a direction; writes settings_data.json with backup + approval). To only CHECK colors without changing files, use /validate-instances (Figma) or /validate-shopify (theme JSON).
 user-invocable: true
 context: fork
 allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, Edit, Glob, Grep]

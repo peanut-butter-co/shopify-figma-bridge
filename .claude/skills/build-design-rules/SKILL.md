@@ -1,7 +1,7 @@
 ---
 name: build-design-rules
 description: >
-  Use when: generating a design system rules file mapping Figma to code
+  Use when: generating/refreshing the Figma-to-code rules file (design-rules.json) that maps Figma components to theme liquid files and Figma variables/text-styles to CSS — typically after /build-components, and consumed by /compose-page and /sync-colors.
 user-invocable: true
 context: fork
 allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, Glob, Grep]

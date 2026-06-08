@@ -1,7 +1,7 @@
 ---
 name: build-design-system
 description: >
-  Use when: running the full pipeline end-to-end
+  Use when: building or RESUMING the ENTIRE Shopify-to-Figma design system, or when the user names two or more phases, or gives no specific phase. Prefer this over any single phase skill (analyze-theme, build-foundations, propose-components, build-components, compose-page) unless the user explicitly scopes to one step.
 user-invocable: true
 context: fork
 allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, mcp__figma__get_metadata, mcp__chrome-devtools__navigate_page, mcp__chrome-devtools__take_screenshot, mcp__chrome-devtools__evaluate_script, mcp__chrome-devtools__resize_page, mcp__chrome-devtools__fill, mcp__chrome-devtools__click, Read, Write, Glob, Grep]

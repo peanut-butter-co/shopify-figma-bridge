@@ -197,6 +197,37 @@ check('F057: build-design-rules is documented in CLAUDE.md (not orphaned)', () =
 });
 
 // ---------------------------------------------------------------------------
+// C1 / A1 — triggering & description disambiguation
+//   F015-F019 thin descriptions enriched · F042 orchestrator-vs-phase default ·
+//   F046 sync-colors WRITE-vs-CHECK
+// ---------------------------------------------------------------------------
+group('C1/A1: triggering & description disambiguation');
+const descOf = (name) => {
+  const fm = frontmatter(read('.claude/skills/' + name + '/SKILL.md'));
+  const m = fm.match(/description:\s*>?\s*([\s\S]*?)\n(?:[a-z-]+:|$)/);
+  return (m ? m[1] : '').replace(/\s+/g, ' ').trim();
+};
+check('F042: build-design-system is the explicit full-pipeline default', () => {
+  const d = descOf('build-design-system');
+  ok(/\bentire\b/i.test(d) && /phase/i.test(d), 'orchestrator must claim the ENTIRE pipeline and reference phases');
+});
+for (const ph of ['analyze-theme', 'build-foundations', 'propose-components', 'build-components', 'compose-page']) {
+  check('F042: ' + ph + ' steers full builds to build-design-system', () => {
+    ok(/build-design-system/.test(descOf(ph)), ph + ' description must cross-reference build-design-system');
+  });
+}
+check('F046: sync-colors description separates WRITE from read-only CHECK', () => {
+  const d = descOf('sync-colors');
+  ok(/write|copy|direction/i.test(d) && /validate|check/i.test(d),
+    'sync-colors must mark itself a writer and steer check-only intents to the validators');
+});
+check('F015-F019: previously-thin descriptions are now enriched (> 90 chars)', () => {
+  for (const n of ['analyze-theme', 'build-design-rules', 'refresh-figma-practices', 'setup', 'validate-instances']) {
+    ok(descOf(n).length > 90, n + ' description is still too thin (A1 under-triggering risk)');
+  }
+});
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {
