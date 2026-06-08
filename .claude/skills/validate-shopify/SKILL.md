@@ -12,7 +12,7 @@ allowed-tools: [Read, Glob, Grep]
 # Validate Shopify
 
 > **Reference:** Before running validation, review
-> `.claude/skills/validate-shopify/reference/common-schema-gotchas.md`
+> `.claude/skills/validate-shopify/reference/schema-rules.md`
 > for known edge cases and Shopify-specific pitfalls that affect how results
 > should be interpreted.
 
@@ -386,7 +386,7 @@ All other validations passed without issues.
 When running this skill, follow these steps in order:
 
 1. **Read reference material**
-   - Read `.claude/skills/validate-shopify/reference/common-schema-gotchas.md`
+   - Read `.claude/skills/validate-shopify/reference/schema-rules.md`
    - Note any theme-specific edge cases
 
 2. **Discover files**

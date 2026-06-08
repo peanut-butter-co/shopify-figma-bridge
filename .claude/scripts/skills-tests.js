@@ -465,6 +465,19 @@ check('F023: build-foundations alpha-variants reference cites the tested script'
 });
 
 // ---------------------------------------------------------------------------
+// C2/C3 — validate-shopify static reference is reference-named (F048/F052)
+// ---------------------------------------------------------------------------
+group('C2/C3: validate-shopify reference naming');
+check('F048/F052: static reference is reference-named (schema-rules.md, not common-schema-gotchas)', () => {
+  ok(fs.existsSync(path.join(skillsDir, 'validate-shopify', 'reference', 'schema-rules.md')),
+    'reference/common-schema-gotchas.md should be renamed to reference/schema-rules.md');
+  ok(!fs.existsSync(path.join(skillsDir, 'validate-shopify', 'reference', 'common-schema-gotchas.md')),
+    'the gotchas-named static reference must be gone (gotchas.md is for runtime learnings, not static reference)');
+  const md = read('.claude/skills/validate-shopify/SKILL.md');
+  ok(/reference\/schema-rules\.md/.test(md) && !/common-schema-gotchas/.test(md), 'SKILL.md must point at the renamed reference');
+});
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {
