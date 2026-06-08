@@ -14,11 +14,14 @@
 function shopifyHexToRGBA(hex) {
   hex = String(hex).trim();
   if (hex.startsWith('rgba')) {
-    const m = hex.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+    const m = hex.match(/rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d.]+)\s*\)/);
     if (!m) throw new Error('Unparseable rgba() string: ' + hex);
     return { r: +m[1] / 255, g: +m[2] / 255, b: +m[3] / 255, a: +m[4] };
   }
   hex = hex.replace('#', '');
+  if (!/^[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(hex)) {
+    throw new Error('Unparseable hex color: #' + hex + ' (expected #rrggbb or #rrggbbaa)');
+  }
   const r = parseInt(hex.substring(0, 2), 16) / 255;
   const g = parseInt(hex.substring(2, 4), 16) / 255;
   const b = parseInt(hex.substring(4, 6), 16) / 255;
@@ -32,7 +35,8 @@ function shopifyHexToRGBA(hex) {
  * Opaque colors emit `#rrggbb`; semi-transparent emit `#rrggbbaa`.
  */
 function rgbaToShopifyHex(rgba) {
-  const { r, g, b, a } = rgba;
+  const { r, g, b } = rgba;
+  const a = rgba.a == null ? 1 : rgba.a;
   if (r === 0 && g === 0 && b === 0 && a === 0) return 'rgba(0,0,0,0)';
   const toHex = (v) => Math.round(v * 255).toString(16).padStart(2, '0');
   const hex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;

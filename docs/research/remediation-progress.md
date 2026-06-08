@@ -123,4 +123,16 @@
 
 | PR | Cluster(s) | Findings closed | Status |
 |----|-----------|-----------------|--------|
-| #8 | foundation: state-contract + write-safety + consistency(MCP-STOP/Edit) + evals(harness) | F001 F002 F003 F004 F005 F009 F010 F011 F012 F032 F060 F061 F065 F071 (14) | _pending merge_ |
+| #8 | foundation: state-contract + write-safety + consistency(MCP-STOP/Edit) + evals(harness) | F001 F002 F003 F004 F005 F009 F010 F011 F012 F032 F060 F061 F065 F071 (14) | merged ✅ |
+
+---
+
+## Follow-ups discovered during remediation (not in the original 80)
+
+Surfaced by the self-review (`/code-review`) of each PR. Tracked separately so the
+"N / 80" counter above stays faithful to the original review's scope.
+
+- [ ] **HR-1** · harness-rigor · M — Extracted utils (`color-utils.js`, `variant-utils.js`) duplicate the prose JS the agent actually runs (`sync-colors/SKILL.md`, `validation.md`); unit tests cover the utils, not the runtime prose. Mitigated in #8 by mirroring fixes + prose-sync lints; the real fix is single-source (harness extracts & evals the prose block, or skills load the util).
+- [ ] **HR-2** · harness-rigor · S — HIGH-C scope is gated by a frontmatter regex (`mcp__figma__|mcp__chrome-devtools__`); skills that declare MCP tools differently or depend on WebSearch/WebFetch (e.g. `refresh-figma-practices`, see F063) are silently skipped. Broaden the detector.
+- [ ] **HR-3** · harness-rigor · S — Some contract checks remain substring-loose (false-green if prose is reworded). Tightened CRIT-A/CRIT-B/HIGH-F/HIGH-C in #8; audit the remaining asserts as the harness grows.
+- [ ] **BL-1** · build-components · M — `validation.md` variant-completeness node lookup matches `n.name === section.name || n.name === slug`, but the build phase never guarantees the built node is named by slug; PascalCase-named sections would all report MISSING. Pin the section node-naming convention (relates to C4 / F054–F057).

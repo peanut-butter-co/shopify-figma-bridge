@@ -26,7 +26,6 @@ for (const f of frames) {
     }
   }
 }
-```
 
 // Text sizing check: every text node in auto-layout must FILL, never HUG
 for (const t of texts) {

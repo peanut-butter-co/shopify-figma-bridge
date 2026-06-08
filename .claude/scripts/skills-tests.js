@@ -48,8 +48,10 @@ check('fixture manifest-test.json has components.status === "confirmed"', () => 
 });
 check('producer: propose-components Step 8 instructs writing components.status = "confirmed"', () => {
   const md = read('.claude/skills/propose-components/SKILL.md');
-  ok(/status[^\n]{0,40}confirmed/i.test(md) && /components\.status/.test(md),
-    'propose-components/SKILL.md does not instruct writing components.status="confirmed"');
+  // Require an IMPERATIVE write ("Set ... components.status ... confirmed"), not merely a
+  // descriptive mention of the gate — else an explanatory sentence alone would pass (false-green).
+  ok(/set\b[^\n]{0,40}components\.status[^\n]{0,20}confirmed/i.test(md),
+    'propose-components/SKILL.md must imperatively Set components.status="confirmed" (not just mention the gate)');
 });
 check('consumer: build-components gates on components.status === "confirmed"', () => {
   const md = read('.claude/skills/build-components/SKILL.md');
@@ -76,10 +78,21 @@ if (vu && typeof vu.expectedVariantCount === 'function') {
   check('empty variants {} counts as 1 (featured-product edge case)', () => {
     eq(vu.expectedVariantCount({ variants: {} }), 1);
   });
+  check('variantCompletenessIssues surfaces a NaN built-count (does not silently pass)', () => {
+    ok(typeof vu.variantCompletenessIssues === 'function', 'variant-utils must export variantCompletenessIssues');
+    const issues = vu.variantCompletenessIssues(
+      { sections: { hero: { variants: { a: { values: [1, 2, 3] } } } } },
+      () => NaN);
+    ok(issues.length === 1 && /hero/.test(issues[0]),
+      'a NaN actual-count must surface an issue, not report the section complete');
+  });
 }
 check('validation.md no longer uses the NaN-prone reduce(acc * arr.length) formula', () => {
   const md = read('.claude/skills/build-components/reference/validation.md');
   ok(!/acc\s*\*\s*arr\.length/.test(md), 'validation.md still computes expectedCount via arr.length (NaN for object-shaped variants)');
+  // Positive guard: the corrected snippet must shape-check values as an array, so a rename-based
+  // regression that re-introduces the object-vs-array bug is caught too.
+  ok(/Array\.isArray\(v\.values\)/.test(md), 'validation.md variant count must guard Array.isArray(v.values)');
 });
 
 // ---------------------------------------------------------------------------
@@ -100,12 +113,28 @@ if (cu && cu.shopifyHexToRGBA) {
   check('fully-transparent -> rgba(0,0,0,0)', () => { eq(cu.rgbaToShopifyHex({ r: 0, g: 0, b: 0, a: 0 }), 'rgba(0,0,0,0)'); });
   check('colorsMatch within tolerance', () => { ok(cu.colorsMatch({ r: 0.5, g: 0.5, b: 0.5, a: 1 }, { r: 0.502, g: 0.5, b: 0.5, a: 1 })); });
   check('colorsMatch rejects out-of-tolerance', () => { ok(!cu.colorsMatch({ r: 0.5, g: 0.5, b: 0.5, a: 1 }, { r: 0.6, g: 0.5, b: 0.5, a: 1 })); });
+  check('rgbaToShopifyHex tolerates missing alpha (no "#rrggbbNaN")', () => { eq(cu.rgbaToShopifyHex({ r: 1, g: 0, b: 0 }), '#ff0000'); });
+  check('shopifyHexToRGBA throws on malformed hex (loud fail, not silent NaN write)', () => {
+    let threw = false; try { cu.shopifyHexToRGBA('#f00'); } catch (e) { threw = true; }
+    ok(threw, 'malformed hex must throw rather than return NaN channels that get written to settings_data.json');
+  });
+  check('shopifyHexToRGBA tolerates whitespace inside rgba()', () => { const c = cu.shopifyHexToRGBA('rgba( 255, 0, 0, 0.5 )'); approx(c.r, 1); approx(c.a, 0.5); });
 }
 check('sync-colors declares Edit in allowed-tools (so its documented write path is runnable)', () => {
   ok(/allowed-tools:\s*\[[^\]]*\bEdit\b/.test(frontmatter(read('.claude/skills/sync-colors/SKILL.md'))), 'Edit not in allowed-tools');
 });
-check('sync-colors backs up settings_data.json before writing (CLAUDE.md backup rule)', () => {
-  ok(/backup/i.test(read('.claude/skills/sync-colors/SKILL.md')), 'no backup step before the Shopify write');
+check('sync-colors backs up settings_data.json before writing, outside config/ (CLAUDE.md backup rule)', () => {
+  const md = read('.claude/skills/sync-colors/SKILL.md');
+  const backupIdx = md.search(/back ?up/i);
+  const writeIdx = md.search(/use the \*\*Edit\*\* tool to update/i);
+  ok(backupIdx !== -1, 'no backup step documented before the Shopify write');
+  ok(writeIdx === -1 || backupIdx < writeIdx, 'the backup must be instructed BEFORE the Edit write');
+  ok(!/config\/settings_data\.backup/i.test(md), 'backup must NOT be written into config/ (Shopify theme dir)');
+  ok(/\.claude\/figma-sync\/backups/i.test(md), 'backup should target .claude/figma-sync/backups/');
+});
+check('sync-colors prose color JS keeps the missing-alpha guard (stays in sync with color-utils.js)', () => {
+  ok(/rgba\.a == null \? 1/.test(read('.claude/skills/sync-colors/SKILL.md')),
+    'prose rgbaToShopifyHex dropped the missing-alpha guard -> would emit "#rrggbbNaN"');
 });
 
 // ---------------------------------------------------------------------------
@@ -121,7 +150,7 @@ for (const name of fs.readdirSync(skillsDir).sort()) {
   if (!mcpDependent) continue;
   check(name + ': has a "required MCP tool missing -> STOP" pre-flight', () => {
     const hasStop = /\bSTOP\b/.test(body);
-    const checksTools = /(required MCP tools?|MCP tool[s]?[^\n]{0,40}(missing|unavailable|not available)|verify[^\n]{0,40}MCP[^\n]{0,40}available|if[^\n]{0,30}(use_figma|navigate_page)[^\n]{0,40}(missing|unavailable|not available))/is.test(body);
+    const checksTools = /(required MCP tools?|MCP tool[s]?[^\n]{0,40}(missing|unavailable|not available|not connected|not installed|disconnected)|verify[^\n]{0,40}MCP[^\n]{0,40}available|if[^\n]{0,30}(use_figma|navigate_page)[^\n]{0,40}(missing|unavailable|not available|not connected))/is.test(body);
     ok(hasStop && checksTools, 'no hard STOP-on-missing-tool instruction');
   });
 }

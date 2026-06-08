@@ -38,6 +38,7 @@ function variantCompletenessIssues(components, actualCountOf) {
     const expected = expectedVariantCount(section);
     const actual = actualCountOf(slug, section);
     if (actual == null) { issues.push(`MISSING: ${slug} not found`); continue; }
+    if (Number.isNaN(actual)) { issues.push(`UNKNOWN: ${slug} variant count could not be computed`); continue; }
     if (actual < expected) issues.push(`INCOMPLETE: ${slug} has ${actual}/${expected} variants`);
   }
   return issues;
