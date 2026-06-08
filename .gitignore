@@ -26,6 +26,8 @@
 !.claude/skills/*/gotchas.md
 !.claude/skills/*/reference/
 !.claude/skills/*/reference/*.md
+!.claude/skills/*/evals/
+!.claude/skills/*/evals/*.json
 
 # Scripts (committed pipeline tooling)
 !.claude/scripts/

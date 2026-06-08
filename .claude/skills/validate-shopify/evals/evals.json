@@ -1,0 +1,17 @@
+{
+  "skill": "validate-shopify",
+  "about": "Triggering + error-class evals (A9). validate-shopify is a read-only checker of theme JSON (templates, section schemas, settings_data.json); it does not write files.",
+  "cases": [
+    { "prompt": "validate the section schemas before I push the theme", "expect": "trigger" },
+    { "prompt": "check settings_data.json for errors", "expect": "trigger" },
+    { "prompt": "is this template JSON valid?", "expect": "trigger" },
+    { "prompt": "actually change the colors in the theme", "expect": "route", "to": "sync-colors" }
+  ],
+  "errorClassCases": [
+    { "fixture": "a range setting with (max-min) not divisible by step", "expect": "ERROR: range/step mismatch" },
+    { "fixture": "a select setting with more than 50 options", "expect": "ERROR: select exceeds 50 options" },
+    { "fixture": "a section referencing a block type whose file is missing", "expect": "ERROR: block type/file mismatch" },
+    { "fixture": "a template referencing a color_scheme id absent from settings_data.json", "expect": "ERROR: missing color scheme" },
+    { "fixture": "a setting id referenced in liquid but not defined in the schema", "expect": "WARNING: orphaned setting" }
+  ]
+}

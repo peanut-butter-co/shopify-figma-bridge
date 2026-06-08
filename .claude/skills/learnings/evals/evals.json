@@ -1,0 +1,12 @@
+{
+  "skill": "learnings",
+  "about": "Triggering evals (A9). learnings reviews and consolidates feedback/gotchas from recent design-system work.",
+  "cases": [
+    { "prompt": "review our learnings", "expect": "trigger" },
+    { "prompt": "update the gotchas", "expect": "trigger" },
+    { "prompt": "what have we learned from the last build?", "expect": "trigger" },
+    { "prompt": "consolidate the feedback from this session", "expect": "trigger" },
+    { "prompt": "build the components in Figma", "expect": "no-trigger" },
+    { "prompt": "validate the theme JSON", "expect": "no-trigger" }
+  ]
+}

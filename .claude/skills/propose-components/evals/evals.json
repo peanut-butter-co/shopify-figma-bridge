@@ -1,0 +1,14 @@
+{
+  "skill": "propose-components",
+  "about": "Triggering + behavior evals (A9). propose-components PLANS which sections/blocks become components (produces the confirmed inventory); it builds nothing in Figma.",
+  "cases": [
+    { "prompt": "decide which sections and blocks should become Figma components", "expect": "trigger" },
+    { "prompt": "plan the component inventory and their variants", "expect": "trigger" },
+    { "prompt": "which sections are worth turning into components?", "expect": "trigger" },
+    { "prompt": "now actually build the confirmed components in Figma", "expect": "route", "to": "build-components" }
+  ],
+  "behaviorCases": [
+    { "after": "user confirms both Phase A and Phase B", "assert": "manifest components.status === 'confirmed' AND components.summary is written with atoms/universalBlocks/sections counts" },
+    { "after": "a section is selected with two tier-1 variant settings of 3 and 2 values", "assert": "section.totalVariantCombinations.desktop === 6" }
+  ]
+}
