@@ -23,6 +23,10 @@
 !.claude/skills/*/reference/
 !.claude/skills/*/reference/*.md
 
+# Scripts (committed pipeline tooling)
+!.claude/scripts/
+!.claude/scripts/*.js
+
 # Docs
 !docs/
 !docs/**
