@@ -6,7 +6,7 @@ description: >
   violations, setting dependency issues, range/step errors, and block type mismatches.
 user-invocable: true
 context: fork
-allowed-tools: [Read, Glob, Grep, Write]
+allowed-tools: [Read, Glob, Grep]
 ---
 
 # Validate Shopify
@@ -405,7 +405,7 @@ When running this skill, follow these steps in order:
 7. **Run Phase 5** -- Cross-file reference validation
 
 8. **Compile report** using the output format above
-9. **Write report** to stdout (do not write a file unless the user requests it)
+9. **Report to stdout** — this is a read-only validator and does not write files (its `allowed-tools` is `[Read, Glob, Grep]`). If the user wants the report saved, hand them the markdown to save themselves.
 
 ---
 
