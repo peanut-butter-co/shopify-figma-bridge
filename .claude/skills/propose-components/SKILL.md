@@ -167,7 +167,27 @@ Note: Desktop/Mobile is NOT in the variants object — it's handled by creating 
 
 ---
 
-## Step 9: Summary
+## Step 9: Generate Visual Proposal
+
+Run the proposal generator to create an interactive HTML overview:
+
+```bash
+node .claude/scripts/generate-proposal-html.js
+```
+
+Then open it for the user:
+
+```bash
+open .claude/figma-sync/proposal.html
+```
+
+Tell the user:
+
+> Visual proposal generated and opened in your browser. Review the full design system breakdown — atoms, blocks, sections with variant matrices, and instance properties.
+
+---
+
+## Step 10: Summary
 
 ```
 Component inventory confirmed.
@@ -179,6 +199,8 @@ Sections: {N} sections x 2 viewports (desktop + mobile)
           {N} instance properties across all sections
 
 Skipped:  {N} sections (not included)
+
+Visual proposal: .claude/figma-sync/proposal.html
 
 Next step: Run /build-components to create these in Figma.
 ```
