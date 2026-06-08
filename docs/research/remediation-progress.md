@@ -8,7 +8,7 @@
 
 **Scope:** critical + high + medium (80 findings). Low (48) is out of scope — optional polish.
 
-**Progress:** 32 / 80 done · 48 remaining
+**Progress:** 33 / 80 done · 47 remaining
 
 **Cluster order:** state-contract → triggering → write-safety → evals → consistency → docs-infra → rest
 
@@ -43,12 +43,12 @@
 - [x] **F045** · 🟡 med · `system` · C1 · S — build-components has a sub-phase that builds SECTION components, while compose-page INSTANTIATES those section c… · ✅ #10
 - [x] **F046** · 🟡 med · `system` · C1 · S — sync-colors is a bidirectional color writer between Figma variables and Shopify settings_data.json. · ✅ #10
 
-## 3. write-safety (4) — 3 done, 1 left
+## 3. write-safety (4) — 4 done, 0 left
 
 - [x] **F002** · 🔴 crit · `sync-colors` · B4 · S — The skill writes config/settings_data.json (the live theme settings file) but never creates a backup before writ… · ✅ #8
 - [x] **F012** · 🟠 high · `system` · C6 · S — The single skill that writes Shopify JSON (sync-colors, Figma→Shopify) never creates a backup before writing con… · ✅ #8
 - [x] **F065** · 🟡 med · `sync-colors` · C6 · M — Cross-cutting: the backup-before-write requirement appears to be enforced by no skill that writes Shopify JSON,… · ✅ #8
-- [ ] **F066** · 🟡 med · `system` · C6 · M — The 'diff preview' required by CLAUDE.md:19 is implemented in sync-colors as a hand-assembled 'changed values on…
+- [x] **F066** · 🟡 med · `system` · C6 · M — The 'diff preview' required by CLAUDE.md:19 is implemented in sync-colors as a hand-assembled 'changed values on… · ✅ #11
 
 ## 4. evals (8) — 1 done, 7 left
 
@@ -126,6 +126,7 @@
 | #8 | foundation: state-contract + write-safety + consistency(MCP-STOP/Edit) + evals(harness) | F001 F002 F003 F004 F005 F009 F010 F011 F012 F032 F060 F061 F065 F071 (14) | merged ✅ |
 | #9 | state-contract: manifest producer/consumer field agreements (C4/B1) | F033 F054 F055 F056 F057 F058 F059 F080 (8) | merged ✅ |
 | #10 | triggering: rewrite + mutually disambiguate 11 skill descriptions (C1/A1) | F015 F016 F017 F018 F019 F042 F043 F044 F045 F046 (10) | merged ✅ |
+| #11 | write-safety: sync-colors real diff + verify-only-color-keys (C6) | F066 (1) | merged ✅ |
 
 ---
 

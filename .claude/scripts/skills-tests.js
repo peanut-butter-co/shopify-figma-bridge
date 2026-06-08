@@ -136,6 +136,12 @@ check('sync-colors prose color JS keeps the missing-alpha guard (stays in sync w
   ok(/rgba\.a == null \? 1/.test(read('.claude/skills/sync-colors/SKILL.md')),
     'prose rgbaToShopifyHex dropped the missing-alpha guard -> would emit "#rrggbbNaN"');
 });
+check('F066: sync-colors shows a real diff + verifies ONLY color keys changed (restore on mismatch)', () => {
+  const md = read('.claude/skills/sync-colors/SKILL.md');
+  ok(/real key-level diff/i.test(md), 'Step 3 must present a real before/after diff, not a hand-assembled "changed values" list');
+  ok(/restore from the backup/i.test(md) && /only[^\n]{0,60}color_schemes/i.test(md),
+    'Step 5 must assert ONLY color_schemes.* changed and restore from the backup otherwise');
+});
 
 // ---------------------------------------------------------------------------
 // HIGH-C — every MCP-dependent skill must STOP when a required tool is missing
