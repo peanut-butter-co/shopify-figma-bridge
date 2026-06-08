@@ -8,7 +8,7 @@
 
 **Scope:** critical + high + medium (80 findings). Low (48) is out of scope — optional polish.
 
-**Progress:** 69 / 80 done · 11 remaining
+**Progress:** 71 / 80 done · 9 remaining
 
 **Cluster order:** state-contract → triggering → write-safety → evals → consistency → docs-infra → rest
 
@@ -61,7 +61,7 @@
 - [x] **F031** · 🟡 med · `validate-shopify` · A9 · M — There is no evals/evals.json with realistic prompts/fixtures, despite this being the single most eval-friendly s… · ✅ #12
 - [x] **F032** · 🟡 med · `system` · A9 · M — There is zero automated eval/test coverage anywhere in the project. · ✅ #8
 
-## 5. consistency / DRY (29) — 21 done, 8 left
+## 5. consistency / DRY (29) — 23 done, 6 left
 
 - [x] **F005** · 🔴 crit · `system` · C8 · S — sync-colors' body instructs using the Edit tool for its only Shopify write, but Edit is not in allowed-tools (un… · ✅ #8
 - [ ] **F007** · 🟠 high · `validate-instances` · B3 · M — The auto-fix is destructive: it deletes inline frames and re-parents instances inside live design-system templat…
@@ -70,8 +70,8 @@
 - [x] **F011** · 🟠 high · `validate-instances` · C5 · S — Violates the GLOBAL rule and team learning (feedback_missing_tools): if the required Figma MCP tool is not conne… · ✅ #8
 - [x] **F013** · 🟠 high · `system` · C9 · M — The installer is non-functional. · ✅ #13
 - [x] **F014** · 🟠 high · `system` · C9 · S — The README's primary Installation instructions reference a `.claude/commands/` directory that does not exist. · ✅ #13
-- [ ] **F034** · 🟡 med · `system` · B5 · M — No end-to-end verification of the phase-handoff chain exists, and a dry-run trace immediately surfaces the B1-01…
-- [ ] **F035** · 🟡 med · `compose-page` · B6 · S — manifest.json is the single source of truth (CLAUDE.md).
+- [x] **F034** · 🟡 med · `system` · B5 · M — No end-to-end verification of the phase-handoff chain exists, and a dry-run trace immediately surfaces the B1-01… · ✅ #20
+- [x] **F035** · 🟡 med · `compose-page` · B6 · S — manifest.json is the single source of truth (CLAUDE.md). · ✅ #20
 - [ ] **F047** · 🟡 med · `build-foundations` · C2 · S — Inconsistent base-variable naming across the skill's own files.
 - [ ] **F048** · 🟡 med · `validate-shopify` · C2 · S — The project convention splits two concerns: a per-skill gotchas.md (runtime-injected, self-updating learnings) v…
 - [x] **F049** · 🟡 med · `system` · C2 · S — The same Figma Plugin API gotcha list lives twice inside one skill — once in SKILL.md Step 8 and once in gotchas… · ✅ #17
@@ -135,6 +135,7 @@
 | #17 | consistency/hygiene: dedup gotchas + Grey naming + structure doc (C2/C3) | F049 F051 F053 (3) | merged ✅ |
 | #18 | consistency/guards: compose-page password + refresh web-tools STOP (C5) | F062 F063 F064 (3) | merged ✅ |
 | #19 | docs-infra: viewport placeholders + screenshot-verify + gotchas stubs (A2/A5/A7/P1) | F020 F022 F024 F075 F076 (5) | merged ✅ |
+| #20 | consistency/SSOT: manifest state-contract table + compose-page merge-write (B5/B6) | F034 F035 (2) | merged ✅ |
 
 ---
 

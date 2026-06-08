@@ -401,6 +401,21 @@ check('F075/F076: analyze-theme + setup ship a seeded gotchas.md', () => {
 });
 
 // ---------------------------------------------------------------------------
+// B5/B6 — manifest single-source-of-truth contract (F034/F035)
+// ---------------------------------------------------------------------------
+group('B5/B6: manifest single-source-of-truth contract');
+check('F034: CLAUDE.md documents the manifest state contract (phase -> keys)', () => {
+  const md = read('CLAUDE.md');
+  ok(/state contract/i.test(md), 'CLAUDE.md should carry a phase -> keys-written -> keys-read state-contract table');
+  ok(/components\.status/.test(md) && /profileValidation/.test(md) && /buildStatus/.test(md),
+    'the contract table must name the real handoff keys');
+});
+check('F035: compose-page Step 8 preserves all other manifest keys (SSOT)', () => {
+  ok(/preserving every other key/i.test(read('.claude/skills/compose-page/SKILL.md')),
+    'compose-page Step 8 must read+merge the manifest, not overwrite it with the delta object');
+});
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {
