@@ -37,7 +37,7 @@ Slots move design systems from **configuration** (props-driven) to **composition
 
 ## 2. How Slots Work in Figma
 
-> Slots are currently in **open beta**. Changes, bugs, or performance issues are expected.
+> **Status update (researched 2026-06-08):** Slots reached **general availability on 2026-06-01**. See **§9** for the GA timeline, Plugin/REST API automation details, and design-to-code findings. The prose below was written during the open beta — treat any "beta" framing in §2–§8 as historical.
 
 ### Three Ways to Create a Slot
 
@@ -372,7 +372,61 @@ Three converging forces make composable systems essential:
 
 ---
 
-## 9. Sources
+## 9. 2026 Update — GA, API Automation & Design-to-Code (applied to this pipeline)
+
+> **Researched 2026-06-08** via multi-source adversarial verification (`/deep-research`: 20 sources, 89 claims, 22 confirmed / 3 refuted). Sources are primary Figma docs unless noted; load-bearing claims passed 3-0 verification. This section **supersedes the "open beta" framing in §2–§8** and adds the API/automation and design-to-code detail the conceptual sections lack.
+
+### 9.1 Status: GA since 2026-06-01
+
+- Slots are **generally available** as of **2026-06-01** (release notes, *"Sharper controls for every slot"* — verbatim: *"Slots are generally available."*). Timeline: **Schema 2025 debut (2025-10-28)** → **open beta (2026-03-05)** → **GA (2026-06-01)**.
+- GA shipped **four guardrail settings**, all reachable programmatically via `SlotSettings`: min/max layers · *only allow preferred instances* · *display empty slot by default* · *fill as default*.
+- ⚠️ **Seat caveat:** docs say "all plans," but slot **creation** may require a **Full seat** on paid plans (secondary source) — confirm our Figma seat before relying on it.
+
+### 9.2 API automation: Plugin API ✅ / REST API ❌ — *the decisive finding*
+
+- **Plugin API (the surface our `mcp__figma` pipeline drives) fully supports slots:** a `SlotNode` type (`type: 'SLOT'`), **`ComponentNode.createSlot()`** (auto-adds the matching `ComponentPropertyDefinitions` entry), and **`addComponentProperty()` accepts `'SLOT'`** as a first-class type alongside `BOOLEAN | TEXT | INSTANCE_SWAP | VARIANT`. → Emitting slots needs **no new transport** — mechanically in scope for `build-components` today.
+  - ⚠️ **Nuance:** `'SLOT'` properties take **no `defaultValue`** — they use `preferredValues` / `description` / `slotSettings`. The proposal/build code must **special-case** slot props, not reuse the enum/boolean creation path.
+- **REST API: slots are entirely absent** — 0 matches in the v0.40.0 OpenAPI spec (no node type, field, or endpoint) — and REST is **read-only** for node/component content anyway (the only content write is `POST .../variables`). → Slot work must go through the **Plugin-API-backed MCP, never REST** (confirms our existing architecture).
+- 🔴 **The one real gap — populating slots inside INSTANCES:** `appendChild()` into a slot that lives inside an *instance* throws `"Cannot move node. New parent is an instance…"` (`figma/plugin-typings#351`, open since 2026-03-20; only workaround is `detachInstance`, which defeats the point). **Creating slots + filling default content at the MAIN-component level works.** → `/compose-page` should **not** yet auto-fill per-page slot content; keep page composition on instance-swap/variants (or manual fill). Re-verify post-GA.
+
+### 9.3 Design-to-code mapping
+
+- Code Connect ships **`figma.slot()`**: its return value is the slot content, usable as a **React JSX child** / **HTML child element**. Figma equates a slot to **React `children`**, a **Compose content lambda**, or a **SwiftUI `@ViewBuilder`** — tightening the Code-Parity table above with the real helper name.
+- ⚠️ **Code Connect does NOT traverse slot children** — it emits a **reference/placeholder** (Dev Mode shows a clickable label with the slot name). Resolution is **one level deep** with known bugs (`code-connect#389/#353`); slot-to-code **MCP support is "coming soon."** → Slots improve the **structure/contract** of generated Liquid (a named "block loop goes here" region) but do **not** auto-expand nested child blocks. Deep `section→block→sub-block` still codegens more completely via **instance-swap** today.
+- **Hybrid is first-class:** three helpers coexist in one component / one Code Connect file — `figma.instance()` (instance-swap ≈ render props), `figma.children()` (unbound nested instances), `figma.slot()` (slots). Adding slots does **not** require removing our variants + instance-swap.
+
+### 9.4 Shopify mapping
+
+A Figma slot is the design-side analog of a section's `{%- for block in section.blocks -%}` loop / `{{ block.shopify_attributes }}` region — the **indeterminate child-content area**. Modeling those as slots gives codegen/AI a **named, structured contract** for "what child blocks go here" (the AI-readability argument from §8, made concrete).
+
+### 9.5 Recommendation — selectively adopt; keep the three-bucket model elsewhere
+
+✅ **Use slots for** content-container sections whose Shopify schema is a `blocks: [...]` array of heterogeneous, indeterminate-count children — **rich-text, multicolumn, slideshow, footer block groups, card/collage/grid item areas**. A slot collapses a pile of `show_*` booleans + instance-swaps into one composable area, and gives codegen a named block-loop contract. (Maps to this doc's *Repeating-Items / Named / Higher-Order Layout* slot types.)
+
+❌ **Keep variants + enum/boolean instance properties + variable modes for:**
+- **Atoms** (button, badge, input) — no child-content area.
+- **Structural / dimensional / color settings** — already routed to instance properties / variable modes; a slot is a content *area*, not an attribute.
+- **Fixed single-child swaps** (one icon) — instance-swap is simpler and codegens more completely.
+- **Deep nesting** (`section→block→sub-block`) — slot codegen traversal is one level deep and buggy today.
+
+**Costs / risks:** net-new slot path in `propose-components` Phase B + `build-components` (no `defaultValue`); `/compose-page` per-instance fill blocked (`#351`); GA is days old (churn risk); MCP slot coverage still maturing.
+
+**Rollout:** pilot **one** high-value section (e.g. **multicolumn**) end-to-end — propose → build → Code Connect → Liquid — using the branch-per-component migration approach (above) before broad adoption.
+
+**🚦 Capability gate** (ties to our *"STOP if required tools missing"* rule): before emitting any slot, `build-components` must **probe that the live Figma MCP exposes `createSlot` / `'SLOT'`**. If not, fall back to variants + instance-swap rather than failing.
+
+### 9.6 Open questions (verify against live tooling before building)
+
+1. Does our `mcp__figma__use_figma` actually surface `createSlot()` / `addComponentProperty('SLOT')` today, or only canvas ops?
+2. Is the in-instance population gap (`#351`) fixed in GA? (Decides whether `/compose-page` can auto-fill slots.)
+3. When slot-to-code MCP ships, will it traverse children well enough for nested Shopify block markup, or will instance-swap stay better for deep nesting?
+4. Cleanest mapping from `{%- for block in section.blocks -%}` + permitted block `type`s → a slot's `preferredValues` + min/max guardrails?
+
+> **Confidence & freshness:** GA / API / Code-Connect findings are high-confidence (3-0 adversarial, primary sources). The in-instance gap (`#351`) and the adopt-or-not mapping are **medium-confidence / time-sensitive** — GA is ~7 days old at research time (2026-06-08); re-verify live before building.
+
+---
+
+## 10. Sources
 
 ### Official Figma
 - [How to Supercharge your Design System with Slots](https://www.figma.com/blog/supercharge-your-design-system-with-slots/) — Figma Blog
@@ -403,3 +457,16 @@ Three converging forces make composable systems essential:
 
 ### Material Design
 - [Unlocking Component Flexibility with Slots in Figma — M3](https://m3.material.io/blog/material-3-slot-components-figma)
+
+### 2026 Update — API, status & codegen (deep-research, verified)
+- [Figma Release Notes](https://www.figma.com/release-notes/) — GA "Sharper controls for every slot" (2026-06-01)
+- [Slots is rolling out in open beta](https://forum.figma.com/product-updates-3/slots-is-rolling-out-in-open-beta-51584) — Figma Forum (2026-03-05)
+- [The difference between slots, instance swaps, and variants](https://help.figma.com/hc/en-us/articles/38741465279895-The-difference-between-slots-instance-swaps-and-variants) — Figma Help
+- [Migrate a library to using slots](https://help.figma.com/hc/en-us/articles/38607529833751-Migrate-a-library-to-using-slots) — Figma Help
+- [Plugin API — SlotNode](https://developers.figma.com/docs/plugins/api/SlotNode/)
+- [Plugin API — ComponentNode (`createSlot`)](https://developers.figma.com/docs/plugins/api/ComponentNode/)
+- [Plugin API — ComponentPropertyType (`'SLOT'`)](https://developers.figma.com/docs/plugins/api/ComponentPropertyType/)
+- [REST API spec — no slot support](https://github.com/figma/rest-api-spec)
+- [Code Connect — React](https://developers.figma.com/docs/code-connect/react/) · [HTML](https://developers.figma.com/docs/code-connect/html/)
+- [plugin-typings#351](https://github.com/figma/plugin-typings/issues/351) — `appendChild` into in-instance slot throws
+- [code-connect#389](https://github.com/figma/code-connect/issues/389) — slot traversal only one level deep
