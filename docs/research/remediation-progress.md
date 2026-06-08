@@ -8,7 +8,7 @@
 
 **Scope:** critical + high + medium (80 findings). Low (48) is out of scope — optional polish.
 
-**Progress:** 78 / 80 done · 2 remaining
+**Progress:** 80 / 80 done · 0 remaining
 
 **Cluster order:** state-contract → triggering → write-safety → evals → consistency → docs-infra → rest
 
@@ -93,11 +93,11 @@
 - [x] **F073** · 🟡 med · `system` · C8 · S — validate-shopify declares the Write tool but is a read-only validator whose own body says not to write a file. · ✅ #15
 - [x] **F074** · 🟡 med · `sync-colors` · C9 · S — sync-colors sets context: fork, but the project's own research decision matrix classifies sync-colors as a light… · ✅ #15
 
-## 6. docs / infra (9) — 7 done, 2 left
+## 6. docs / infra (9) — 9 done, 0 left
 
-- [ ] **F006** · 🟠 high · `validate-shopify` · A6 · L — The entire validation is deterministic, repeated, multi-step computation (JSON.parse of templates, regex extract…
+- [x] **F006** · 🟠 high · `validate-shopify` · A6 · L — The entire validation is deterministic, repeated, multi-step computation (JSON.parse of templates, regex extract… · ✅ #26
 - [x] **F020** · 🟡 med · `validate-instances` · A2 · S — get_screenshot is granted but the body never tells the agent to use it. · ✅ #19
-- [ ] **F021** · 🟡 med · `validate-shopify` · A3 · M — Six validation topics are spelled out in full (rules, thresholds, examples, math) in BOTH SKILL.md and the refer…
+- [x] **F021** · 🟡 med · `validate-shopify` · A3 · M — Six validation topics are spelled out in full (rules, thresholds, examples, math) in BOTH SKILL.md and the refer… · ✅ #26
 - [x] **F022** · 🟡 med · `system` · A5 · M — Systemic A5/A1 weakness underlying the C1 collisions: nine of the thirteen descriptions are single terse capabil… · ✅ #19
 - [x] **F023** · 🟡 med · `build-foundations` · A6 · M — The alpha-variant computation is deterministic, repeated for every scheme color, and numerically error-prone (he… · ✅ #23
 - [x] **F024** · 🟡 med · `system` · A7 · S — A stale hardcoded viewport literal (375px) sits inside compose-page's ASCII layout diagram while the rest of the… · ✅ #19
@@ -141,6 +141,7 @@
 | #23 | docs-infra: extract + unit-test alpha-variant computation (A6) | F023 (1) | merged ✅ |
 | #24 | consistency: rename validate-shopify static reference to schema-rules.md (C2/C3) | F048 F052 (2) | merged ✅ |
 | #25 | enforcement: MANDATORY hard-STOP pre-flight gates across build skills (B6/F008 MVP) | F008 (1) | merged ✅ |
+| #26 | validate-shopify: extract + unit-test the core deterministic checks (A6/F006/F021) | F006 F021 (2) | merged ✅ |
 
 ---
 
@@ -154,3 +155,4 @@ Surfaced by the self-review (`/code-review`) of each PR. Tracked separately so t
 - [ ] **HR-3** · harness-rigor · S — Some contract checks remain substring-loose (false-green if prose is reworded). Tightened CRIT-A/CRIT-B/HIGH-F/HIGH-C in #8; audit the remaining asserts as the harness grows.
 - [ ] **BL-1** · build-components · M — `validation.md` variant-completeness node lookup matches `n.name === section.name || n.name === slug`, but the build phase never guarantees the built node is named by slug; PascalCase-named sections would all report MISSING. Pin the section node-naming convention (relates to C4 / F054–F057).
 - [ ] **BL-2** · build-design-system · L — F008 MVP (hard pre-flight gates) shipped in #25; the deferred half is rearchitecting the orchestrator to invoke phases via the Skill tool with post-write manifest verification (enforcement plan §1). Larger task tracked alongside docs/roadmap.md.
+- [ ] **BL-3** · validate-shopify · L — F006/F021 shipped the 5 core deterministic checks as a unit-tested script (#26) + made schema-rules.md the canonical detail. The deferred half is extending shopify-validate.js to every Phase 1–5 edge case and trimming the 465-line SKILL.md inline detail down to name+severity that defers to schema-rules.md.

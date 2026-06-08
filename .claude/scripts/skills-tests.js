@@ -492,6 +492,41 @@ check('F008: CLAUDE.md states pre-flight gates are HARD STOPs', () => {
 });
 
 // ---------------------------------------------------------------------------
+// A6 — deterministic Shopify validation checks (scripted + unit-tested, F006)
+// ---------------------------------------------------------------------------
+group('A6: deterministic Shopify validation checks (scripted + unit-tested)');
+const sv = tryRequire('./shopify-validate.js');
+check('shopify-validate.js exists with the core checks', () => {
+  ok(sv && sv.rangeStepIssue && sv.selectLimitIssue && sv.blockTypeFileIssue && sv.colorSchemeRefIssues && sv.orphanedSettingIssues,
+    'create .claude/scripts/shopify-validate.js with the deterministic check functions');
+});
+if (sv && sv.rangeStepIssue) {
+  check('rangeStepIssue flags non-divisible (max-min)/step + bad step', () => {
+    eq(sv.rangeStepIssue({ type: 'range', id: 'r', min: 0, max: 100, step: 10 }), null);
+    ok(sv.rangeStepIssue({ type: 'range', id: 'r', min: 0, max: 100, step: 30 }));
+    ok(sv.rangeStepIssue({ type: 'range', id: 'r', min: 0, max: 10, step: 0 }));
+  });
+  check('selectLimitIssue flags > 50 options', () => {
+    ok(sv.selectLimitIssue({ type: 'select', id: 's', options: Array.from({ length: 51 }, (_, i) => ({ value: i })) }));
+    eq(sv.selectLimitIssue({ type: 'select', id: 's', options: [{ value: 1 }] }), null);
+  });
+  check('blockTypeFileIssue flags missing file (exempts @app/@theme/_private)', () => {
+    eq(sv.blockTypeFileIssue('text', ['text.liquid']), null);
+    ok(sv.blockTypeFileIssue('nope', ['text.liquid']));
+    eq(sv.blockTypeFileIssue('@app', []), null);
+    eq(sv.blockTypeFileIssue('_local', []), null);
+  });
+  check('colorSchemeRefIssues + orphanedSettingIssues', () => {
+    eq(sv.colorSchemeRefIssues(['scheme-1', 'scheme-9'], ['scheme-1']).length, 1);
+    eq(sv.orphanedSettingIssues(['a', 'b'], ['a']).length, 1);
+  });
+}
+check('F006/F021: validate-shopify cites the script + defers detail to schema-rules.md', () => {
+  const md = read('.claude/skills/validate-shopify/SKILL.md');
+  ok(/shopify-validate\.js/.test(md) && /schema-rules\.md/.test(md), 'SKILL.md must cite the script and defer detail to schema-rules.md');
+});
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {
