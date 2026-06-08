@@ -28,6 +28,7 @@ You are building the design system foundations in Figma: pages, variable collect
 4. Read `config.desktopWidth` and `config.mobileWidth` for later use.
 5. **Check for theme profile:** If `theme.hasProfile === true`, read `.claude/figma-sync/theme-profiles/{theme_slug}.json`. But **only use profile guidance for areas that passed validation** — check `theme.profileValidation` in the manifest (set by `/analyze-theme`). For validated areas, use the profile's `figmaMapping` sections. If a section shows `"diverged"` in profileValidation → ignore the profile for that area, use only the manifest's detected data.
 6. If `buildStatus.foundations === "complete"` → warn user: "Foundations were already built. Re-running will recreate everything. Proceed?"
+7. **Verify required MCP tools are available** (Figma: `use_figma`, `get_screenshot`). If any required MCP tool is missing → **STOP** and ask the user to connect the Figma MCP server before continuing.
 
 ---
 

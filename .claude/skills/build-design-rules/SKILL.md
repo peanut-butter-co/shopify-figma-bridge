@@ -25,6 +25,7 @@ You are generating a design system rules file that maps every Figma component to
 1. Read `.claude/figma-sync/manifest.json`
 2. Verify `buildStatus.foundations === "complete"` and `buildStatus.components` has at least one completed phase
 3. If not → "Build foundations and at least some components first."
+4. **Verify required MCP tools are available** (Figma: `use_figma`, `get_screenshot`). If any required MCP tool is missing → **STOP** and ask the user to connect the Figma MCP server before continuing — do not run a partial scan.
 
 ---
 

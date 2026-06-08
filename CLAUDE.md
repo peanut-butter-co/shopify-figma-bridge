@@ -32,3 +32,10 @@ Or run everything: `/build-design-system [template]`
 - `/validate-shopify` — schema + JSON validation
 - `/refresh-figma-practices` — update best practices
 - `/learnings` — review and consolidate gotchas
+
+## Tests
+
+- `node .claude/scripts/skills-tests.js` — skill contract + unit harness: manifest state
+  contracts (e.g. `components.status`), variant-count and color-conversion logic, and the
+  required-MCP-tool STOP pre-flights. Zero dependencies; exit 0 = green. Fixture:
+  `.claude/figma-sync/manifest-test.json`.

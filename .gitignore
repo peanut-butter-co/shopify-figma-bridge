@@ -41,6 +41,10 @@
 !.claude/figma-sync/theme-profiles/*.json
 !.claude/figma-sync/theme-profiles/README.md
 
+# Test fixture (committed so the skills test harness in .claude/scripts/ is reproducible).
+# The runtime manifest.json and the generated proposal.html stay ignored.
+!.claude/figma-sync/manifest-test.json
+
 # Always ignore runtime state (generated per project)
 .claude/figma-sync/theme-profiles/manifest.json
 

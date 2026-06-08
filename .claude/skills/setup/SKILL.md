@@ -19,6 +19,10 @@ You are configuring the environment for the Shopify-to-Figma design system pipel
 
 ---
 
+## Pre-flight: Required Tools
+
+Before anything else, **verify the required MCP tools are available**: Chrome DevTools MCP (`navigate_page`, `take_screenshot`, `fill`, `click`) and Figma MCP (`get_metadata`). If any required MCP tool is missing → **STOP** and ask the user to connect it before continuing — setup is the gate that verifies store + Figma access, so every later phase depends on this check actually running.
+
 ## Step 1: Reference Store URL and Figma File
 
 Ask the user in plain text to provide two things:

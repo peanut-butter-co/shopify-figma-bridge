@@ -31,6 +31,7 @@ You are assembling a full page composition in Figma by instantiating the section
    If not → tell user which phases are missing.
 3. Read `config.desktopWidth`, `config.mobileWidth`, `config.figmaFileKey`
 4. Read `components.sections` for the section order and color schemes
+5. **Verify required MCP tools are available** (Figma: `use_figma`, `get_screenshot`; Chrome DevTools: `navigate_page`, `take_screenshot`, `resize_page`). If any required MCP tool is missing → **STOP** and ask the user to connect it before continuing.
 
 ---
 

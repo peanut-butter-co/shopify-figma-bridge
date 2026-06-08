@@ -4,7 +4,7 @@ description: >
   Use when: syncing color schemes between Figma and Shopify
 user-invocable: true
 context: fork
-allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, Glob, Grep]
+allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, Edit, Glob, Grep]
 ---
 
 ```sh
@@ -29,7 +29,7 @@ You are syncing color scheme data between the Figma file (via Figma MCP `use_fig
 
 1. Read `.claude/figma-sync/manifest.json` to get `config.figmaFileKey`
 2. Verify the Figma MCP server is connected by calling `use_figma` with a simple read script
-3. If `use_figma` fails → tell the user to check their Figma MCP connection
+3. **Verify required MCP tools are available.** If `use_figma` is missing or fails → **STOP** and ask the user to fix the Figma MCP connection before continuing — do not attempt a partial sync.
 
 ---
 
@@ -117,12 +117,16 @@ Shopify uses three formats:
 
 ```javascript
 function shopifyHexToRGBA(hex) {
-  hex = hex.trim();
+  hex = String(hex).trim();
   if (hex.startsWith('rgba')) {
-    const m = hex.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+    const m = hex.match(/rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d.]+)\s*\)/);
+    if (!m) throw new Error('Unparseable rgba() string: ' + hex);
     return { r: +m[1]/255, g: +m[2]/255, b: +m[3]/255, a: +m[4] };
   }
   hex = hex.replace('#', '');
+  if (!/^[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(hex)) {
+    throw new Error('Unparseable hex color: #' + hex);
+  }
   const r = parseInt(hex.substring(0, 2), 16) / 255;
   const g = parseInt(hex.substring(2, 4), 16) / 255;
   const b = parseInt(hex.substring(4, 6), 16) / 255;
@@ -135,7 +139,8 @@ function shopifyHexToRGBA(hex) {
 
 ```javascript
 function rgbaToShopifyHex(rgba) {
-  const { r, g, b, a } = rgba;
+  const { r, g, b } = rgba;
+  const a = rgba.a == null ? 1 : rgba.a;
   if (r === 0 && g === 0 && b === 0 && a === 0) return 'rgba(0,0,0,0)';
   const toHex = (v) => Math.round(v * 255).toString(16).padStart(2, '0');
   const hex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
@@ -182,8 +187,11 @@ Map each Figma variable to its Shopify field. Convert resolved `{r,g,b,a}` to Sh
 ### Step 3: Show diff to user
 Read current `config/settings_data.json` and compare. Show changed values only. **Wait for user approval.**
 
-### Step 4: Write to Shopify
-Use the Edit tool to update `config/settings_data.json`. **Only modify color fields.**
+### Step 4: Back up, then write to Shopify
+
+**Back up first.** Before any modification, copy `config/settings_data.json` to a timestamped backup **outside the theme dir** — `.claude/figma-sync/backups/settings_data.<YYYYMMDD-HHMMSS>.json` (create the `.claude/figma-sync/backups/` dir if needed; never write the backup into `config/`, where Shopify's `theme push` / `theme check` would treat it as an unknown config file) — so the write is reversible — this file controls every color scheme on the storefront and a bad or partial write is otherwise unrecoverable (CLAUDE.md: all Shopify JSON writes require backup + diff preview + user approval).
+
+Then use the **Edit** tool to update `config/settings_data.json`, modifying **only** color fields. Report the backup path in the summary so the user can roll back.
 
 ### Step 5: Verify
 Re-read the file and confirm values match.
