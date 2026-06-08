@@ -221,9 +221,12 @@ check('F046: sync-colors description separates WRITE from read-only CHECK', () =
   ok(/write|copy|direction/i.test(d) && /validate|check/i.test(d),
     'sync-colors must mark itself a writer and steer check-only intents to the validators');
 });
-check('F015-F019: previously-thin descriptions are now enriched (> 90 chars)', () => {
+check('F015-F019: previously-thin descriptions are now enriched (> 120 chars)', () => {
+  // Floor is 120, not 90: the OLD thin forms for analyze-theme (97) and setup (98) already
+  // exceeded 90, so a 90-floor would not catch a revert of those two. All 5 new descriptions
+  // are 200+ chars; the old forms were all < 100.
   for (const n of ['analyze-theme', 'build-design-rules', 'refresh-figma-practices', 'setup', 'validate-instances']) {
-    ok(descOf(n).length > 90, n + ' description is still too thin (A1 under-triggering risk)');
+    ok(descOf(n).length > 120, n + ' description is still too thin (A1 under-triggering risk)');
   }
 });
 
