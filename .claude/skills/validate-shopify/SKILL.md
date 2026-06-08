@@ -38,6 +38,8 @@ Run this skill:
 Work through each phase sequentially. Collect all findings into the report
 format defined at the end.
 
+> **Deterministic checks are scripted + unit-tested.** The error-prone math — range step divisibility, select ≤ 50 options, block-type ↔ `blocks/<type>.liquid`, color-scheme references, orphaned settings — lives in `.claude/scripts/shopify-validate.js` (verified by the skills harness). The full thresholds, rationale, and worked examples for every check are the canonical content of [`reference/schema-rules.md`](reference/schema-rules.md) — defer to it rather than re-deriving here. (Extending the script to the remaining Phase 1–5 edge cases + trimming the inline detail below to name+severity is tracked as **BL-3**.)
+
 ---
 
 ### Phase 1: Template JSON Validation
