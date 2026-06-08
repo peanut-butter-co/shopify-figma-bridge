@@ -31,6 +31,8 @@ You are building the confirmed component inventory in Figma: atoms, blocks, and 
 
 ## Pre-flight
 
+**These are HARD GATES (MANDATORY).** If any check below fails, **STOP** immediately, tell the user the exact prerequisite skill to run, and do NOT proceed, improvise, or partially build — silently skipping a phase corrupts the design system (CLAUDE.md: "NEVER skip a pipeline phase").
+
 1. Read `.claude/figma-sync/manifest.json`
 2. Verify `components.status === "confirmed"`. If not → "Run `/propose-components` first."
 3. Verify `buildStatus.foundations === "complete"`. If not → "Run `/build-foundations` first."

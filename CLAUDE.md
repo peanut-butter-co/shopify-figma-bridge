@@ -15,7 +15,7 @@ builds Figma design systems, and enables design-to-code workflows.
 
 - NEVER create inline frames — always use component instances
 - NEVER hardcode colors/sizes — always bind to Figma variables
-- NEVER skip a pipeline phase — each depends on the previous
+- NEVER skip a pipeline phase — each depends on the previous; every pre-flight gate is a HARD STOP, not advice (if an upstream key is missing, STOP and route the user to the prerequisite skill — never improvise or partially build)
 - EVERY text node must have a textStyleId AND a variable-bound fill
 - ALL Shopify JSON writes require backup + diff preview + user approval
 - Sync is bidirectional — Figma ↔ Shopify in both directions

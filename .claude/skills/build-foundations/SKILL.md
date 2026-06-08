@@ -22,6 +22,8 @@ You are building the design system foundations in Figma: pages, variable collect
 
 ## Pre-flight
 
+**These are HARD GATES (MANDATORY).** If any check below fails, **STOP** immediately, tell the user the exact prerequisite skill to run, and do NOT proceed, improvise, or partially build — silently skipping a phase corrupts the design system (CLAUDE.md: "NEVER skip a pipeline phase").
+
 1. Read `.claude/figma-sync/manifest.json`
 2. Verify `foundations` is not null. If null → tell user: "Run `/analyze-theme` first."
 3. Verify `config.figmaFileKey` exists. If missing → tell user: "Run `/setup` first."

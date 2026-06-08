@@ -478,6 +478,20 @@ check('F048/F052: static reference is reference-named (schema-rules.md, not comm
 });
 
 // ---------------------------------------------------------------------------
+// B6 — pipeline-phase enforcement: pre-flight gates are MANDATORY (F008, MVP)
+// ---------------------------------------------------------------------------
+group('B6: pipeline-phase enforcement gates are MANDATORY');
+for (const name of ['build-foundations', 'propose-components', 'build-components', 'compose-page']) {
+  check('F008: ' + name + ' pre-flight is a HARD GATE (STOP, not advice)', () => {
+    ok(/HARD GATES \(MANDATORY\)/.test(read('.claude/skills/' + name + '/SKILL.md')),
+      'pre-flight must be a mandatory hard STOP gate, not an advisory "tell user"');
+  });
+}
+check('F008: CLAUDE.md states pre-flight gates are HARD STOPs', () => {
+  ok(/pre-flight gate is a HARD STOP/i.test(read('CLAUDE.md')), 'CLAUDE.md rule must make the gates mandatory');
+});
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {
