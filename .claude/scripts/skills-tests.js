@@ -441,6 +441,30 @@ check('F007: auto-fix is create-then-verify-then-remove with reversible state', 
 });
 
 // ---------------------------------------------------------------------------
+// A6 — alpha-variant computation extracted + unit-tested (F023)
+// ---------------------------------------------------------------------------
+group('A6: alpha-variant computation (scripted + unit-tested)');
+const av = tryRequire('./alpha-variants.js');
+check('alpha-variants.js exists and exports neededAlphaVariants', () => {
+  ok(av && typeof av.neededAlphaVariants === 'function', 'create .claude/scripts/alpha-variants.js exporting neededAlphaVariants(schemes)');
+});
+if (av && av.neededAlphaVariants) {
+  check('neededAlphaVariants parses, skips opaque/transparent, rounds %, dedups', () => {
+    const got = av.neededAlphaVariants({
+      s1: { foreground: '#000000cf', border: '#0000000f', primary: '#000000cf', sbb: 'rgba(0,0,0,0)', heading: '#000000' },
+      warm: { primary: '#2b1c14cc' },
+    });
+    eq(got.length, 3, 'foreground/primary dedup; transparent + opaque skipped');
+    eq(got.map((v) => v.pct).sort((a, b) => a - b), [6, 80, 81]);
+    const fg = got.find((v) => v.pct === 81); approx(fg.a, 207 / 255); approx(fg.r, 0); approx(fg.g, 0); approx(fg.b, 0);
+  });
+}
+check('F023: build-foundations alpha-variants reference cites the tested script', () => {
+  ok(/alpha-variants\.js/.test(read('.claude/skills/build-foundations/reference/alpha-variants.md')),
+    'alpha-variants.md should cite the unit-tested .claude/scripts/alpha-variants.js');
+});
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {

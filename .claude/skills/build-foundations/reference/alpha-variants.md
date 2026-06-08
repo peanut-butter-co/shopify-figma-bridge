@@ -2,6 +2,8 @@
 
 **This step is critical.** Many scheme colors include alpha/opacity (e.g., `#000000cf` = black at 81%, `#0000000f` = black at 6%). The base collections from Steps 2-3 only contain fully opaque colors. Before building Color Schemas, you MUST create alpha variant variables so that every scheme color has a matching base variable to alias to.
 
+> **The deterministic part is scripted and unit-tested:** `.claude/scripts/alpha-variants.js` (`neededAlphaVariants`) parses every scheme color, skips opaque/transparent, rounds the alpha percentage, and returns the deduplicated `{r,g,b,a,pct}` list. Run it on `foundations.colors.schemes` to get the list, then do the Figma-specific part below — match each entry's RGB to its parent base variable and name it `{ParentGroup}/{pct}`. Keep this doc and the script in sync.
+
 ## How to find needed alpha variants
 
 Scan ALL color values across ALL schemes in `foundations.colors.schemes`. For each color value:

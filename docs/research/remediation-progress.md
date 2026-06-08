@@ -8,7 +8,7 @@
 
 **Scope:** critical + high + medium (80 findings). Low (48) is out of scope — optional polish.
 
-**Progress:** 74 / 80 done · 6 remaining
+**Progress:** 75 / 80 done · 5 remaining
 
 **Cluster order:** state-contract → triggering → write-safety → evals → consistency → docs-infra → rest
 
@@ -93,13 +93,13 @@
 - [x] **F073** · 🟡 med · `system` · C8 · S — validate-shopify declares the Write tool but is a read-only validator whose own body says not to write a file. · ✅ #15
 - [x] **F074** · 🟡 med · `sync-colors` · C9 · S — sync-colors sets context: fork, but the project's own research decision matrix classifies sync-colors as a light… · ✅ #15
 
-## 6. docs / infra (9) — 6 done, 3 left
+## 6. docs / infra (9) — 7 done, 2 left
 
 - [ ] **F006** · 🟠 high · `validate-shopify` · A6 · L — The entire validation is deterministic, repeated, multi-step computation (JSON.parse of templates, regex extract…
 - [x] **F020** · 🟡 med · `validate-instances` · A2 · S — get_screenshot is granted but the body never tells the agent to use it. · ✅ #19
 - [ ] **F021** · 🟡 med · `validate-shopify` · A3 · M — Six validation topics are spelled out in full (rules, thresholds, examples, math) in BOTH SKILL.md and the refer…
 - [x] **F022** · 🟡 med · `system` · A5 · M — Systemic A5/A1 weakness underlying the C1 collisions: nine of the thirteen descriptions are single terse capabil… · ✅ #19
-- [ ] **F023** · 🟡 med · `build-foundations` · A6 · M — The alpha-variant computation is deterministic, repeated for every scheme color, and numerically error-prone (he…
+- [x] **F023** · 🟡 med · `build-foundations` · A6 · M — The alpha-variant computation is deterministic, repeated for every scheme color, and numerically error-prone (he… · ✅ #23
 - [x] **F024** · 🟡 med · `system` · A7 · S — A stale hardcoded viewport literal (375px) sits inside compose-page's ASCII layout diagram while the rest of the… · ✅ #19
 - [x] **F075** · 🟡 med · `analyze-theme` · P1 · S — analyze-theme is a core pipeline skill (explicitly named in the P1 mandate alongside build-*, compose-page, prop… · ✅ #19
 - [x] **F076** · 🟡 med · `setup` · P1 · S — The dynamic-context block references a per-skill `gotchas.md` (P1/P2 mechanism) that does not exist, so it alway… · ✅ #19
@@ -138,6 +138,7 @@
 | #20 | consistency/SSOT: manifest state-contract table + compose-page merge-write (B5/B6) | F034 F035 (2) | merged ✅ |
 | #21 | consistency: numeric swatch naming + canonical Plugin-API reference (C2) | F047 F050 (2) | merged ✅ |
 | #22 | consistency/safety: validate-instances auto-fix create→verify→remove (B3) | F007 (1) | merged ✅ |
+| #23 | docs-infra: extract + unit-test alpha-variant computation (A6) | F023 (1) | merged ✅ |
 
 ---
 
