@@ -454,3 +454,12 @@ at 0, with -1 being a special sentinel. Do not flag `-1` as out-of-range if
 Modern Shopify themes use UUID-style keys for color schemes:
 `scheme-a90ef358-2c2f-4e3b-8f5a-1d2e3f4a5b6c`. These are valid keys. Do not
 assume color schemes are named `scheme-1` through `scheme-6`.
+
+## After Completion
+
+If the user corrected your approach during this run — a wrong assumption, a better
+method, a binding/layout/naming gotcha, anything worth knowing next time — append it
+as a short **dated bullet** to this skill's `gotchas.md`
+(`.claude/skills/validate-shopify/gotchas.md`; create the file if it does not exist). That
+file is injected at the top of this skill on every invocation, so the next run starts
+with the lesson. This is the project's self-updating learning loop (P11/B7).

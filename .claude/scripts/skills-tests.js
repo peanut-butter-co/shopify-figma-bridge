@@ -322,6 +322,21 @@ check('F069: setup warns the storefront password is stored in plaintext', () => 
 });
 
 // ---------------------------------------------------------------------------
+// B7/P11 — self-learning "After Completion" step (F036-F041, F077-F079)
+// ---------------------------------------------------------------------------
+group('B7/P11: self-learning After-Completion step');
+const SELF_LEARN = ['analyze-theme', 'build-foundations', 'propose-components', 'build-components',
+  'build-design-rules', 'setup', 'sync-colors', 'refresh-figma-practices', 'validate-shopify'];
+for (const name of SELF_LEARN) {
+  check('P11: ' + name + ' has an After-Completion gotchas-append step', () => {
+    const md = read('.claude/skills/' + name + '/SKILL.md');
+    const idx = md.search(/##\s*After Completion/i);
+    ok(idx !== -1, 'missing the "## After Completion" self-learning section');
+    ok(/gotchas\.md/.test(md.slice(idx)), 'the After-Completion step must point at the skill gotchas.md');
+  });
+}
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {

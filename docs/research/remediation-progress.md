@@ -8,7 +8,7 @@
 
 **Scope:** critical + high + medium (80 findings). Low (48) is out of scope — optional polish.
 
-**Progress:** 49 / 80 done · 31 remaining
+**Progress:** 58 / 80 done · 22 remaining
 
 **Cluster order:** state-contract → triggering → write-safety → evals → consistency → docs-infra → rest
 
@@ -105,17 +105,17 @@
 - [ ] **F076** · 🟡 med · `setup` · P1 · S — The dynamic-context block references a per-skill `gotchas.md` (P1/P2 mechanism) that does not exist, so it alway…
 - [x] **F080** · 🟡 med · `build-design-rules` · P8 · S — The pre-flight gates on `buildStatus.components`, but no skill in the pipeline ever writes that key. · ✅ #9
 
-## 7. rest (self-learning loop) (9) — 0 done, 9 left
+## 7. rest (self-learning loop) (9) — 9 done, 0 left
 
-- [ ] **F036** · 🟡 med · `build-foundations` · B7 · S — The skill injects gotchas.md at runtime (good) but has no closing step telling the model that if the user correc…
-- [ ] **F037** · 🟡 med · `propose-components` · B7 · S — P11 requires pipeline skills to carry a self-updating 'After Completion' step: if the user corrected the approac…
-- [ ] **F038** · 🟡 med · `refresh-figma-practices` · B7 · S — The skill injects its own gotchas.md at invocation (line 11) but contains no 'After Completion' step instructing…
-- [ ] **F039** · 🟡 med · `setup` · B7 · S — P11 expects pipeline skills to include an "After Completion" step instructing the agent to append user correctio…
-- [ ] **F040** · 🟡 med · `sync-colors` · B7 · S — sync-colors is the only color-related skill with no self-updating 'After Completion' step instructing the model…
-- [ ] **F041** · 🟡 med · `validate-shopify` · B7 · S — SKILL.md has no 'After Completion' step instructing that if the user corrected the validation approach during ex…
-- [ ] **F077** · 🟡 med · `analyze-theme` · P11 · S — SKILL.md has no 'After Completion' / self-learning step instructing that if the user corrected the extraction ap…
-- [ ] **F078** · 🟡 med · `build-components` · P11 · S — The skill lacks the project's self-updating 'After Completion' learning step (P11): if the user corrects the app…
-- [ ] **F079** · 🟡 med · `build-design-rules` · P11 · S — Project mandate P11 requires pipeline skills to include an 'After Completion' (or equivalent) step instructing t…
+- [x] **F036** · 🟡 med · `build-foundations` · B7 · S — The skill injects gotchas.md at runtime (good) but has no closing step telling the model that if the user correc… · ✅ #16
+- [x] **F037** · 🟡 med · `propose-components` · B7 · S — P11 requires pipeline skills to carry a self-updating 'After Completion' step: if the user corrected the approac… · ✅ #16
+- [x] **F038** · 🟡 med · `refresh-figma-practices` · B7 · S — The skill injects its own gotchas.md at invocation (line 11) but contains no 'After Completion' step instructing… · ✅ #16
+- [x] **F039** · 🟡 med · `setup` · B7 · S — P11 expects pipeline skills to include an "After Completion" step instructing the agent to append user correctio… · ✅ #16
+- [x] **F040** · 🟡 med · `sync-colors` · B7 · S — sync-colors is the only color-related skill with no self-updating 'After Completion' step instructing the model… · ✅ #16
+- [x] **F041** · 🟡 med · `validate-shopify` · B7 · S — SKILL.md has no 'After Completion' step instructing that if the user corrected the validation approach during ex… · ✅ #16
+- [x] **F077** · 🟡 med · `analyze-theme` · P11 · S — SKILL.md has no 'After Completion' / self-learning step instructing that if the user corrected the extraction ap… · ✅ #16
+- [x] **F078** · 🟡 med · `build-components` · P11 · S — The skill lacks the project's self-updating 'After Completion' learning step (P11): if the user corrects the app… · ✅ #16
+- [x] **F079** · 🟡 med · `build-design-rules` · P11 · S — Project mandate P11 requires pipeline skills to include an 'After Completion' (or equivalent) step instructing t… · ✅ #16
 
 ---
 
@@ -131,6 +131,7 @@
 | #13 | consistency/installer: install.sh + README target .claude/skills (C9) | F013 F014 (2) | merged ✅ |
 | #14 | consistency/docs: CLAUDE.md + .gitignore reflect reality (C7) | F067 F068 (2) | merged ✅ |
 | #15 | consistency/least-privilege: allowed-tools + inline context (C8/C9) | F069 F070 F072 F073 F074 (5) | merged ✅ |
+| #16 | rest/self-learning: After-Completion gotchas-append step x9 (P11/B7) | F036 F037 F038 F039 F040 F041 F077 F078 F079 (9) | merged ✅ |
 
 ---
 

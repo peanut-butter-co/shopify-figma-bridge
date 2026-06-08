@@ -212,3 +212,12 @@ If `manifest.foundations` is not null when this skill runs:
 1. Warn the user: "Foundations have already been extracted. Re-running will overwrite the existing data."
 2. If `buildStatus.foundations === "complete"`, warn additionally: "Foundations have already been built in Figma. Re-extracting won't update Figma — you'll need to run `/build-foundations` again."
 3. Proceed only with user confirmation.
+
+## After Completion
+
+If the user corrected your approach during this run — a wrong assumption, a better
+method, a binding/layout/naming gotcha, anything worth knowing next time — append it
+as a short **dated bullet** to this skill's `gotchas.md`
+(`.claude/skills/analyze-theme/gotchas.md`; create the file if it does not exist). That
+file is injected at the top of this skill on every invocation, so the next run starts
+with the lesson. This is the project's self-updating learning loop (P11/B7).

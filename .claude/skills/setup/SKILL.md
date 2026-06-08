@@ -159,3 +159,12 @@ If `.claude/figma-sync/manifest.json` already exists when this skill runs:
    - **"Reconfigure from scratch"** — Start fresh (clears extracted foundations and component inventory)
 3. If updating: only change the values the user specifies, preserve everything else (foundations, components, buildStatus)
 4. If reconfiguring: start fresh but warn that this will clear any extracted foundations and component inventory
+
+## After Completion
+
+If the user corrected your approach during this run — a wrong assumption, a better
+method, a binding/layout/naming gotcha, anything worth knowing next time — append it
+as a short **dated bullet** to this skill's `gotchas.md`
+(`.claude/skills/setup/gotchas.md`; create the file if it does not exist). That
+file is injected at the top of this skill on every invocation, so the next run starts
+with the lesson. This is the project's self-updating learning loop (P11/B7).
