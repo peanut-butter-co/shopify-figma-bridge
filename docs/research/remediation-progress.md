@@ -8,7 +8,7 @@
 
 **Scope:** critical + high + medium (80 findings). Low (48) is out of scope — optional polish.
 
-**Progress:** 40 / 80 done · 40 remaining
+**Progress:** 42 / 80 done · 38 remaining
 
 **Cluster order:** state-contract → triggering → write-safety → evals → consistency → docs-infra → rest
 
@@ -61,15 +61,15 @@
 - [x] **F031** · 🟡 med · `validate-shopify` · A9 · M — There is no evals/evals.json with realistic prompts/fixtures, despite this being the single most eval-friendly s… · ✅ #12
 - [x] **F032** · 🟡 med · `system` · A9 · M — There is zero automated eval/test coverage anywhere in the project. · ✅ #8
 
-## 5. consistency / DRY (29) — 6 done, 23 left
+## 5. consistency / DRY (29) — 8 done, 21 left
 
 - [x] **F005** · 🔴 crit · `system` · C8 · S — sync-colors' body instructs using the Edit tool for its only Shopify write, but Edit is not in allowed-tools (un… · ✅ #8
 - [ ] **F007** · 🟠 high · `validate-instances` · B3 · M — The auto-fix is destructive: it deletes inline frames and re-parents instances inside live design-system templat…
 - [ ] **F008** · 🟠 high · `system` · B6 · L — The pipeline-phase-enforcement plan is entirely unimplemented.
 - [x] **F010** · 🟠 high · `setup` · C5 · S — This is the FIRST pipeline skill and the gate that verifies the store and Figma file are reachable, yet it never… · ✅ #8
 - [x] **F011** · 🟠 high · `validate-instances` · C5 · S — Violates the GLOBAL rule and team learning (feedback_missing_tools): if the required Figma MCP tool is not conne… · ✅ #8
-- [ ] **F013** · 🟠 high · `system` · C9 · M — The installer is non-functional.
-- [ ] **F014** · 🟠 high · `system` · C9 · S — The README's primary Installation instructions reference a `.claude/commands/` directory that does not exist.
+- [x] **F013** · 🟠 high · `system` · C9 · M — The installer is non-functional. · ✅ #13
+- [x] **F014** · 🟠 high · `system` · C9 · S — The README's primary Installation instructions reference a `.claude/commands/` directory that does not exist. · ✅ #13
 - [ ] **F034** · 🟡 med · `system` · B5 · M — No end-to-end verification of the phase-handoff chain exists, and a dry-run trace immediately surfaces the B1-01…
 - [ ] **F035** · 🟡 med · `compose-page` · B6 · S — manifest.json is the single source of truth (CLAUDE.md).
 - [ ] **F047** · 🟡 med · `build-foundations` · C2 · S — Inconsistent base-variable naming across the skill's own files.
@@ -128,6 +128,7 @@
 | #10 | triggering: rewrite + mutually disambiguate 11 skill descriptions (C1/A1) | F015 F016 F017 F018 F019 F042 F043 F044 F045 F046 (10) | merged ✅ |
 | #11 | write-safety: sync-colors real diff + verify-only-color-keys (C6) | F066 (1) | merged ✅ |
 | #12 | evals: per-skill evals/evals.json triggering + behavior suites (A9) | F025 F026 F027 F028 F029 F030 F031 (7) | merged ✅ |
+| #13 | consistency/installer: install.sh + README target .claude/skills (C9) | F013 F014 (2) | merged ✅ |
 
 ---
 
