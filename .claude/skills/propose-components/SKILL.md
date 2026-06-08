@@ -1,7 +1,7 @@
 ---
 name: propose-components
 description: >
-  Use when: planning which sections/blocks become Figma components
+  Use when: DECIDING/PLANNING which theme sections & blocks become Figma components and their variants — produces the confirmed component inventory (nothing is built in Figma here). The step BEFORE /build-components; for a full build use /build-design-system.
 user-invocable: true
 context: inline
 allowed-tools: [Read, Write, Glob, Grep]

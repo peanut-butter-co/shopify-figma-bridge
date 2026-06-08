@@ -1,7 +1,7 @@
 ---
 name: refresh-figma-practices
 description: >
-  Use when: updating the Figma best practices cheatsheet
+  Use when: refreshing/updating the Figma best-practices cheatsheet (.claude/figma-best-practices.md), researching the latest Figma features / Plugin API changes, or checking whether the Figma engineering reference is stale.
 user-invocable: true
 context: inline
 allowed-tools: [WebSearch, WebFetch, Read, Write, Glob, Grep]
