@@ -430,6 +430,17 @@ check('F050: figma-best-practices.md has a canonical Plugin-API gotchas section'
 });
 
 // ---------------------------------------------------------------------------
+// B3 — validate-instances auto-fix is non-destructive (F007)
+// ---------------------------------------------------------------------------
+group('B3: validate-instances auto-fix is non-destructive');
+check('F007: auto-fix is create-then-verify-then-remove with reversible state', () => {
+  const md = read('.claude/skills/validate-instances/SKILL.md');
+  ok(/verify before removing/i.test(md) || /create\s*→\s*verify\s*→\s*remove/i.test(md),
+    'auto-fix must verify the new instance before removing the original');
+  ok(/reconstruct state|reversible/i.test(md), 'auto-fix must record reconstruct/reversal state');
+});
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {

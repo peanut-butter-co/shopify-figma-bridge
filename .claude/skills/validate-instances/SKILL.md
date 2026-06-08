@@ -136,18 +136,16 @@ Present findings:
 
 ## Step 4: Auto-Fix (Optional)
 
-If the user confirms, automatically fix violations:
+If the user confirms, automatically fix violations. The fix is **create → verify → remove** — never delete-then-create, so a failure always leaves the original intact.
 
 For each violation:
-1. Find the parent frame
-2. Note the position index in parent's children
-3. Create an instance of the correct component
-4. Copy relevant text overrides from the inline frame
-5. Insert instance at the same position
-6. Remove the inline frame
-7. Set FILL sizing if the original had it
+1. Find the parent frame and **record reconstruct state**: the parent id, the inline frame's position index, its text/override values, and FILL sizing. Keep this so the change is auditable and reversible.
+2. Create an instance of the correct component and copy the relevant text overrides from the inline frame.
+3. Insert the instance at the same position index; set FILL sizing if the original had it.
+4. **Verify before removing:** `get_screenshot` the new instance and confirm it renders correctly (right size, content, variable bindings). A passing structure with a broken-looking screenshot is still a problem.
+5. **Only if the instance verified OK, remove the inline frame.** If it looks wrong, keep the original, report the failure, and move on — never leave the location empty.
 
-**Always ask before auto-fixing.** Show the list first, let the user confirm.
+**Always ask before auto-fixing.** Show the list first, let the user confirm. Auto-fix mutates live design-system templates/sections, so a wrong fix is high-impact — when in doubt, leave the original and report.
 
 ---
 
