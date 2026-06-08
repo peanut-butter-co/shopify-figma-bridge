@@ -185,7 +185,7 @@ Use `use_figma` to read all semantic variables with resolved values.
 Map each Figma variable to its Shopify field. Convert resolved `{r,g,b,a}` to Shopify hex.
 
 ### Step 3: Show diff to user
-Read current `config/settings_data.json` and compare. Show changed values only. **Wait for user approval.**
+Read current `config/settings_data.json`, build the **after** version in memory (apply your change plan to a parsed copy), and present a **real key-level diff** of before → after — not just a hand-assembled "changed values" list. For every differing path show `old → new`. **Flag any non-color key that would change**: there should be none, so if the plan touches anything outside the enumerated `color_schemes.*` color fields, STOP and investigate — it indicates a bug in the change plan. **Wait for user approval.**
 
 ### Step 4: Back up, then write to Shopify
 
@@ -193,8 +193,8 @@ Read current `config/settings_data.json` and compare. Show changed values only. 
 
 Then use the **Edit** tool to update `config/settings_data.json`, modifying **only** color fields. Report the backup path in the summary so the user can roll back.
 
-### Step 5: Verify
-Re-read the file and confirm values match.
+### Step 5: Verify — assert ONLY color keys changed
+Re-read `config/settings_data.json` and diff it against the backup taken in Step 4. Assert that the **only** paths that differ are the enumerated `color_schemes.*` color fields from the approved plan, and that their new values match what was approved. If **any other key** differs (an incidental edit, a whitespace/key-order rewrite, or a field the plan misclassified), **STOP, report it, and restore from the backup** — the approval was granted against the color diff only.
 
 ---
 
