@@ -19,6 +19,12 @@ Research the latest Figma features, Plugin API changes, and community best pract
 
 ---
 
+## Pre-flight: Web Tools
+
+This skill's research depends entirely on `WebSearch` / `WebFetch`. **Verify they are available** before researching. If web tools are unavailable, blocked, or return no usable results → **STOP** and tell the user (e.g. "Web research tools are unavailable, so I can't refresh the Figma practices right now"). Never fabricate practices or produce an empty proposal silently.
+
+---
+
 ## Step 1: Read Current Cheatsheet
 
 Read `.claude/figma-best-practices.md` and note:
