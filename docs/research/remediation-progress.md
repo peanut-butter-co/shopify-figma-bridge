@@ -8,7 +8,7 @@
 
 **Scope:** critical + high + medium (80 findings). Low (48) is out of scope — optional polish.
 
-**Progress:** 73 / 80 done · 7 remaining
+**Progress:** 74 / 80 done · 6 remaining
 
 **Cluster order:** state-contract → triggering → write-safety → evals → consistency → docs-infra → rest
 
@@ -61,10 +61,10 @@
 - [x] **F031** · 🟡 med · `validate-shopify` · A9 · M — There is no evals/evals.json with realistic prompts/fixtures, despite this being the single most eval-friendly s… · ✅ #12
 - [x] **F032** · 🟡 med · `system` · A9 · M — There is zero automated eval/test coverage anywhere in the project. · ✅ #8
 
-## 5. consistency / DRY (29) — 25 done, 4 left
+## 5. consistency / DRY (29) — 26 done, 3 left
 
 - [x] **F005** · 🔴 crit · `system` · C8 · S — sync-colors' body instructs using the Edit tool for its only Shopify write, but Edit is not in allowed-tools (un… · ✅ #8
-- [ ] **F007** · 🟠 high · `validate-instances` · B3 · M — The auto-fix is destructive: it deletes inline frames and re-parents instances inside live design-system templat…
+- [x] **F007** · 🟠 high · `validate-instances` · B3 · M — The auto-fix is destructive: it deletes inline frames and re-parents instances inside live design-system templat… · ✅ #22
 - [ ] **F008** · 🟠 high · `system` · B6 · L — The pipeline-phase-enforcement plan is entirely unimplemented.
 - [x] **F010** · 🟠 high · `setup` · C5 · S — This is the FIRST pipeline skill and the gate that verifies the store and Figma file are reachable, yet it never… · ✅ #8
 - [x] **F011** · 🟠 high · `validate-instances` · C5 · S — Violates the GLOBAL rule and team learning (feedback_missing_tools): if the required Figma MCP tool is not conne… · ✅ #8
@@ -137,6 +137,7 @@
 | #19 | docs-infra: viewport placeholders + screenshot-verify + gotchas stubs (A2/A5/A7/P1) | F020 F022 F024 F075 F076 (5) | merged ✅ |
 | #20 | consistency/SSOT: manifest state-contract table + compose-page merge-write (B5/B6) | F034 F035 (2) | merged ✅ |
 | #21 | consistency: numeric swatch naming + canonical Plugin-API reference (C2) | F047 F050 (2) | merged ✅ |
+| #22 | consistency/safety: validate-instances auto-fix create→verify→remove (B3) | F007 (1) | merged ✅ |
 
 ---
 
