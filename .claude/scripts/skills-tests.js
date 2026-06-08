@@ -265,6 +265,22 @@ check('A9: sync-colors conversionCases actually match color-utils.js (executable
 });
 
 // ---------------------------------------------------------------------------
+// C9 — installer + README target the real .claude/skills layout (F013/F014)
+// ---------------------------------------------------------------------------
+group('C9: installer + README target .claude/skills (not legacy .claude/commands)');
+check('F013: install.sh installs .claude/skills and fails loudly (no false success)', () => {
+  const sh = read('install.sh');
+  ok(!/\.claude\/commands/.test(sh), 'install.sh still references the nonexistent .claude/commands path');
+  ok(/\.claude\/skills/.test(sh), 'install.sh must install into .claude/skills');
+  ok(/set -e/.test(sh) && /exit 1/.test(sh), 'install.sh must fail loudly (set -e + non-zero exits), not print a false "Done!"');
+});
+check('F014: README Installation targets .claude/skills (not .claude/commands)', () => {
+  const md = read('README.md');
+  ok(!/\.claude\/commands/.test(md), 'README still tells users to copy/symlink the nonexistent .claude/commands');
+  ok(/\.claude\/skills/.test(md), 'README must reference .claude/skills');
+});
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {

@@ -1,24 +1,13 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 # Shopify Figma Bridge - Installer
-# Copies Claude Code skills into the current project's .claude/commands/ directory.
+# Clones the repo and copies the Claude Code skills into this project's
+# .claude/skills/ directory (skills live at .claude/skills/<name>/SKILL.md).
 
-REPO="peanut-butter-co/shopify-figma-bridge"
+REPO_URL="https://github.com/peanut-butter-co/shopify-figma-bridge.git"
 BRANCH="main"
-BASE_URL="https://raw.githubusercontent.com/$REPO/$BRANCH"
 
-SKILLS=(
-  "setup.md"
-  "analyze-theme.md"
-  "build-foundations.md"
-  "propose-components.md"
-  "build-components.md"
-  "compose-page.md"
-  "sync-colors.md"
-)
-
-# Colors
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
@@ -29,12 +18,14 @@ echo "  Shopify Figma Bridge - Installer"
 echo "  ================================="
 echo ""
 
-# Check if we're in a Shopify theme directory
+# Sanity-check this looks like a Shopify theme directory
 if [ ! -f "config/settings_schema.json" ]; then
   echo -e "${YELLOW}Warning:${NC} No config/settings_schema.json found."
   echo "  This doesn't look like a Shopify theme directory."
   echo ""
-  read -p "  Continue anyway? (y/N) " -n 1 -r
+  # Read from the terminal even when the script itself is piped (curl | bash);
+  # if there is no tty (non-interactive), default to aborting.
+  read -p "  Continue anyway? (y/N) " -n 1 -r REPLY </dev/tty 2>/dev/null || REPLY="n"
   echo ""
   if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo "  Aborted."
@@ -42,29 +33,42 @@ if [ ! -f "config/settings_schema.json" ]; then
   fi
 fi
 
-# Create target directory
-mkdir -p .claude/commands
+command -v git >/dev/null 2>&1 || { echo -e "${RED}Error:${NC} git is required to install."; exit 1; }
 
-# Download skills
-echo "  Downloading skills..."
-for skill in "${SKILLS[@]}"; do
-  echo -n "    $skill ... "
-  if curl -sfL "$BASE_URL/.claude/commands/$skill" -o ".claude/commands/$skill"; then
-    echo -e "${GREEN}ok${NC}"
-  else
-    echo -e "${RED}failed${NC}"
-  fi
-done
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+
+echo "  Cloning $REPO_URL ($BRANCH) ..."
+if ! git clone --quiet --depth 1 --branch "$BRANCH" "$REPO_URL" "$TMP/repo"; then
+  echo -e "${RED}Error:${NC} clone failed — check your network and that the repo is reachable."
+  exit 1
+fi
+
+if [ ! -d "$TMP/repo/.claude/skills" ]; then
+  echo -e "${RED}Error:${NC} .claude/skills not found in the cloned repo."
+  exit 1
+fi
+
+# Copy the skills (SKILL.md + gotchas.md + reference/ + evals/) and the
+# engineering reference the skills cite.
+mkdir -p .claude/skills
+cp -R "$TMP/repo/.claude/skills/." .claude/skills/
+cp -f "$TMP/repo/.claude/figma-best-practices.md" .claude/ 2>/dev/null || true
+
+COUNT="$(find .claude/skills -name SKILL.md | wc -l | tr -d ' ')"
+if [ "$COUNT" -eq 0 ]; then
+  echo -e "${RED}Error:${NC} no skills were copied."
+  exit 1
+fi
 
 echo ""
-echo -e "  ${GREEN}Done!${NC} Installed ${#SKILLS[@]} skills to .claude/commands/"
+echo -e "  ${GREEN}Done!${NC} Installed $COUNT skills to .claude/skills/"
 echo ""
 echo "  Next steps:"
 echo "    1. Open Claude Code in this directory"
 echo "    2. Run /setup to configure your store and Figma file"
-echo "    3. Run /analyze-theme to extract design tokens"
-echo "    4. Run /build-foundations to create the Figma design system"
-echo ""
-echo "  Full pipeline: /setup → /analyze-theme → /build-foundations"
-echo "                 → /propose-components → /build-components → /compose-page"
+echo "    3. Run /build-design-system to build the whole design system,"
+echo "       or run phases individually:"
+echo "       /analyze-theme → /build-foundations → /propose-components"
+echo "       → /build-components → /compose-page"
 echo ""

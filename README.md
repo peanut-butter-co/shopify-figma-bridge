@@ -22,17 +22,26 @@ Given a Shopify theme codebase, these skills:
 
 ## Installation
 
-Copy the `.claude/commands/` directory into your Shopify theme project:
+**Option A — installer (recommended).** From your Shopify theme project root:
+
+```bash
+curl -sfL https://raw.githubusercontent.com/peanut-butter-co/shopify-figma-bridge/main/install.sh | bash
+```
+
+It clones the repo and copies the skills into `.claude/skills/` (and the
+`figma-best-practices.md` reference they cite).
+
+**Option B — manual.** Copy the `.claude/skills/` directory into your project:
 
 ```bash
 # From your theme project root
-cp -r path/to/shopify-figma-bridge/.claude/commands/ .claude/commands/
+cp -r path/to/shopify-figma-bridge/.claude/skills/ .claude/skills/
 ```
 
-Or clone this repo and symlink:
+Or clone this repo and symlink it:
 
 ```bash
-ln -s path/to/shopify-figma-bridge/.claude/commands/ .claude/commands/
+ln -s path/to/shopify-figma-bridge/.claude/skills/ .claude/skills/
 ```
 
 ## Usage
