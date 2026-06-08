@@ -31,6 +31,10 @@ This skill finds violations — places where someone built a button-like frame i
 
 **Verify the Figma MCP tools are available** (`use_figma`, `get_screenshot`) before scanning. If any required MCP tool is missing → **STOP** and ask the user to connect the Figma MCP server before continuing — never run a partial audit on a broken connection.
 
+## Pre-flight: Build State
+
+Read `.claude/figma-sync/manifest.json`. If it is missing → tell the user to run `/setup` first. If no components have been built yet (no `buildStatus` phase among `atoms` / `blocks` / `sections-desktop` / `sections-mobile` is `"complete"`) → tell the user to run `/build-components` first, and **STOP**. Auditing an empty or pre-build file returns a vacuously "clean" registry and gives false assurance.
+
 ## Step 1: Build Component Registry
 
 Use `use_figma` to scan all pages and build a registry of every component:

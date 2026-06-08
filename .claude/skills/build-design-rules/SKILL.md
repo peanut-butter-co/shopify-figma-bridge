@@ -23,7 +23,7 @@ You are generating a design system rules file that maps every Figma component to
 ## Pre-flight
 
 1. Read `.claude/figma-sync/manifest.json`
-2. Verify `buildStatus.foundations === "complete"` and `buildStatus.components` has at least one completed phase
+2. Verify `buildStatus.foundations === "complete"` and at least one build-components phase is complete — any of `buildStatus.atoms`, `buildStatus.blocks`, `buildStatus["sections-desktop"]`, `buildStatus["sections-mobile"]` equal to `"complete"` (build-components writes these flat keys, not a nested `components` namespace)
 3. If not → "Build foundations and at least some components first."
 4. **Verify required MCP tools are available** (Figma: `use_figma`, `get_screenshot`). If any required MCP tool is missing → **STOP** and ask the user to connect the Figma MCP server before continuing — do not run a partial scan.
 

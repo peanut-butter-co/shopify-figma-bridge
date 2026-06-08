@@ -128,7 +128,8 @@ The user's answer sets `createMobileStyles` in the foundations data (Step 4).
 Once the user confirms, update `.claude/figma-sync/manifest.json`:
 
 1. Read the existing manifest
-2. Set `foundations` to the complete extracted data:
+2. Set `theme.hasProfile` and `theme.profileValidation` from the Step 1.5 results (the profile-divergence verdict). `build-foundations` gates on `theme.profileValidation`, so it must be persisted here in the actual write — not only in the pre-flight prose.
+3. Set `foundations` to the complete extracted data:
 
 ```json
 {
@@ -158,7 +159,7 @@ Once the user confirms, update `.claude/figma-sync/manifest.json`:
 }
 ```
 
-3. Write the updated manifest back to disk
+4. Write the updated manifest back to disk
 
 ---
 
