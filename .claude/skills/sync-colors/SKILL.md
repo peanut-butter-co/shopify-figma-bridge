@@ -217,3 +217,12 @@ Re-read `config/settings_data.json` and diff it against the backup taken in Step
 - `Color/Brand/{name}` in Primitives, or match existing Theme Colors group
 - Alpha variants: append opacity percentage (e.g., `Color/Black/87`)
 - New colors: ask user for a name
+
+## After Completion
+
+If the user corrected your approach during this run — a wrong assumption, a better
+method, a binding/layout/naming gotcha, anything worth knowing next time — append it
+as a short **dated bullet** to this skill's `gotchas.md`
+(`.claude/skills/sync-colors/gotchas.md`; create the file if it does not exist). That
+file is injected at the top of this skill on every invocation, so the next run starts
+with the lesson. This is the project's self-updating learning loop (P11/B7).

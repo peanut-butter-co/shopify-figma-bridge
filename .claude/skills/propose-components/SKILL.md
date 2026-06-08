@@ -226,3 +226,12 @@ Section-specific blocks don't get their own component — they're built inline a
 
 ### Theme profile recommendations
 If `.claude/figma-sync/theme-profiles/{theme}.json` exists and contains a `recommendations` key, it provides curated guidance that is loaded in Pre-flight step 6 and consumed throughout Phase A and Phase B. Recommendations are suggestions — the generic analysis always runs, and the user always confirms. See `theme-profiles/README.md` for the full schema.
+
+## After Completion
+
+If the user corrected your approach during this run — a wrong assumption, a better
+method, a binding/layout/naming gotcha, anything worth knowing next time — append it
+as a short **dated bullet** to this skill's `gotchas.md`
+(`.claude/skills/propose-components/gotchas.md`; create the file if it does not exist). That
+file is injected at the top of this skill on every invocation, so the next run starts
+with the lesson. This is the project's self-updating learning loop (P11/B7).
