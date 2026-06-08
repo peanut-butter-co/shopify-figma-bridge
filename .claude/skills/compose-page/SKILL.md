@@ -191,6 +191,8 @@ An observer should immediately recognize that the Figma compositions represent t
 
 ## Step 8: Update Manifest
 
+Read `.claude/figma-sync/manifest.json`, set **only** `buildStatus["composition-{template}"] = "complete"` (preserving every other key — `manifest.json` is the single source of truth, so never overwrite it with a partial object), and write it back. The change is just this one key:
+
 ```json
 {
   "buildStatus": {

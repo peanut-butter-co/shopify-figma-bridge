@@ -28,6 +28,20 @@ Optional, after `/build-components`: `/build-design-rules` — generates `design
 
 Or run everything: `/build-design-system [template]`
 
+## Manifest state contract
+
+`manifest.json` is the single source of truth. Each phase writes specific keys; the next phase gates on them. Producers and consumers must agree — keep this table and the skills in sync.
+
+| Phase | Writes | Gate the next phase reads |
+|---|---|---|
+| `/setup` | `config.*`, `theme.{name,version,author,hasProfile}` | — |
+| `/analyze-theme` | `foundations`, `theme.hasProfile`, `theme.profileValidation` | `foundations != null` |
+| `/build-foundations` | `buildStatus.foundations = "complete"` | `buildStatus.foundations === "complete"` |
+| `/propose-components` | `components.{atoms,blocks,sections,skippedSections,scope,summary}`, `components.status = "confirmed"` | `components.status === "confirmed"` |
+| `/build-components` | `buildStatus.{atoms,blocks,"sections-desktop","sections-mobile"} = "complete"`, `buildMeta.{practicesVersion,builtAt}` | any flat `buildStatus.*` phase `=== "complete"` |
+| `/build-design-rules` (optional) | `design-rules.json`, `buildStatus.designRules = "complete"` | consumed opportunistically by `/compose-page`, `/sync-colors` |
+| `/compose-page` | `buildStatus["composition-{template}"] = "complete"` | — |
+
 ## Maintenance
 
 - `/sync-colors` — bidirectional color sync
