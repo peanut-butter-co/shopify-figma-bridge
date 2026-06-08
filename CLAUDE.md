@@ -41,3 +41,6 @@ Or run everything: `/build-design-system [template]`
   contracts (e.g. `components.status`), variant-count and color-conversion logic, and the
   required-MCP-tool STOP pre-flights. Zero dependencies; exit 0 = green. Fixture:
   `.claude/figma-sync/manifest-test.json`.
+- `.claude/skills/<name>/evals/evals.json` — per-skill triggering/behavior evals (A9); the
+  harness validates they are well-formed and runs sync-colors' conversion cases against
+  `color-utils.js`.

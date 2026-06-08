@@ -8,7 +8,7 @@
 
 **Scope:** critical + high + medium (80 findings). Low (48) is out of scope — optional polish.
 
-**Progress:** 33 / 80 done · 47 remaining
+**Progress:** 40 / 80 done · 40 remaining
 
 **Cluster order:** state-contract → triggering → write-safety → evals → consistency → docs-infra → rest
 
@@ -50,15 +50,15 @@
 - [x] **F065** · 🟡 med · `sync-colors` · C6 · M — Cross-cutting: the backup-before-write requirement appears to be enforced by no skill that writes Shopify JSON,… · ✅ #8
 - [x] **F066** · 🟡 med · `system` · C6 · M — The 'diff preview' required by CLAUDE.md:19 is implemented in sync-colors as a hand-assembled 'changed values on… · ✅ #11
 
-## 4. evals (8) — 1 done, 7 left
+## 4. evals (8) — 8 done, 0 left
 
-- [ ] **F025** · 🟡 med · `analyze-theme` · A9 · M — There are no evals (evals/evals.json) with realistic test prompts for analyze-theme.
-- [ ] **F026** · 🟡 med · `build-components` · A9 · M — There is no evals/evals.json with realistic trigger prompts for this skill (A9).
-- [ ] **F027** · 🟡 med · `build-foundations` · A9 · M — There is no evals/evals.json with realistic trigger prompts for this skill (none exist anywhere in the system).
-- [ ] **F028** · 🟡 med · `learnings` · A9 · S — The skill is phrase-triggered and therefore highly amenable to triggering evals, but has no evals/evals.json.
-- [ ] **F029** · 🟡 med · `propose-components` · A9 · M — There is no evals/evals.json with realistic test prompts for this skill (nor anywhere in the system).
-- [ ] **F030** · 🟡 med · `sync-colors` · A9 · M — There are no evals for sync-colors.
-- [ ] **F031** · 🟡 med · `validate-shopify` · A9 · M — There is no evals/evals.json with realistic prompts/fixtures, despite this being the single most eval-friendly s…
+- [x] **F025** · 🟡 med · `analyze-theme` · A9 · M — There are no evals (evals/evals.json) with realistic test prompts for analyze-theme. · ✅ #12
+- [x] **F026** · 🟡 med · `build-components` · A9 · M — There is no evals/evals.json with realistic trigger prompts for this skill (A9). · ✅ #12
+- [x] **F027** · 🟡 med · `build-foundations` · A9 · M — There is no evals/evals.json with realistic trigger prompts for this skill (none exist anywhere in the system). · ✅ #12
+- [x] **F028** · 🟡 med · `learnings` · A9 · S — The skill is phrase-triggered and therefore highly amenable to triggering evals, but has no evals/evals.json. · ✅ #12
+- [x] **F029** · 🟡 med · `propose-components` · A9 · M — There is no evals/evals.json with realistic test prompts for this skill (nor anywhere in the system). · ✅ #12
+- [x] **F030** · 🟡 med · `sync-colors` · A9 · M — There are no evals for sync-colors. · ✅ #12
+- [x] **F031** · 🟡 med · `validate-shopify` · A9 · M — There is no evals/evals.json with realistic prompts/fixtures, despite this being the single most eval-friendly s… · ✅ #12
 - [x] **F032** · 🟡 med · `system` · A9 · M — There is zero automated eval/test coverage anywhere in the project. · ✅ #8
 
 ## 5. consistency / DRY (29) — 6 done, 23 left
@@ -127,6 +127,7 @@
 | #9 | state-contract: manifest producer/consumer field agreements (C4/B1) | F033 F054 F055 F056 F057 F058 F059 F080 (8) | merged ✅ |
 | #10 | triggering: rewrite + mutually disambiguate 11 skill descriptions (C1/A1) | F015 F016 F017 F018 F019 F042 F043 F044 F045 F046 (10) | merged ✅ |
 | #11 | write-safety: sync-colors real diff + verify-only-color-keys (C6) | F066 (1) | merged ✅ |
+| #12 | evals: per-skill evals/evals.json triggering + behavior suites (A9) | F025 F026 F027 F028 F029 F030 F031 (7) | merged ✅ |
 
 ---
 

@@ -1,0 +1,12 @@
+{
+  "skill": "build-components",
+  "about": "Triggering evals (A9). build-components CONSTRUCTS the already-confirmed inventory in Figma (atoms/blocks/sections); it does not plan or lay out pages.",
+  "cases": [
+    { "prompt": "build the atoms in Figma", "expect": "trigger" },
+    { "prompt": "construct the hero section component", "expect": "trigger" },
+    { "prompt": "create the mobile section variants", "expect": "trigger" },
+    { "prompt": "decide which components we even need first", "expect": "route", "to": "propose-components" },
+    { "prompt": "assemble the homepage from the built sections", "expect": "route", "to": "compose-page" },
+    { "prompt": "build the whole design system end to end", "expect": "route", "to": "build-design-system" }
+  ]
+}

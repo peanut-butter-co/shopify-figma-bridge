@@ -237,6 +237,34 @@ check('F015-F019: previously-thin descriptions are now enriched (> 120 chars)', 
 });
 
 // ---------------------------------------------------------------------------
+// A9 — every eval-worthy skill ships a well-formed evals/evals.json (F025-F031)
+// ---------------------------------------------------------------------------
+group('A9: skill evals exist and are well-formed');
+const EVAL_SKILLS = ['analyze-theme', 'build-foundations', 'propose-components', 'build-components', 'learnings', 'sync-colors', 'validate-shopify'];
+const allSkillNames = fs.readdirSync(skillsDir).filter((n) => fs.existsSync(path.join(skillsDir, n, 'SKILL.md')));
+for (const name of EVAL_SKILLS) {
+  check('A9: ' + name + ' has a well-formed evals/evals.json (>= 4 cases)', () => {
+    const ev = readJSON('.claude/skills/' + name + '/evals/evals.json');
+    eq(ev.skill, name, 'evals.json skill field must match the directory');
+    ok(Array.isArray(ev.cases) && ev.cases.length >= 4, 'needs >= 4 trigger cases');
+    for (const c of ev.cases) {
+      ok(typeof c.prompt === 'string' && c.prompt.length > 0, 'each case needs a prompt');
+      ok(['trigger', 'no-trigger', 'route'].includes(c.expect), 'expect must be trigger/no-trigger/route: ' + c.prompt);
+      if (c.expect === 'route') ok(allSkillNames.includes(c.to), 'route target must be a real skill: ' + c.to);
+    }
+  });
+}
+check('A9: sync-colors conversionCases actually match color-utils.js (executable eval)', () => {
+  const ev = readJSON('.claude/skills/sync-colors/evals/evals.json');
+  ok(cu && cu.shopifyHexToRGBA, 'color-utils must be loadable');
+  for (const c of ev.conversionCases) {
+    if (c.rgba) { const g = cu.shopifyHexToRGBA(c.shopify); approx(g.r, c.rgba.r); approx(g.g, c.rgba.g); approx(g.b, c.rgba.b); approx(g.a, c.rgba.a); }
+    if (c.rgbaAlphaApprox != null) approx(cu.shopifyHexToRGBA(c.shopify).a, c.rgbaAlphaApprox, 0.002);
+    if (c.rgbaNoAlpha) eq(cu.rgbaToShopifyHex(c.rgbaNoAlpha), c.shopify);
+  }
+});
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {

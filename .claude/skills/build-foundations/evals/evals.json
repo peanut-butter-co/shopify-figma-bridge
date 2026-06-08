@@ -1,0 +1,12 @@
+{
+  "skill": "build-foundations",
+  "about": "Triggering evals (A9). expect: 'trigger' = this skill should fire; 'route' = a sibling should fire instead (named in 'to'). build-foundations CREATES Figma variables/text-styles FROM already-extracted tokens.",
+  "cases": [
+    { "prompt": "build the Figma variables and text styles from the analyzed tokens", "expect": "trigger" },
+    { "prompt": "create the style guide page in Figma", "expect": "trigger" },
+    { "prompt": "turn the extracted foundations into Figma variable collections", "expect": "trigger" },
+    { "prompt": "extract the design tokens from the theme first", "expect": "route", "to": "analyze-theme" },
+    { "prompt": "build the button and product card components", "expect": "route", "to": "build-components" },
+    { "prompt": "build the entire design system from the theme", "expect": "route", "to": "build-design-system" }
+  ]
+}

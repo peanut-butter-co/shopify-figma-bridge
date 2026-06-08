@@ -1,0 +1,17 @@
+{
+  "skill": "sync-colors",
+  "about": "Triggering + conversion evals (A9). sync-colors WRITES color schemes in a direction (Figma<->Shopify); read-only intents must route to a validator. conversionCases mirror .claude/scripts/color-utils.js and can be checked against it.",
+  "cases": [
+    { "prompt": "sync the color schemes from Figma to Shopify", "expect": "trigger" },
+    { "prompt": "push the Figma variable colors into settings_data.json", "expect": "trigger" },
+    { "prompt": "copy the Shopify color schemes into the Figma variables", "expect": "trigger" },
+    { "prompt": "just check whether the colors match, do not change anything", "expect": "route", "to": "validate-instances" },
+    { "prompt": "validate the theme JSON before pushing", "expect": "route", "to": "validate-shopify" }
+  ],
+  "conversionCases": [
+    { "shopify": "#ff0000", "rgba": { "r": 1, "g": 0, "b": 0, "a": 1 } },
+    { "shopify": "#00000080", "rgbaAlphaApprox": 0.502 },
+    { "shopify": "rgba(0,0,0,0)", "note": "fully-transparent round-trips back to the literal rgba(0,0,0,0)" },
+    { "rgbaNoAlpha": { "r": 1, "g": 0, "b": 0 }, "shopify": "#ff0000", "note": "missing alpha means opaque, never #ff0000NaN" }
+  ]
+}

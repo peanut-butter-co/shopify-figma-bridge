@@ -1,0 +1,12 @@
+{
+  "skill": "analyze-theme",
+  "about": "Triggering evals (A9). expect: 'trigger' = this skill should fire; 'route' = a sibling should fire instead (named in 'to'); 'no-trigger' = nothing here. Run by reading each prompt cold and checking which skill's description matches.",
+  "cases": [
+    { "prompt": "analyze the Horizon theme and extract its design tokens", "expect": "trigger" },
+    { "prompt": "pull the colors, fonts and spacing out of the theme into the manifest", "expect": "trigger" },
+    { "prompt": "what design tokens does this theme define?", "expect": "trigger" },
+    { "prompt": "extract the theme's typography and radii", "expect": "trigger" },
+    { "prompt": "now create the Figma variables and text styles from those tokens", "expect": "route", "to": "build-foundations" },
+    { "prompt": "connect my store URL and Figma file to get started", "expect": "route", "to": "setup" }
+  ]
+}
