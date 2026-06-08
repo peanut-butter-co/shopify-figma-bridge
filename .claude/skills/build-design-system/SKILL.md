@@ -22,6 +22,10 @@ This skill does NOT call other skills. Instead, it runs each phase by **reading 
 
 ---
 
+## Pre-flight: Required Tools
+
+**Verify required MCP tools are available** before starting any phase: Figma MCP (`use_figma`, `get_screenshot`, `get_metadata`) and Chrome DevTools MCP (`navigate_page`, `take_screenshot`, `resize_page`, `fill`, `click`). If any required MCP tool is missing → **STOP** and ask the user to connect it before continuing — each phase below assumes these are available.
+
 ## Step 1: Determine Current Progress
 
 Read `.claude/figma-sync/manifest.json` (if it exists) and determine which phase to start from:

@@ -1,0 +1,308 @@
+{
+  "config": {
+    "storeUrl": "https://example-store.myshopify.com/",
+    "storePassword": null,
+    "figmaFileKey": "TEST_FIXTURE_FILE_KEY",
+    "figmaFileName": "Skills-01",
+    "desktopWidth": 1440,
+    "mobileWidth": 390,
+    "pages": [
+      "Foundations",
+      "Atoms",
+      "Blocks",
+      "Sections"
+    ],
+    "mobileNaming": "{name} / Mobile",
+    "instancePolicy": "strict",
+    "mobilePlacement": "adjacent"
+  },
+  "theme": {
+    "name": "Horizon",
+    "version": "3.2.1",
+    "author": "Shopify",
+    "hasProfile": true
+  },
+  "foundations": null,
+  "components": {
+    "status": "confirmed",
+    "scope": "core",
+    "atoms": [
+      {
+        "name": "Button",
+        "reason": "Always",
+        "sourceFile": "snippets/button.liquid"
+      },
+      {
+        "name": "Input Field",
+        "reason": "Always",
+        "sourceFile": "snippets/input.liquid"
+      },
+      {
+        "name": "Badge",
+        "reason": "Always",
+        "sourceFile": "snippets/badge.liquid"
+      },
+      {
+        "name": "Product Card",
+        "reason": "Always",
+        "sourceFile": "snippets/product-card.liquid"
+      },
+      {
+        "name": "Text Link",
+        "reason": "Always",
+        "sourceFile": "snippets/text-link.liquid"
+      },
+      {
+        "name": "Icon",
+        "reason": "Always",
+        "sourceFile": "create from common patterns"
+      },
+      {
+        "name": "Variant Swatch",
+        "reason": "detected",
+        "sourceFile": "snippets/variant-swatch.liquid"
+      },
+      {
+        "name": "Quantity Selector",
+        "reason": "Always",
+        "sourceFile": "snippets/quantity-selector.liquid"
+      }
+    ],
+    "blocks": {
+      "universal": [
+        {
+          "type": "text",
+          "name": "Text Block",
+          "reason": "[recommended]",
+          "usageCount": 5,
+          "usedInSections": [
+            "hero",
+            "media-with-content",
+            "slideshow",
+            "carousel",
+            "featured-product"
+          ]
+        },
+        {
+          "type": "image",
+          "name": "Image Block",
+          "reason": "[detected]",
+          "usageCount": 3,
+          "usedInSections": [
+            "hero",
+            "media-with-content",
+            "slideshow"
+          ]
+        },
+        {
+          "type": "button",
+          "name": "Button Block",
+          "reason": "[recommended]",
+          "usageCount": 4,
+          "usedInSections": [
+            "hero",
+            "media-with-content",
+            "featured-product",
+            "collection-list"
+          ]
+        }
+      ],
+      "sectionSpecific": {
+        "hero": [
+          {
+            "type": "_hero-overlay",
+            "integrated": true,
+            "reason": "Section-specific — integrated into parent Hero component"
+          }
+        ],
+        "featured-product": [
+          {
+            "type": "_product-gallery",
+            "integrated": true,
+            "reason": "Gallery carousel integrated into product layout"
+          },
+          {
+            "type": "_product-info",
+            "integrated": true,
+            "reason": "Product info panel integrated"
+          }
+        ]
+      }
+    },
+    "sections": {
+      "hero": {
+        "reason": "[recommended] Primary above-fold section used on most homepages",
+        "variants": {
+          "horizontal_alignment": {
+            "tier": 1,
+            "values": [
+              "left",
+              "center",
+              "right"
+            ],
+            "reason": "Left/center/right placement of content overlay",
+            "combinationCount": 3
+          },
+          "vertical_alignment": {
+            "tier": 1,
+            "values": [
+              "top",
+              "center",
+              "bottom"
+            ],
+            "reason": "Top/center/bottom placement of content overlay",
+            "combinationCount": 3
+          }
+        },
+        "instanceProperties": {
+          "section_height": {
+            "type": "enum",
+            "values": [
+              "auto",
+              "small",
+              "medium",
+              "large",
+              "full-screen"
+            ],
+            "default": "medium",
+            "reason": "Dimensional — 5 options, no compositional change"
+          },
+          "toggle_overlay": {
+            "type": "boolean",
+            "default": false,
+            "reason": "Enables/disables media overlay layer"
+          }
+        },
+        "variableProperties": {
+          "color_scheme": "Figma variable mode"
+        },
+        "totalVariantCombinations": {
+          "desktop": 9,
+          "mobile": 9,
+          "note": "3 x 3 (horizontal x vertical)"
+        }
+      },
+      "media-with-content": {
+        "reason": "[recommended] Workhorse layout section for content + media pairings",
+        "variants": {
+          "media_position": {
+            "tier": 1,
+            "values": [
+              "left",
+              "right"
+            ],
+            "reason": "Flips which side the media appears on",
+            "combinationCount": 2
+          },
+          "media_width": {
+            "tier": 2,
+            "values": [
+              "narrow",
+              "medium",
+              "wide"
+            ],
+            "reason": "Changes proportion of media vs content",
+            "combinationCount": 3
+          }
+        },
+        "instanceProperties": {
+          "section_width": {
+            "type": "enum",
+            "values": [
+              "page",
+              "full"
+            ],
+            "default": "page",
+            "reason": "Container width — no compositional change"
+          },
+          "extend_media": {
+            "type": "boolean",
+            "default": true,
+            "reason": "Extends media to screen edge"
+          }
+        },
+        "variableProperties": {
+          "color_scheme": "Figma variable mode"
+        },
+        "totalVariantCombinations": {
+          "desktop": 6,
+          "mobile": 6,
+          "note": "2 x 3 (media_position x media_width)"
+        }
+      },
+      "slideshow": {
+        "reason": "[recommended] Multi-slide hero with auto-rotation",
+        "variants": {
+          "layout": {
+            "tier": 1,
+            "values": [
+              "stacked",
+              "side-by-side"
+            ],
+            "reason": "Content placement relative to slides",
+            "combinationCount": 2
+          }
+        },
+        "instanceProperties": {
+          "autoplay": {
+            "type": "boolean",
+            "default": true,
+            "reason": "Auto-rotation toggle"
+          }
+        },
+        "variableProperties": {
+          "color_scheme": "Figma variable mode"
+        },
+        "totalVariantCombinations": {
+          "desktop": 2,
+          "mobile": 2,
+          "note": "2 (layout)"
+        }
+      },
+      "featured-product": {
+        "reason": "[recommended] Product detail section for homepage/landing pages",
+        "variants": {},
+        "instanceProperties": {
+          "media_position": {
+            "type": "enum",
+            "values": [
+              "left",
+              "right"
+            ],
+            "default": "left",
+            "reason": "Media placement"
+          }
+        },
+        "variableProperties": {
+          "color_scheme": "Figma variable mode"
+        },
+        "totalVariantCombinations": {
+          "desktop": 1,
+          "mobile": 1,
+          "note": "No variants"
+        }
+      }
+    },
+    "skippedSections": [
+      {
+        "slug": "custom-liquid",
+        "reason": "[profile] Freeform code injection — no meaningful component structure"
+      },
+      {
+        "slug": "apps",
+        "reason": "[profile] Third-party app placeholder — no design to replicate"
+      }
+    ],
+    "summary": {
+      "atoms": 8,
+      "universalBlocks": 3,
+      "sections": 4,
+      "desktopVariantCombinations": 18,
+      "mobileVariantCombinations": 18,
+      "instanceProperties": 7,
+      "colorSchemeSettings": 4,
+      "skipped": 2
+    }
+  },
+  "buildStatus": {}
+}

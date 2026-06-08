@@ -4,7 +4,7 @@ description: >
   Use when: syncing color schemes between Figma and Shopify
 user-invocable: true
 context: fork
-allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, Glob, Grep]
+allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, Edit, Glob, Grep]
 ---
 
 ```sh
@@ -29,7 +29,7 @@ You are syncing color scheme data between the Figma file (via Figma MCP `use_fig
 
 1. Read `.claude/figma-sync/manifest.json` to get `config.figmaFileKey`
 2. Verify the Figma MCP server is connected by calling `use_figma` with a simple read script
-3. If `use_figma` fails → tell the user to check their Figma MCP connection
+3. **Verify required MCP tools are available.** If `use_figma` is missing or fails → **STOP** and ask the user to fix the Figma MCP connection before continuing — do not attempt a partial sync.
 
 ---
 
@@ -182,8 +182,11 @@ Map each Figma variable to its Shopify field. Convert resolved `{r,g,b,a}` to Sh
 ### Step 3: Show diff to user
 Read current `config/settings_data.json` and compare. Show changed values only. **Wait for user approval.**
 
-### Step 4: Write to Shopify
-Use the Edit tool to update `config/settings_data.json`. **Only modify color fields.**
+### Step 4: Back up, then write to Shopify
+
+**Back up first.** Before any modification, copy `config/settings_data.json` to a timestamped backup (e.g. `config/settings_data.backup-<YYYYMMDD-HHMMSS>.json`) so the write is reversible — this file controls every color scheme on the storefront and a bad or partial write is otherwise unrecoverable (CLAUDE.md: all Shopify JSON writes require backup + diff preview + user approval).
+
+Then use the **Edit** tool to update `config/settings_data.json`, modifying **only** color fields. Report the backup path in the summary so the user can roll back.
 
 ### Step 5: Verify
 Re-read the file and confirm values match.

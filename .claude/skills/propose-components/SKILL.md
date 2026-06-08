@@ -163,6 +163,8 @@ Include the Template Coverage Plan — scan `templates/` and present standard Sh
 
 Once both phases are confirmed, update the manifest with the full `components` object including atoms, blocks, sections (with both `variants` and `instanceProperties` per section), skippedSections, and scope.
 
+**Set `components.status = "confirmed"`** as part of this write — and only after BOTH Phase A and Phase B have been confirmed by the user. This is the readiness signal that `/build-components` and `/build-design-system` gate on (`components.status === "confirmed"`); if it is missing, the build phase refuses to run and (wrongly) tells the user to re-run `/propose-components`.
+
 The `components` object **must** also include a `summary` sub-object with counts: `atoms`, `universalBlocks`, `sections`, and `desktopVariantCombinations`. Step 9's proposal generator reads `components.summary` and aborts if it is missing.
 
 Note: Desktop/Mobile is NOT in the variants object — it's handled by creating separate components during `/build-components`.

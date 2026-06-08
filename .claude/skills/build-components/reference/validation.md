@@ -52,26 +52,31 @@ Additional checks:
 
 ## Variant Completeness Check
 
-Run this via `use_figma` after all sections are built:
+Run this via `use_figma` after all sections are built. The canonical count logic lives in
+`.claude/scripts/variant-utils.js` (`expectedVariantCount`) and is unit-tested by
+`.claude/scripts/skills-tests.js` — keep this snippet in sync with it.
+
+`manifest.components.sections` is an OBJECT keyed by section slug (iterate with
+`Object.entries`, **not** `for...of`), and each `section.variants` entry is an object
+`{ tier, values: [...], ... }` — so the expected count is the product of each variant's
+`values.length`. An empty `variants` object means a single, non-variant component → 1.
+(Equivalently, read `section.totalVariantCombinations.desktop`.)
 
 ```javascript
 const issues = [];
-for (const section of manifest.components.sections) {
-  if (!section.variants) continue;
-  const node = sectionsPage.findOne(n => n.name === section.name);
-  if (!node) {
-    issues.push(`MISSING: ${section.name} not found`);
+for (const [slug, section] of Object.entries(manifest.components.sections)) {
+  // product of each variant's values.length; empty variants => 1
+  const expectedCount = Object.values(section.variants || {})
+    .reduce((acc, v) => acc * (Array.isArray(v.values) ? v.values.length : 1), 1);
+  const node = sectionsPage.findOne(n => n.name === section.name || n.name === slug);
+  if (!node) { issues.push(`MISSING: ${slug} not found`); continue; }
+  if (expectedCount > 1 && node.type !== "COMPONENT_SET") {
+    issues.push(`NOT A VARIANT SET: ${slug} is a ${node.type}`);
     continue;
   }
-  if (node.type !== "COMPONENT_SET") {
-    issues.push(`NOT A VARIANT SET: ${section.name} is a ${node.type}`);
-    continue;
-  }
-  const propArrays = Object.values(section.variants);
-  const expectedCount = propArrays.reduce((acc, arr) => acc * arr.length, 1);
-  const actualCount = node.children.length;
+  const actualCount = node.type === "COMPONENT_SET" ? node.children.length : 1;
   if (actualCount < expectedCount) {
-    issues.push(`INCOMPLETE: ${section.name} has ${actualCount}/${expectedCount} variants`);
+    issues.push(`INCOMPLETE: ${slug} has ${actualCount}/${expectedCount} variants`);
   }
 }
 ```
