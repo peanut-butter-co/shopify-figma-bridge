@@ -1,8 +1,12 @@
+> **🗄️ SUPERSEDED — historical decision record (2026-03-27).**
+> Phases 1–3 shipped (see `.claude/skills/`). Phase 4 "Design Agent" was **never built** and is superseded by [roadmap.md](../roadmap.md) (Phases 5–9).
+> Kept for its decision rationale — the `validate-shopify` check spec, the breakpoint-variables-vs-viewport-variants decision, and the commands→skills migration mechanics. Do not treat as a live plan.
+
 # Implementation Plan: Skills Migration, Design Agent, and Shopify Validation
 
 **Date:** 2026-03-27
-**Based on:** [system-improvement-conclusions.md](../system-improvement-conclusions.md), [responsive-component-architecture-research.md](responsive-component-architecture-research.md), Evil Horizon build learnings
-**Status:** Proposal for review
+**Based on:** [system-improvement-conclusions.md](2026-03-27-system-improvement-conclusions.md), [responsive-component-architecture-research.md](../research/responsive-component-architecture-research.md), Evil Horizon build learnings
+**Status:** Superseded (was: Proposal for review) — see [roadmap.md](../roadmap.md)
 
 ---
 
@@ -109,7 +113,7 @@ allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, Read, Write, 
 
 ### Responsive components: Variables vs Viewport variants
 
-Per Pablo's research (`responsive-component-architecture-research.md`), the expert consensus favors **variables with breakpoint modes** over Viewport variant component sets.
+Per the responsive-component research (`../research/responsive-component-architecture-research.md`), the expert consensus favors **variables with breakpoint modes** over Viewport variant component sets.
 
 **Revised approach for responsive components:**
 - Create a "Breakpoint" variable collection with Desktop and Mobile modes
@@ -526,7 +530,7 @@ The agent maps each section type → Figma component, each setting → component
 
 ## Open Questions (Posted for Review — See PR #5 Comments)
 
-1. **Responsive components** — Hybrid approach proposed: breakpoint variables for shared-structure components, Viewport variants for structurally different ones. **Awaiting Pablo's input on the split list.**
+1. **Responsive components** — Hybrid approach proposed: breakpoint variables for shared-structure components, Viewport variants for structurally different ones. **Awaiting input on the split list.**
 2. **Design agent scope** — Our position: layout-only to start. Content generation as future add-on.
 3. **Brand onboarding format** — Our position: structured `brand-brief.md` template + optional URL scraping.
 4. **Shopify validation depth** — Our position: structural (valid JSON, correct types, ranges, step math) plus `visible_if` subset validation with warning-only fallback for unsupported expressions. Full dependency evaluation deferred to v2.
@@ -547,7 +551,7 @@ These items have no dependencies on open questions:
 - Add gotcha lookup section to each SKILL.md (on-demand, not auto-injected)
 - Test each skill
 
-**Responsive component conversion deferred** until Pablo confirms the split list.
+**Responsive component conversion deferred** until the split list is confirmed.
 
 ### Immediate: Phase 3 — Shopify Validation Skill
 - Create `/validate-shopify` SKILL.md
@@ -559,9 +563,9 @@ These items have no dependencies on open questions:
 - Create `docs/index.html`
 - Capture screenshots from Figma
 - Enable GitHub Pages
-- See `docs/github-pages-plan.md` for full spec
+- See `docs/github-pages-landing-plan.md` for full spec
 
-### Blocked: Waiting on Pablo
+### Blocked: Awaiting decision
 - Responsive component conversion (Phase 1 subtask)
 - Phase 4 Design Agent (depends on Phase 1 + 3 completion)
 
@@ -572,7 +576,7 @@ These items have no dependencies on open questions:
 | Phase | Effort | Status |
 |-------|--------|--------|
 | Phase 1: Skills migration (core) | 1 session | **Ready to start** |
-| Phase 1: Responsive conversion | 0.5 session | Blocked — awaiting Pablo |
+| Phase 1: Responsive conversion | 0.5 session | Blocked — awaiting decision |
 | Phase 2: Hooks + learning | 1 session | After Phase 1 core |
 | Phase 3: Shopify validation | 1-2 sessions | **Ready to start** (parallel with Phase 1) |
 | Phase 4: Design agent | 2-3 sessions | After Phase 1 + 3 |

@@ -1,7 +1,10 @@
+> **🗄️ HISTORICAL (2026-03-27) — diagnosis behind the commands→skills migration.**
+> The "current state" descriptions below (e.g. "11 commands, no skills, no CLAUDE.md") reflect March 2026 and are **no longer true**. Phases 1–3 shipped; the Design Agent (sections 4–5) was never built — see [roadmap.md](../roadmap.md). Do not treat as current.
+
 # Conclusions: How to Improve Our Skill System
 
 **Date:** 2026-03-27
-**Based on:** [Claude Code Skills Best Practices Research](./claude-code-skills-best-practices-research.md)
+**Based on:** [Claude Code Skills Best Practices Research](../research/claude-code-skills-best-practices-research.md)
 **Current state:** 11 commands in `.claude/commands/`, no skills, no agents, no hooks
 
 ---

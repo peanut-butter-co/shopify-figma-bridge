@@ -1,3 +1,5 @@
+> **⚠️ Active but flagged.** The live landing page (`index.html`) built from this plan **over-promises** features that are not shipped (`/design`, Brand Onboarding, Bidirectional Sync). Reconciling that copy is tracked in [roadmap.md](roadmap.md) (Phase 5). Update this plan and `index.html` together.
+
 # GitHub Pages Landing Page Plan
 
 **URL:** `https://peanut-butter-co.github.io/shopify-figma-bridge/`

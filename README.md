@@ -76,7 +76,7 @@ For known themes, you can add a profile in `.claude/figma-sync/theme-profiles/{t
 
 ## Architecture
 
-See [docs/architecture.md](docs/architecture.md) for the full design rationale, decisions, and data flow.
+See [docs/README.md](docs/README.md) for the documentation index, and [docs/roadmap.md](docs/roadmap.md) for the design rationale, roadmap, and data flow.
 
 ## Skills reference
 
