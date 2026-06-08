@@ -298,6 +298,30 @@ check('F068: .gitignore names the real runtime-state paths (not theme-profiles/m
 });
 
 // ---------------------------------------------------------------------------
+// C8/C9 — least-privilege allowed-tools + context mode (F069/F070/F072/F073/F074)
+// ---------------------------------------------------------------------------
+group('C8/C9: least-privilege allowed-tools + context mode');
+const allowedTools = (name) => {
+  const fm = frontmatter(read('.claude/skills/' + name + '/SKILL.md'));
+  return (fm.match(/allowed-tools:\s*\[([^\]]*)\]/) || [])[1] || '';
+};
+check('F070: setup drops the heavyweight figma write tools it never calls', () => {
+  const at = allowedTools('setup');
+  ok(/get_metadata/.test(at), 'setup must keep mcp__figma__get_metadata (it verifies Figma access)');
+  ok(!/use_figma/.test(at) && !/get_screenshot/.test(at), 'setup must NOT grant use_figma/get_screenshot (unused, heavyweight)');
+});
+check('F072/F073: validate-shopify is read-only (no Write in allowed-tools)', () => {
+  const at = allowedTools('validate-shopify');
+  ok(at.length > 0 && !/\bWrite\b/.test(at), 'validate-shopify is a read-only validator; drop Write from allowed-tools');
+});
+check('F074: sync-colors runs inline (keeps the approval diff in the main thread)', () => {
+  ok(/context:\s*inline/.test(frontmatter(read('.claude/skills/sync-colors/SKILL.md'))), 'sync-colors should be context: inline, not fork');
+});
+check('F069: setup warns the storefront password is stored in plaintext', () => {
+  ok(/plaintext/i.test(read('.claude/skills/setup/SKILL.md')), 'setup must warn the password is persisted in plaintext before saving it');
+});
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {

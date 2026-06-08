@@ -4,7 +4,7 @@ description: >
   Use when: initializing/configuring the Shopify-to-Figma pipeline for the first time — connecting a store URL + Figma file, setting viewports, entering a store password, or when .claude/figma-sync/manifest.json does not yet exist or needs reconfiguring. Run this before any other design-system skill.
 user-invocable: true
 context: inline
-allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, mcp__figma__get_metadata, mcp__chrome-devtools__navigate_page, mcp__chrome-devtools__take_screenshot, mcp__chrome-devtools__fill, mcp__chrome-devtools__click, Read, Write, Glob, Grep]
+allowed-tools: [mcp__figma__get_metadata, mcp__chrome-devtools__navigate_page, mcp__chrome-devtools__take_screenshot, mcp__chrome-devtools__fill, mcp__chrome-devtools__click, Read, Write, Glob, Grep]
 ---
 
 ```sh
@@ -44,7 +44,7 @@ Once the **Store URL** is provided:
      click the submit/enter button
      ```
    - Take another screenshot to verify the store loaded
-   - Save the password in the manifest
+   - **Before saving, warn the user:** the password will be stored in **plaintext** at `.claude/figma-sync/manifest.json` (which is git-ignored, so it is not committed). Offer a choice: save it for convenience, or leave `storePassword: null` and re-enter it each session. Save the password in the manifest only if the user agrees.
 4. **If the page is not accessible** (connection refused, timeout): stop and ask the user to resolve the issue (start dev server, check URL, etc.)
 5. **If the page loads correctly:** confirm to the user that the store is accessible
 
