@@ -15,6 +15,10 @@
 !.claude/
 !.claude/figma-best-practices.md
 
+# Project-level plugin config (committed so plugins like Superpowers are enabled for this project).
+# Personal overrides stay in .claude/settings.local.json, which remains ignored.
+!.claude/settings.json
+
 # Skills (new skills directory)
 !.claude/skills/
 !.claude/skills/*/
