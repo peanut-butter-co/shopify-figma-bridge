@@ -8,7 +8,7 @@
 
 **Scope:** critical + high + medium (80 findings). Low (48) is out of scope — optional polish.
 
-**Progress:** 64 / 80 done · 16 remaining
+**Progress:** 69 / 80 done · 11 remaining
 
 **Cluster order:** state-contract → triggering → write-safety → evals → consistency → docs-infra → rest
 
@@ -93,16 +93,16 @@
 - [x] **F073** · 🟡 med · `system` · C8 · S — validate-shopify declares the Write tool but is a read-only validator whose own body says not to write a file. · ✅ #15
 - [x] **F074** · 🟡 med · `sync-colors` · C9 · S — sync-colors sets context: fork, but the project's own research decision matrix classifies sync-colors as a light… · ✅ #15
 
-## 6. docs / infra (9) — 1 done, 8 left
+## 6. docs / infra (9) — 6 done, 3 left
 
 - [ ] **F006** · 🟠 high · `validate-shopify` · A6 · L — The entire validation is deterministic, repeated, multi-step computation (JSON.parse of templates, regex extract…
-- [ ] **F020** · 🟡 med · `validate-instances` · A2 · S — get_screenshot is granted but the body never tells the agent to use it.
+- [x] **F020** · 🟡 med · `validate-instances` · A2 · S — get_screenshot is granted but the body never tells the agent to use it. · ✅ #19
 - [ ] **F021** · 🟡 med · `validate-shopify` · A3 · M — Six validation topics are spelled out in full (rules, thresholds, examples, math) in BOTH SKILL.md and the refer…
-- [ ] **F022** · 🟡 med · `system` · A5 · M — Systemic A5/A1 weakness underlying the C1 collisions: nine of the thirteen descriptions are single terse capabil…
+- [x] **F022** · 🟡 med · `system` · A5 · M — Systemic A5/A1 weakness underlying the C1 collisions: nine of the thirteen descriptions are single terse capabil… · ✅ #19
 - [ ] **F023** · 🟡 med · `build-foundations` · A6 · M — The alpha-variant computation is deterministic, repeated for every scheme color, and numerically error-prone (he…
-- [ ] **F024** · 🟡 med · `system` · A7 · S — A stale hardcoded viewport literal (375px) sits inside compose-page's ASCII layout diagram while the rest of the…
-- [ ] **F075** · 🟡 med · `analyze-theme` · P1 · S — analyze-theme is a core pipeline skill (explicitly named in the P1 mandate alongside build-*, compose-page, prop…
-- [ ] **F076** · 🟡 med · `setup` · P1 · S — The dynamic-context block references a per-skill `gotchas.md` (P1/P2 mechanism) that does not exist, so it alway…
+- [x] **F024** · 🟡 med · `system` · A7 · S — A stale hardcoded viewport literal (375px) sits inside compose-page's ASCII layout diagram while the rest of the… · ✅ #19
+- [x] **F075** · 🟡 med · `analyze-theme` · P1 · S — analyze-theme is a core pipeline skill (explicitly named in the P1 mandate alongside build-*, compose-page, prop… · ✅ #19
+- [x] **F076** · 🟡 med · `setup` · P1 · S — The dynamic-context block references a per-skill `gotchas.md` (P1/P2 mechanism) that does not exist, so it alway… · ✅ #19
 - [x] **F080** · 🟡 med · `build-design-rules` · P8 · S — The pre-flight gates on `buildStatus.components`, but no skill in the pipeline ever writes that key. · ✅ #9
 
 ## 7. rest (self-learning loop) (9) — 9 done, 0 left
@@ -134,6 +134,7 @@
 | #16 | rest/self-learning: After-Completion gotchas-append step x9 (P11/B7) | F036 F037 F038 F039 F040 F041 F077 F078 F079 (9) | merged ✅ |
 | #17 | consistency/hygiene: dedup gotchas + Grey naming + structure doc (C2/C3) | F049 F051 F053 (3) | merged ✅ |
 | #18 | consistency/guards: compose-page password + refresh web-tools STOP (C5) | F062 F063 F064 (3) | merged ✅ |
+| #19 | docs-infra: viewport placeholders + screenshot-verify + gotchas stubs (A2/A5/A7/P1) | F020 F022 F024 F075 F076 (5) | merged ✅ |
 
 ---
 
