@@ -8,7 +8,7 @@
 
 **Scope:** critical + high + medium (80 findings). Low (48) is out of scope — optional polish.
 
-**Progress:** 14 / 80 done · 66 remaining
+**Progress:** 22 / 80 done · 58 remaining
 
 **Cluster order:** state-contract → triggering → write-safety → evals → consistency → docs-infra → rest
 
@@ -16,19 +16,19 @@
 
 ---
 
-## 1. state-contract (11) — 4 done, 7 left
+## 1. state-contract (11) — 11 done, 0 left
 
 - [x] **F001** · 🔴 crit · `system` · B1 · S — The producer/consumer contract for `components.status` is broken. · ✅ #8
 - [x] **F003** · 🔴 crit · `build-components` · C4 · S — The Pre-flight gate that enforces the pipeline dependency (P8) reads a field that the upstream skill never writes. · ✅ #8
 - [x] **F004** · 🔴 crit · `propose-components` · C4 · S — propose-components is the producer of the components.status='confirmed' checkpoint that build-components depends… · ✅ #8
 - [x] **F009** · 🟠 high · `build-components` · C4 · S — The Variant Completeness Check computes expected variant count by treating section.variants values as flat array… · ✅ #8
-- [ ] **F033** · 🟡 med · `system` · B1 · S — build-design-rules reads a `buildStatus.components` object/namespace that no skill ever writes.
-- [ ] **F054** · 🟡 med · `build-components` · C4 · M — The Blocks phase instructs reading source files from a manifest field (sourceBlocks) that does not exist.
-- [ ] **F055** · 🟡 med · `propose-components` · C4 · M — Step 8's manifest-write description under-specifies the schema the Step 9 generator actually consumes.
-- [ ] **F056** · 🟡 med · `validate-instances` · C4 · S — The skill names the manifest but never reads it, and has no pre-flight verifying that a built design system exis…
-- [ ] **F057** · 🟡 med · `system` · C4 · M — build-design-rules is an orphaned phase: it produces design-rules.json that build-components and compose-page op…
-- [ ] **F058** · 🟡 med · `system` · C4 · S — The write contract for `theme.profileValidation` is split across files and under-specified in the authoritative…
-- [ ] **F059** · 🟡 med · `system` · C4 · S — `buildMeta.practicesVersion` is a read-only-by-no-writer field.
+- [x] **F033** · 🟡 med · `system` · B1 · S — build-design-rules reads a `buildStatus.components` object/namespace that no skill ever writes. · ✅ #9
+- [x] **F054** · 🟡 med · `build-components` · C4 · M — The Blocks phase instructs reading source files from a manifest field (sourceBlocks) that does not exist. · ✅ #9
+- [x] **F055** · 🟡 med · `propose-components` · C4 · M — Step 8's manifest-write description under-specifies the schema the Step 9 generator actually consumes. · ✅ #9
+- [x] **F056** · 🟡 med · `validate-instances` · C4 · S — The skill names the manifest but never reads it, and has no pre-flight verifying that a built design system exis… · ✅ #9
+- [x] **F057** · 🟡 med · `system` · C4 · M — build-design-rules is an orphaned phase: it produces design-rules.json that build-components and compose-page op… · ✅ #9
+- [x] **F058** · 🟡 med · `system` · C4 · S — The write contract for `theme.profileValidation` is split across files and under-specified in the authoritative… · ✅ #9
+- [x] **F059** · 🟡 med · `system` · C4 · S — `buildMeta.practicesVersion` is a read-only-by-no-writer field. · ✅ #9
 
 ## 2. triggering / descriptions (10) — 0 done, 10 left
 
@@ -93,7 +93,7 @@
 - [ ] **F073** · 🟡 med · `system` · C8 · S — validate-shopify declares the Write tool but is a read-only validator whose own body says not to write a file.
 - [ ] **F074** · 🟡 med · `sync-colors` · C9 · S — sync-colors sets context: fork, but the project's own research decision matrix classifies sync-colors as a light…
 
-## 6. docs / infra (9) — 0 done, 9 left
+## 6. docs / infra (9) — 1 done, 8 left
 
 - [ ] **F006** · 🟠 high · `validate-shopify` · A6 · L — The entire validation is deterministic, repeated, multi-step computation (JSON.parse of templates, regex extract…
 - [ ] **F020** · 🟡 med · `validate-instances` · A2 · S — get_screenshot is granted but the body never tells the agent to use it.
@@ -103,7 +103,7 @@
 - [ ] **F024** · 🟡 med · `system` · A7 · S — A stale hardcoded viewport literal (375px) sits inside compose-page's ASCII layout diagram while the rest of the…
 - [ ] **F075** · 🟡 med · `analyze-theme` · P1 · S — analyze-theme is a core pipeline skill (explicitly named in the P1 mandate alongside build-*, compose-page, prop…
 - [ ] **F076** · 🟡 med · `setup` · P1 · S — The dynamic-context block references a per-skill `gotchas.md` (P1/P2 mechanism) that does not exist, so it alway…
-- [ ] **F080** · 🟡 med · `build-design-rules` · P8 · S — The pre-flight gates on `buildStatus.components`, but no skill in the pipeline ever writes that key.
+- [x] **F080** · 🟡 med · `build-design-rules` · P8 · S — The pre-flight gates on `buildStatus.components`, but no skill in the pipeline ever writes that key. · ✅ #9
 
 ## 7. rest (self-learning loop) (9) — 0 done, 9 left
 
@@ -124,6 +124,7 @@
 | PR | Cluster(s) | Findings closed | Status |
 |----|-----------|-----------------|--------|
 | #8 | foundation: state-contract + write-safety + consistency(MCP-STOP/Edit) + evals(harness) | F001 F002 F003 F004 F005 F009 F010 F011 F012 F032 F060 F061 F065 F071 (14) | merged ✅ |
+| #9 | state-contract: manifest producer/consumer field agreements (C4/B1) | F033 F054 F055 F056 F057 F058 F059 F080 (8) | merged ✅ |
 
 ---
 

@@ -161,7 +161,12 @@ Include the Template Coverage Plan — scan `templates/` and present standard Sh
 
 ## Step 8: Write to Manifest
 
-Once both phases are confirmed, update the manifest with the full `components` object including atoms, blocks, sections (with both `variants` and `instanceProperties` per section), skippedSections, and scope.
+Once both phases are confirmed, update the manifest with the full `components` object. Step 9's HTML generator renders these exact fields, so write all of them or the proposal degrades silently (empty Variables tabs, missing combo counts, blank reasons):
+
+- **atoms[]** — `name`, `sourceFile` (if known), `reason`
+- **blocks.universal[]** — `name`, `type`, `usageCount`, `usedInSections`, `reason`; **blocks.sectionSpecific{slug:[...]}** for integrated blocks
+- **sections{slug}** — `variants` (each `{tier, values[], reason, combinationCount}`), `instanceProperties`, `variableProperties` (the `color_scheme` bucket produced by Phase B Step 6), `totalVariantCombinations` (`{desktop, mobile, note}`), and `reason`
+- **skippedSections[]**, **scope**
 
 **Set `components.status = "confirmed"`** as part of this write — and only after BOTH Phase A and Phase B have been confirmed by the user. This is the readiness signal that `/build-components` and `/build-design-system` gate on (`components.status === "confirmed"`); if it is missing, the build phase refuses to run and (wrongly) tells the user to re-run `/propose-components`.
 

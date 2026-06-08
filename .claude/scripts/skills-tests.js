@@ -156,6 +156,47 @@ for (const name of fs.readdirSync(skillsDir).sort()) {
 }
 
 // ---------------------------------------------------------------------------
+// C4 / state-contract — manifest producer/consumer field agreements
+//   F033/F080 buildStatus shape · F054 blocks source · F055 Step-8 schema ·
+//   F056 validate-instances build-state gate · F058 theme.profileValidation ·
+//   F059 buildMeta.practicesVersion · F057 build-design-rules documented
+// ---------------------------------------------------------------------------
+group('C4: manifest state-contract (producer/consumer agreement)');
+check('F033/F080: build-design-rules gates on FLAT buildStatus keys, not a nested components namespace', () => {
+  const md = read('.claude/skills/build-design-rules/SKILL.md');
+  ok(!/buildStatus\.components/.test(md), 'build-design-rules still reads buildStatus.components (never written)');
+  ok(/buildStatus(\.atoms|\.blocks|\["sections-(desktop|mobile)"\])/.test(md), 'build-design-rules must check a flat buildStatus phase key');
+});
+check('F054: build-components Blocks phase reads components.blocks, not a missing sourceBlocks field', () => {
+  const md = read('.claude/skills/build-components/SKILL.md');
+  ok(!/sourceBlocks/.test(md), 'build-components still references the nonexistent sourceBlocks field');
+  ok(/components\.blocks/.test(md), 'build-components Blocks phase must source from components.blocks');
+});
+check('F055: propose-components Step 8 enumerates variableProperties + totalVariantCombinations', () => {
+  const md = read('.claude/skills/propose-components/SKILL.md');
+  ok(/variableProperties/.test(md) && /totalVariantCombinations/.test(md),
+    'Step 8 must list the full per-section schema the Step 9 generator consumes');
+});
+check('F056: validate-instances has a build-state pre-flight routing to /build-components', () => {
+  const md = read('.claude/skills/validate-instances/SKILL.md');
+  ok(/build state/i.test(md), 'validate-instances missing a build-state pre-flight');
+  ok(/\/build-components/.test(md) && /buildStatus/.test(md), 'must read buildStatus and route to /build-components when nothing is built');
+});
+check('F058: analyze-theme Step 4 persists theme.profileValidation (+ hasProfile)', () => {
+  const md = read('.claude/skills/analyze-theme/SKILL.md');
+  ok(/theme\.profileValidation/.test(md) && /theme\.hasProfile/.test(md),
+    'analyze-theme Step 4 write must persist theme.profileValidation/hasProfile that build-foundations gates on');
+});
+check('F059: build-components stamps buildMeta.practicesVersion on completion', () => {
+  const md = read('.claude/skills/build-components/SKILL.md');
+  ok(/stamp[^\n]{0,60}buildMeta\.practicesVersion/i.test(md),
+    'build-components must WRITE buildMeta.practicesVersion (it only reads it today -> dead staleness check)');
+});
+check('F057: build-design-rules is documented in CLAUDE.md (not orphaned)', () => {
+  ok(/build-design-rules/.test(read('CLAUDE.md')), 'CLAUDE.md must document build-design-rules in the pipeline');
+});
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {

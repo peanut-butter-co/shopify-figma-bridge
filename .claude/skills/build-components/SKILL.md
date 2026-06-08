@@ -43,7 +43,7 @@ You are building the confirmed component inventory in Figma: atoms, blocks, and 
    - `all` → run atoms → blocks → sections-desktop → sections-mobile in sequence
    - Specific phase → run only that phase
 7. Check `buildStatus` for already-completed phases. Warn if re-running a completed phase.
-8. **Practices version check:** Read the `Version` date from `.claude/figma-best-practices.md`. Compare with `buildMeta.practicesVersion` in the manifest. If newer → warn about potential inconsistencies.
+8. **Practices version check:** Read the `Version` date from `.claude/figma-best-practices.md`. Compare with `buildMeta.practicesVersion` in the manifest (this skill stamps that field when a build phase completes — see "After all mobile sections"). On a first-ever build it is absent → skip the warning; if the doc's `Version` is newer than the stamped value → warn about potential inconsistencies.
 
 ---
 
@@ -131,7 +131,7 @@ Build all blocks from `components.blocks` on the Blocks page.
 
 ### For each block:
 
-1. **Read source block files** listed in `sourceBlocks`
+1. **Resolve each block's source from `components.blocks`** — iterate `components.blocks.universal[]` (and `components.blocks.sectionSpecific[slug]` for integrated blocks); map each block by its `type` to the theme file (`blocks/{type}.liquid`, or the snippet/section it is integrated into). `components.blocks` is the source of truth.
 2. **Use captured measurements** for dimensions, proportions, spacing
 3. **Build in Figma** following the HTML structure — translate HTML hierarchy to Figma frame hierarchy
 
@@ -212,7 +212,7 @@ Screenshot each section at mobile width.
 
 **Arrange page layout** — After all mobile sections pass validation, arrange the entire Sections page (desktop + mobile together) following `.claude/skills/build-components/reference/page-layout.md`. Desktop components at x=0, mobile at x=MOBILE_X_OFFSET, same y.
 
-Update `buildStatus["sections-mobile"] = "complete"`.
+Update `buildStatus["sections-mobile"] = "complete"`. Then stamp `buildMeta.practicesVersion` (the `Version` from `.claude/figma-best-practices.md`) and `buildMeta.builtAt` (current timestamp) into the manifest, so the Pre-flight staleness check (step 8) has a real value to compare against on the next run.
 
 ---
 
