@@ -25,6 +25,8 @@ Evergreen background, still cited by the active roadmap.
 | [research/figma-slots-research.md](research/figma-slots-research.md) | Figma slots and how they map to Shopify sections/blocks. Cited by roadmap Phase 8. |
 | [research/claude-code-skills-best-practices-research.md](research/claude-code-skills-best-practices-research.md) | Best practices for Claude Code skills/commands/agents — the background behind this repo's skill architecture. |
 | [research/agenticui-gap-analysis.md](research/agenticui-gap-analysis.md) | Benchmark of this system against the external AgenticUI Design Systems Manual. |
+| [research/skills-review-2026-06-08.md](research/skills-review-2026-06-08.md) | **Exhaustive multi-agent audit (2026-06-08) of the `.claude` skills system** against skill-creator best practices + project conventions: 5 critical / 9 high / 66 medium / 48 low findings. Curated report — exec summary, skill×severity matrix, prioritized top issues, recommended fix order. |
+| [research/skills-review-2026-06-08-findings.md](research/skills-review-2026-06-08-findings.md) | Companion data to the audit: all 128 findings + 4 refuted, untruncated, grouped by severity and rubric dimension, each with `path:line` evidence. |
 
 ## 🗄️ Archive (superseded — do not act on)
 
