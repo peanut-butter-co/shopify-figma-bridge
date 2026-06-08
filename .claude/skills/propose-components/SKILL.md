@@ -163,6 +163,8 @@ Include the Template Coverage Plan — scan `templates/` and present standard Sh
 
 Once both phases are confirmed, update the manifest with the full `components` object including atoms, blocks, sections (with both `variants` and `instanceProperties` per section), skippedSections, and scope.
 
+The `components` object **must** also include a `summary` sub-object with counts: `atoms`, `universalBlocks`, `sections`, and `desktopVariantCombinations`. Step 9's proposal generator reads `components.summary` and aborts if it is missing.
+
 Note: Desktop/Mobile is NOT in the variants object — it's handled by creating separate components during `/build-components`.
 
 ---
@@ -175,7 +177,7 @@ Run the proposal generator to create an interactive HTML overview:
 node .claude/scripts/generate-proposal-html.js
 ```
 
-Then open it for the user:
+Then open it for the user (macOS; on Linux use `xdg-open`, on Windows `start`):
 
 ```bash
 open .claude/figma-sync/proposal.html
