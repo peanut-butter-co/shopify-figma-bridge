@@ -354,6 +354,26 @@ check('F051: CLAUDE.md documents the skill sub-structure convention', () => {
 });
 
 // ---------------------------------------------------------------------------
+// C5 — tool/resource availability guards (F062/F063/F064)
+// ---------------------------------------------------------------------------
+group('C5: tool/resource availability guards');
+check('F062: compose-page handles a password-gated store (storePassword + fill/click)', () => {
+  const md = read('.claude/skills/compose-page/SKILL.md');
+  ok(/storePassword/.test(md), 'compose-page must read config.storePassword before navigating the live store');
+  const at = (frontmatter(md).match(/allowed-tools:\s*\[([^\]]*)\]/) || [])[1] || '';
+  ok(/chrome-devtools__fill/.test(at) && /chrome-devtools__click/.test(at), 'compose-page needs chrome-devtools fill+click to enter the store password');
+});
+check('F063: refresh-figma-practices STOPs when web tools are unavailable (no fabrication)', () => {
+  const md = read('.claude/skills/refresh-figma-practices/SKILL.md');
+  ok(/\bSTOP\b/.test(md) && /WebSearch|WebFetch|web (research )?tools?/i.test(md),
+    'refresh-figma-practices must STOP if WebSearch/WebFetch are unavailable rather than fabricate');
+});
+check('F064: validate-shopify declares no MCP tools (nothing to verify)', () => {
+  const at = (frontmatter(read('.claude/skills/validate-shopify/SKILL.md')).match(/allowed-tools:\s*\[([^\]]*)\]/) || [])[1] || '';
+  ok(!/mcp__/.test(at), 'validate-shopify should not declare MCP tools (compose-page MCP guard is covered by HIGH-C)');
+});
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {

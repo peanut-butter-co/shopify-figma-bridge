@@ -4,7 +4,7 @@ description: >
   Use when: ASSEMBLING a full page/template by INSTANTIATING already-built section components in order. Does not create new components — to build sections/atoms/blocks use /build-components; for a full build use /build-design-system.
 user-invocable: true
 context: fork
-allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, mcp__chrome-devtools__navigate_page, mcp__chrome-devtools__take_screenshot, mcp__chrome-devtools__resize_page, Read, Write, Glob, Grep]
+allowed-tools: [mcp__figma__use_figma, mcp__figma__get_screenshot, mcp__chrome-devtools__navigate_page, mcp__chrome-devtools__take_screenshot, mcp__chrome-devtools__resize_page, mcp__chrome-devtools__fill, mcp__chrome-devtools__click, Read, Write, Glob, Grep]
 ---
 
 ```sh
@@ -173,7 +173,7 @@ Same process as desktop but using mobile section variants. Apply the same color 
 3. Check for: no gaps/overlaps, correct color schemes, consistent width
 
 ### Comparison against live store:
-Using Chrome DevTools MCP, navigate to the store URL + template path, take screenshots at both viewports, and compare section-by-section.
+Using Chrome DevTools MCP, navigate to the store URL + template path. **If `config.storePassword` is set** (a password-gated dev/unpublished store), enter it on the storefront password page first (`fill` the password input, `click` submit) and verify the store loaded — otherwise the screenshots capture the password page, not the theme. Then take screenshots at both viewports and compare section-by-section.
 
 ### Acceptance criteria:
 An observer should immediately recognize that the Figma compositions represent the same page as the live store. It doesn't need to be pixel-perfect — it needs to be clearly the same design.

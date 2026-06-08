@@ -8,7 +8,7 @@
 
 **Scope:** critical + high + medium (80 findings). Low (48) is out of scope — optional polish.
 
-**Progress:** 61 / 80 done · 19 remaining
+**Progress:** 64 / 80 done · 16 remaining
 
 **Cluster order:** state-contract → triggering → write-safety → evals → consistency → docs-infra → rest
 
@@ -61,7 +61,7 @@
 - [x] **F031** · 🟡 med · `validate-shopify` · A9 · M — There is no evals/evals.json with realistic prompts/fixtures, despite this being the single most eval-friendly s… · ✅ #12
 - [x] **F032** · 🟡 med · `system` · A9 · M — There is zero automated eval/test coverage anywhere in the project. · ✅ #8
 
-## 5. consistency / DRY (29) — 18 done, 11 left
+## 5. consistency / DRY (29) — 21 done, 8 left
 
 - [x] **F005** · 🔴 crit · `system` · C8 · S — sync-colors' body instructs using the Edit tool for its only Shopify write, but Edit is not in allowed-tools (un… · ✅ #8
 - [ ] **F007** · 🟠 high · `validate-instances` · B3 · M — The auto-fix is destructive: it deletes inline frames and re-parents instances inside live design-system templat…
@@ -81,9 +81,9 @@
 - [x] **F053** · 🟡 med · `system` · C3 · S — Spelling drift between 'Gray' and 'Grey' inside the SAME line of sync-colors. · ✅ #17
 - [x] **F060** · 🟡 med · `build-foundations` · C5 · S — The skill's entire job depends on mcp__figma__use_figma and mcp__figma__get_screenshot, yet there is no guard th… · ✅ #8
 - [x] **F061** · 🟡 med · `compose-page` · C5 · S — This skill depends on two MCP families (mcp__figma__* and mcp__chrome-devtools__*) but has no guard that STOPS a… · ✅ #8
-- [ ] **F062** · 🟡 med · `compose-page` · C5 · S — The live-store comparison navigates to storeUrl but ignores config.storePassword (present in the manifest).
-- [ ] **F063** · 🟡 med · `refresh-figma-practices` · C5 · S — The skill's entire output depends on WebSearch/WebFetch, but there is no guard for the case where web tools are…
-- [ ] **F064** · 🟡 med · `system` · C5 · M — compose-page and validate-shopify never verify their declared MCP tools before relying on them.
+- [x] **F062** · 🟡 med · `compose-page` · C5 · S — The live-store comparison navigates to storeUrl but ignores config.storePassword (present in the manifest). · ✅ #18
+- [x] **F063** · 🟡 med · `refresh-figma-practices` · C5 · S — The skill's entire output depends on WebSearch/WebFetch, but there is no guard for the case where web tools are… · ✅ #18
+- [x] **F064** · 🟡 med · `system` · C5 · M — compose-page and validate-shopify never verify their declared MCP tools before relying on them. · ✅ #18
 - [x] **F067** · 🟡 med · `system` · C7 · S — CLAUDE.md (the authoritative project-instruction file Claude loads every session) is out of sync with reality an… · ✅ #14
 - [x] **F068** · 🟡 med · `system` · C7 · S — The dedicated 'ignore runtime state' rule points at the wrong path (theme-profiles/manifest.json) and is therefo… · ✅ #14
 - [x] **F069** · 🟡 med · `setup` · C8 · S — The skill captures the storefront password and persists it in plaintext in the manifest, with zero warning to th… · ✅ #15
@@ -133,6 +133,7 @@
 | #15 | consistency/least-privilege: allowed-tools + inline context (C8/C9) | F069 F070 F072 F073 F074 (5) | merged ✅ |
 | #16 | rest/self-learning: After-Completion gotchas-append step x9 (P11/B7) | F036 F037 F038 F039 F040 F041 F077 F078 F079 (9) | merged ✅ |
 | #17 | consistency/hygiene: dedup gotchas + Grey naming + structure doc (C2/C3) | F049 F051 F053 (3) | merged ✅ |
+| #18 | consistency/guards: compose-page password + refresh web-tools STOP (C5) | F062 F063 F064 (3) | merged ✅ |
 
 ---
 
