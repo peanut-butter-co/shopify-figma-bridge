@@ -57,7 +57,7 @@ From `foundations.colors.uniqueColors.themeColors`, create one COLOR variable pe
 - Variable name: use the `name` field from the manifest
 - Value: convert `hex` + `opacity` to `{r, g, b, a}` floats (r,g,b: 0-1 range, a = opacity)
 
-**Naming:** Use `{Group}/Base` for the primary (fully opaque) swatch in each color group. If the manifest uses a numeric suffix, rename it.
+**Naming:** Keep the manifest's **numeric swatch names for ALL swatches**, including the fully-opaque base (e.g. `Grey/900`). Do NOT rename the opaque base to `{Group}/Base` — Step 3.5 (alpha matching) and Step 4 (Color Schemas aliasing) look up the opaque variable by its numeric name, and alpha children are named `Grey/900/81`, so a `/Base` rename breaks RGB matching and alias binding.
 
 **Always include** a `Transparent` variable with value `{r: 0, g: 0, b: 0, a: 0}`.
 

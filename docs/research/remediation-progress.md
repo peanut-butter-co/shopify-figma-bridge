@@ -8,7 +8,7 @@
 
 **Scope:** critical + high + medium (80 findings). Low (48) is out of scope — optional polish.
 
-**Progress:** 71 / 80 done · 9 remaining
+**Progress:** 73 / 80 done · 7 remaining
 
 **Cluster order:** state-contract → triggering → write-safety → evals → consistency → docs-infra → rest
 
@@ -61,7 +61,7 @@
 - [x] **F031** · 🟡 med · `validate-shopify` · A9 · M — There is no evals/evals.json with realistic prompts/fixtures, despite this being the single most eval-friendly s… · ✅ #12
 - [x] **F032** · 🟡 med · `system` · A9 · M — There is zero automated eval/test coverage anywhere in the project. · ✅ #8
 
-## 5. consistency / DRY (29) — 23 done, 6 left
+## 5. consistency / DRY (29) — 25 done, 4 left
 
 - [x] **F005** · 🔴 crit · `system` · C8 · S — sync-colors' body instructs using the Edit tool for its only Shopify write, but Edit is not in allowed-tools (un… · ✅ #8
 - [ ] **F007** · 🟠 high · `validate-instances` · B3 · M — The auto-fix is destructive: it deletes inline frames and re-parents instances inside live design-system templat…
@@ -72,10 +72,10 @@
 - [x] **F014** · 🟠 high · `system` · C9 · S — The README's primary Installation instructions reference a `.claude/commands/` directory that does not exist. · ✅ #13
 - [x] **F034** · 🟡 med · `system` · B5 · M — No end-to-end verification of the phase-handoff chain exists, and a dry-run trace immediately surfaces the B1-01… · ✅ #20
 - [x] **F035** · 🟡 med · `compose-page` · B6 · S — manifest.json is the single source of truth (CLAUDE.md). · ✅ #20
-- [ ] **F047** · 🟡 med · `build-foundations` · C2 · S — Inconsistent base-variable naming across the skill's own files.
+- [x] **F047** · 🟡 med · `build-foundations` · C2 · S — Inconsistent base-variable naming across the skill's own files. · ✅ #21
 - [ ] **F048** · 🟡 med · `validate-shopify` · C2 · S — The project convention splits two concerns: a per-skill gotchas.md (runtime-injected, self-updating learnings) v…
 - [x] **F049** · 🟡 med · `system` · C2 · S — The same Figma Plugin API gotcha list lives twice inside one skill — once in SKILL.md Step 8 and once in gotchas… · ✅ #17
-- [ ] **F050** · 🟡 med · `system` · C2 · M — Plugin-API-level invariants (text nodes must FILL+HEIGHT after append; lineHeight must be PERCENT not a bound va…
+- [x] **F050** · 🟡 med · `system` · C2 · M — Plugin-API-level invariants (text nodes must FILL+HEIGHT after append; lineHeight must be PERCENT not a bound va… · ✅ #21
 - [x] **F051** · 🟡 med · `system` · C3 · M — There is no principled, documented rule for skill sub-structure. · ✅ #17
 - [ ] **F052** · 🟡 med · `system` · C3 · M — validate-shopify is a structural outlier on three axes at once: (a) it is the only reference/ skill whose refere…
 - [x] **F053** · 🟡 med · `system` · C3 · S — Spelling drift between 'Gray' and 'Grey' inside the SAME line of sync-colors. · ✅ #17
@@ -136,6 +136,7 @@
 | #18 | consistency/guards: compose-page password + refresh web-tools STOP (C5) | F062 F063 F064 (3) | merged ✅ |
 | #19 | docs-infra: viewport placeholders + screenshot-verify + gotchas stubs (A2/A5/A7/P1) | F020 F022 F024 F075 F076 (5) | merged ✅ |
 | #20 | consistency/SSOT: manifest state-contract table + compose-page merge-write (B5/B6) | F034 F035 (2) | merged ✅ |
+| #21 | consistency: numeric swatch naming + canonical Plugin-API reference (C2) | F047 F050 (2) | merged ✅ |
 
 ---
 

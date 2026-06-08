@@ -184,6 +184,20 @@ Available but with limitations:
 
 ---
 
+## use_figma / Plugin API Gotchas
+
+Hard invariants when writing Figma via `use_figma` (the Plugin API). Violating these silently corrupts output or throws a validation error:
+
+- **Text nodes in auto-layout:** after appending, set `layoutSizingHorizontal = "FILL"` and `textAutoResize = "HEIGHT"` — otherwise text overflows or the frame collapses.
+- **lineHeight:** set it directly on the text style as `{ value, unit: "PERCENT" }`. Do NOT bind a variable to `lineHeight` — the API forces `unit: "PIXELS"`.
+- **Shadows:** every shadow effect needs `blendMode: "NORMAL"`; omitting it fails validation.
+- **`primaryAxisSizingMode`:** use `"AUTO"`, never `"HUG"` (rejected).
+- **Paint color:** `color` objects don't accept an `a` (alpha) channel via `use_figma` — set `opacity` on the paint instead.
+- **`createVariable(name, collection, type)`:** pass the collection object, not its id.
+- **Layout flush is mandatory:** after populating children, toggle `layoutMode` off then on (bottom-up, innermost first) so the frame recalculates — `primaryAxisSizingMode = "AUTO"` alone does not reliably resize.
+
+---
+
 ## Sources
 
 - Joey Banks — [Auto Layout Techniques](https://medium.com/@joeyabanks/techniques-for-using-auto-layout-in-figma-fb2c874940ae), [Responsive Components](https://medium.com/@joeyabanks/the-easy-way-to-build-responsive-components-in-figma-3eb6d4850f65)
