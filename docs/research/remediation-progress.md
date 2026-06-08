@@ -8,7 +8,7 @@
 
 **Scope:** critical + high + medium (80 findings). Low (48) is out of scope — optional polish.
 
-**Progress:** 42 / 80 done · 38 remaining
+**Progress:** 44 / 80 done · 36 remaining
 
 **Cluster order:** state-contract → triggering → write-safety → evals → consistency → docs-infra → rest
 
@@ -61,7 +61,7 @@
 - [x] **F031** · 🟡 med · `validate-shopify` · A9 · M — There is no evals/evals.json with realistic prompts/fixtures, despite this being the single most eval-friendly s… · ✅ #12
 - [x] **F032** · 🟡 med · `system` · A9 · M — There is zero automated eval/test coverage anywhere in the project. · ✅ #8
 
-## 5. consistency / DRY (29) — 8 done, 21 left
+## 5. consistency / DRY (29) — 10 done, 19 left
 
 - [x] **F005** · 🔴 crit · `system` · C8 · S — sync-colors' body instructs using the Edit tool for its only Shopify write, but Edit is not in allowed-tools (un… · ✅ #8
 - [ ] **F007** · 🟠 high · `validate-instances` · B3 · M — The auto-fix is destructive: it deletes inline frames and re-parents instances inside live design-system templat…
@@ -84,8 +84,8 @@
 - [ ] **F062** · 🟡 med · `compose-page` · C5 · S — The live-store comparison navigates to storeUrl but ignores config.storePassword (present in the manifest).
 - [ ] **F063** · 🟡 med · `refresh-figma-practices` · C5 · S — The skill's entire output depends on WebSearch/WebFetch, but there is no guard for the case where web tools are…
 - [ ] **F064** · 🟡 med · `system` · C5 · M — compose-page and validate-shopify never verify their declared MCP tools before relying on them.
-- [ ] **F067** · 🟡 med · `system` · C7 · S — CLAUDE.md (the authoritative project-instruction file Claude loads every session) is out of sync with reality an…
-- [ ] **F068** · 🟡 med · `system` · C7 · S — The dedicated 'ignore runtime state' rule points at the wrong path (theme-profiles/manifest.json) and is therefo…
+- [x] **F067** · 🟡 med · `system` · C7 · S — CLAUDE.md (the authoritative project-instruction file Claude loads every session) is out of sync with reality an… · ✅ #14
+- [x] **F068** · 🟡 med · `system` · C7 · S — The dedicated 'ignore runtime state' rule points at the wrong path (theme-profiles/manifest.json) and is therefo… · ✅ #14
 - [ ] **F069** · 🟡 med · `setup` · C8 · S — The skill captures the storefront password and persists it in plaintext in the manifest, with zero warning to th…
 - [ ] **F070** · 🟡 med · `setup` · C8 · S — Least-privilege violation: this read-only config skill grants `mcp__figma__use_figma` — the heavyweight Figma cr…
 - [x] **F071** · 🟡 med · `sync-colors` · C8 · S — The body's documented Shopify write path uses the Edit tool, but Edit is not in allowed-tools (only Write is). · ✅ #8
@@ -129,6 +129,7 @@
 | #11 | write-safety: sync-colors real diff + verify-only-color-keys (C6) | F066 (1) | merged ✅ |
 | #12 | evals: per-skill evals/evals.json triggering + behavior suites (A9) | F025 F026 F027 F028 F029 F030 F031 (7) | merged ✅ |
 | #13 | consistency/installer: install.sh + README target .claude/skills (C9) | F013 F014 (2) | merged ✅ |
+| #14 | consistency/docs: CLAUDE.md + .gitignore reflect reality (C7) | F067 F068 (2) | merged ✅ |
 
 ---
 
