@@ -43,3 +43,7 @@
 
 # Always ignore runtime state (generated per project)
 .claude/figma-sync/theme-profiles/manifest.json
+
+# macOS folder-metadata noise — ignore everywhere, even inside whitelisted dirs (e.g. docs/**).
+# Placed last so it wins over the docs/** re-include (last matching pattern wins).
+.DS_Store
