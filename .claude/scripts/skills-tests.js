@@ -337,6 +337,23 @@ for (const name of SELF_LEARN) {
 }
 
 // ---------------------------------------------------------------------------
+// C2/C3 — naming + dedup + structure docs (F049/F051/F053)
+// ---------------------------------------------------------------------------
+group('C2/C3: naming + dedup + structure docs');
+check('F049: build-foundations does not duplicate the Figma-API gotchas inline (single home = gotchas.md)', () => {
+  ok(!/###\s*Figma API gotchas for this skill/i.test(read('.claude/skills/build-foundations/SKILL.md')),
+    'inline gotcha block still present — duplicates and will drift from gotchas.md');
+  ok(/blendMode|lineHeight/i.test(read('.claude/skills/build-foundations/gotchas.md')),
+    'gotchas.md must retain the Figma-API gotchas (the single source)');
+});
+check('F053: sync-colors uses the dominant "Grey" spelling (no Color/Gray drift)', () => {
+  ok(!/Color\/Gray\b/.test(read('.claude/skills/sync-colors/SKILL.md')), 'standardize Color/Gray -> Color/Grey');
+});
+check('F051: CLAUDE.md documents the skill sub-structure convention', () => {
+  ok(/Skill layout/i.test(read('CLAUDE.md')), 'CLAUDE.md Architecture should document the SKILL.md/reference/evals/gotchas structure');
+});
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {

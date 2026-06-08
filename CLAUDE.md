@@ -9,6 +9,7 @@ builds Figma design systems, and enables design-to-code workflows.
 - State: `.claude/figma-sync/manifest.json` — single source of truth
 - Profiles: `.claude/figma-sync/theme-profiles/` — theme knowledge
 - Practices: `.claude/figma-best-practices.md` — Figma engineering ref
+- Skill layout: each `SKILL.md` opens with the `gotchas.md` loader header and ends with an `## After Completion` self-learning step; `reference/*.md` holds long procedures, `evals/evals.json` holds triggering evals, and Figma-mutating skills keep a `gotchas.md` (the single home for their Plugin-API gotchas)
 
 ## Rules
 
