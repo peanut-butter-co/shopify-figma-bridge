@@ -416,6 +416,20 @@ check('F035: compose-page Step 8 preserves all other manifest keys (SSOT)', () =
 });
 
 // ---------------------------------------------------------------------------
+// C2 — naming consistency + canonical Plugin-API reference (F047/F050)
+// ---------------------------------------------------------------------------
+group('C2: naming consistency + canonical Plugin-API reference');
+check('F047: build-foundations keeps numeric swatch names (no {Group}/Base rename that breaks aliasing)', () => {
+  ok(/numeric swatch names for ALL/i.test(read('.claude/skills/build-foundations/SKILL.md')),
+    'build-foundations Step 2 must keep numeric names for the opaque base so Step 3.5/Step 4 lookups match');
+});
+check('F050: figma-best-practices.md has a canonical Plugin-API gotchas section', () => {
+  const md = read('.claude/figma-best-practices.md');
+  ok(/Plugin API Gotchas/i.test(md) && /blendMode/.test(md) && /PERCENT/.test(md),
+    'the engineering reference must carry the canonical use_figma/Plugin-API invariants');
+});
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {
