@@ -23,7 +23,7 @@ builds Figma design systems, and enables design-to-code workflows.
 
 `/setup` → `/analyze-theme` → `/build-foundations` → `/propose-components` → `/build-components` → `/compose-page`
 
-Optional, after `/build-components`: `/build-design-rules` — generates `design-rules.json`, the Figma→code mapping that `/build-components` and `/compose-page` consume opportunistically. Run it before `/compose-page` to enable component name-matching.
+Optional, after `/build-components`: `/build-design-rules` — generates `design-rules.json`, the Figma→code mapping that `/compose-page` and `/sync-colors` consume opportunistically. Run it before `/compose-page` to enable component name-matching.
 
 Or run everything: `/build-design-system [template]`
 

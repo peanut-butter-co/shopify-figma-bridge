@@ -165,7 +165,7 @@ group('C4: manifest state-contract (producer/consumer agreement)');
 check('F033/F080: build-design-rules gates on FLAT buildStatus keys, not a nested components namespace', () => {
   const md = read('.claude/skills/build-design-rules/SKILL.md');
   ok(!/buildStatus\.components/.test(md), 'build-design-rules still reads buildStatus.components (never written)');
-  ok(/buildStatus(\.atoms|\.blocks|\["sections-desktop"\])/.test(md), 'build-design-rules must check a flat buildStatus phase key');
+  ok(/buildStatus(\.atoms|\.blocks|\["sections-(desktop|mobile)"\])/.test(md), 'build-design-rules must check a flat buildStatus phase key');
 });
 check('F054: build-components Blocks phase reads components.blocks, not a missing sourceBlocks field', () => {
   const md = read('.claude/skills/build-components/SKILL.md');
