@@ -213,14 +213,8 @@ After creating EACH style guide frame, perform a visual review:
 
 **Common failure pattern:** A screenshot that appears as a thin horizontal bar or a nearly empty rectangle almost always means an auto-layout frame collapsed to its initial `resize()` height. Apply the layout flush described in `reference/style-guide.md` to ALL auto-layout frames (inner containers first, then outer), re-screenshot, and verify.
 
-### Figma API gotchas for this skill:
-- `createVariable(name, collectionObject, type)` — pass collection OBJECT, not ID
-- `setBoundVariable('lineHeight', var)` forces `unit: "PIXELS"` — always set lineHeight directly: `{ value: 110, unit: "PERCENT" }`
-- `use_figma` requires `blendMode: "NORMAL"` in shadow effects
-- `use_figma` rejects `"HUG"` for `primaryAxisSizingMode` — use `"AUTO"`
-- Paint `color` objects don't accept `a` (alpha) via `use_figma` — use `opacity` on the paint
-- Text nodes in auto-layout: set `layoutSizingHorizontal = "FILL"` + `textAutoResize = "HEIGHT"` after appending
-- **Layout flush is mandatory** — see `reference/style-guide.md` "Flush layout after populating children"
+### Figma Plugin API gotchas
+Maintained in this skill's `gotchas.md` (auto-prepended at the top of this skill on every run) — that is the single source. Don't duplicate the list here (it drifts); add new gotchas to `gotchas.md`.
 
 ---
 

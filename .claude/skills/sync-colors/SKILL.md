@@ -210,7 +210,7 @@ Re-read `config/settings_data.json` and diff it against the backup taken in Step
 ## Naming Conventions for New Variables
 
 ### Grey variants (r ~= g ~= b)
-- `Color/Gray/{shade}` in Primitives, or `Grey/{shade}` in Grey Scale collection
+- `Color/Grey/{shade}` in Primitives, or `Grey/{shade}` in Grey Scale collection
 - Shade: round `(1 - r) * 900` to nearest 50
 
 ### Colored variants

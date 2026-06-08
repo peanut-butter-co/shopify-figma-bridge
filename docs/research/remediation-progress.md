@@ -8,7 +8,7 @@
 
 **Scope:** critical + high + medium (80 findings). Low (48) is out of scope — optional polish.
 
-**Progress:** 58 / 80 done · 22 remaining
+**Progress:** 61 / 80 done · 19 remaining
 
 **Cluster order:** state-contract → triggering → write-safety → evals → consistency → docs-infra → rest
 
@@ -61,7 +61,7 @@
 - [x] **F031** · 🟡 med · `validate-shopify` · A9 · M — There is no evals/evals.json with realistic prompts/fixtures, despite this being the single most eval-friendly s… · ✅ #12
 - [x] **F032** · 🟡 med · `system` · A9 · M — There is zero automated eval/test coverage anywhere in the project. · ✅ #8
 
-## 5. consistency / DRY (29) — 15 done, 14 left
+## 5. consistency / DRY (29) — 18 done, 11 left
 
 - [x] **F005** · 🔴 crit · `system` · C8 · S — sync-colors' body instructs using the Edit tool for its only Shopify write, but Edit is not in allowed-tools (un… · ✅ #8
 - [ ] **F007** · 🟠 high · `validate-instances` · B3 · M — The auto-fix is destructive: it deletes inline frames and re-parents instances inside live design-system templat…
@@ -74,11 +74,11 @@
 - [ ] **F035** · 🟡 med · `compose-page` · B6 · S — manifest.json is the single source of truth (CLAUDE.md).
 - [ ] **F047** · 🟡 med · `build-foundations` · C2 · S — Inconsistent base-variable naming across the skill's own files.
 - [ ] **F048** · 🟡 med · `validate-shopify` · C2 · S — The project convention splits two concerns: a per-skill gotchas.md (runtime-injected, self-updating learnings) v…
-- [ ] **F049** · 🟡 med · `system` · C2 · S — The same Figma Plugin API gotcha list lives twice inside one skill — once in SKILL.md Step 8 and once in gotchas…
+- [x] **F049** · 🟡 med · `system` · C2 · S — The same Figma Plugin API gotcha list lives twice inside one skill — once in SKILL.md Step 8 and once in gotchas… · ✅ #17
 - [ ] **F050** · 🟡 med · `system` · C2 · M — Plugin-API-level invariants (text nodes must FILL+HEIGHT after append; lineHeight must be PERCENT not a bound va…
-- [ ] **F051** · 🟡 med · `system` · C3 · M — There is no principled, documented rule for skill sub-structure.
+- [x] **F051** · 🟡 med · `system` · C3 · M — There is no principled, documented rule for skill sub-structure. · ✅ #17
 - [ ] **F052** · 🟡 med · `system` · C3 · M — validate-shopify is a structural outlier on three axes at once: (a) it is the only reference/ skill whose refere…
-- [ ] **F053** · 🟡 med · `system` · C3 · S — Spelling drift between 'Gray' and 'Grey' inside the SAME line of sync-colors.
+- [x] **F053** · 🟡 med · `system` · C3 · S — Spelling drift between 'Gray' and 'Grey' inside the SAME line of sync-colors. · ✅ #17
 - [x] **F060** · 🟡 med · `build-foundations` · C5 · S — The skill's entire job depends on mcp__figma__use_figma and mcp__figma__get_screenshot, yet there is no guard th… · ✅ #8
 - [x] **F061** · 🟡 med · `compose-page` · C5 · S — This skill depends on two MCP families (mcp__figma__* and mcp__chrome-devtools__*) but has no guard that STOPS a… · ✅ #8
 - [ ] **F062** · 🟡 med · `compose-page` · C5 · S — The live-store comparison navigates to storeUrl but ignores config.storePassword (present in the manifest).
@@ -132,6 +132,7 @@
 | #14 | consistency/docs: CLAUDE.md + .gitignore reflect reality (C7) | F067 F068 (2) | merged ✅ |
 | #15 | consistency/least-privilege: allowed-tools + inline context (C8/C9) | F069 F070 F072 F073 F074 (5) | merged ✅ |
 | #16 | rest/self-learning: After-Completion gotchas-append step x9 (P11/B7) | F036 F037 F038 F039 F040 F041 F077 F078 F079 (9) | merged ✅ |
+| #17 | consistency/hygiene: dedup gotchas + Grey naming + structure doc (C2/C3) | F049 F051 F053 (3) | merged ✅ |
 
 ---
 
