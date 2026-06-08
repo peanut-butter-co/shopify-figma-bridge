@@ -26,6 +26,8 @@ This is a theme-wide analysis — not tied to any specific template. The templat
 
 ## Pre-flight
 
+**These are HARD GATES (MANDATORY).** If any check below fails, **STOP** immediately, tell the user the exact prerequisite skill to run, and do NOT proceed, improvise, or partially build — silently skipping a phase corrupts the design system (CLAUDE.md: "NEVER skip a pipeline phase").
+
 1. Read `.claude/figma-sync/manifest.json`
 2. Verify `config` exists. If not → "Run `/setup` first."
 3. Verify `foundations` is not null. If null → "Run `/analyze-theme` first."

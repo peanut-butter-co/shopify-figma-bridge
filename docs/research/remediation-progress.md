@@ -8,7 +8,7 @@
 
 **Scope:** critical + high + medium (80 findings). Low (48) is out of scope — optional polish.
 
-**Progress:** 77 / 80 done · 3 remaining
+**Progress:** 78 / 80 done · 2 remaining
 
 **Cluster order:** state-contract → triggering → write-safety → evals → consistency → docs-infra → rest
 
@@ -61,11 +61,11 @@
 - [x] **F031** · 🟡 med · `validate-shopify` · A9 · M — There is no evals/evals.json with realistic prompts/fixtures, despite this being the single most eval-friendly s… · ✅ #12
 - [x] **F032** · 🟡 med · `system` · A9 · M — There is zero automated eval/test coverage anywhere in the project. · ✅ #8
 
-## 5. consistency / DRY (29) — 28 done, 1 left
+## 5. consistency / DRY (29) — 29 done, 0 left
 
 - [x] **F005** · 🔴 crit · `system` · C8 · S — sync-colors' body instructs using the Edit tool for its only Shopify write, but Edit is not in allowed-tools (un… · ✅ #8
 - [x] **F007** · 🟠 high · `validate-instances` · B3 · M — The auto-fix is destructive: it deletes inline frames and re-parents instances inside live design-system templat… · ✅ #22
-- [ ] **F008** · 🟠 high · `system` · B6 · L — The pipeline-phase-enforcement plan is entirely unimplemented.
+- [x] **F008** · 🟠 high · `system` · B6 · L — The pipeline-phase-enforcement plan is entirely unimplemented. · ✅ #25
 - [x] **F010** · 🟠 high · `setup` · C5 · S — This is the FIRST pipeline skill and the gate that verifies the store and Figma file are reachable, yet it never… · ✅ #8
 - [x] **F011** · 🟠 high · `validate-instances` · C5 · S — Violates the GLOBAL rule and team learning (feedback_missing_tools): if the required Figma MCP tool is not conne… · ✅ #8
 - [x] **F013** · 🟠 high · `system` · C9 · M — The installer is non-functional. · ✅ #13
@@ -140,6 +140,7 @@
 | #22 | consistency/safety: validate-instances auto-fix create→verify→remove (B3) | F007 (1) | merged ✅ |
 | #23 | docs-infra: extract + unit-test alpha-variant computation (A6) | F023 (1) | merged ✅ |
 | #24 | consistency: rename validate-shopify static reference to schema-rules.md (C2/C3) | F048 F052 (2) | merged ✅ |
+| #25 | enforcement: MANDATORY hard-STOP pre-flight gates across build skills (B6/F008 MVP) | F008 (1) | merged ✅ |
 
 ---
 
@@ -152,3 +153,4 @@ Surfaced by the self-review (`/code-review`) of each PR. Tracked separately so t
 - [ ] **HR-2** · harness-rigor · S — HIGH-C scope is gated by a frontmatter regex (`mcp__figma__|mcp__chrome-devtools__`); skills that declare MCP tools differently or depend on WebSearch/WebFetch (e.g. `refresh-figma-practices`, see F063) are silently skipped. Broaden the detector.
 - [ ] **HR-3** · harness-rigor · S — Some contract checks remain substring-loose (false-green if prose is reworded). Tightened CRIT-A/CRIT-B/HIGH-F/HIGH-C in #8; audit the remaining asserts as the harness grows.
 - [ ] **BL-1** · build-components · M — `validation.md` variant-completeness node lookup matches `n.name === section.name || n.name === slug`, but the build phase never guarantees the built node is named by slug; PascalCase-named sections would all report MISSING. Pin the section node-naming convention (relates to C4 / F054–F057).
+- [ ] **BL-2** · build-design-system · L — F008 MVP (hard pre-flight gates) shipped in #25; the deferred half is rearchitecting the orchestrator to invoke phases via the Skill tool with post-write manifest verification (enforcement plan §1). Larger task tracked alongside docs/roadmap.md.
