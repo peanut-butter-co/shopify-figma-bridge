@@ -374,6 +374,33 @@ check('F064: validate-shopify declares no MCP tools (nothing to verify)', () => 
 });
 
 // ---------------------------------------------------------------------------
+// A2/A5/A7/P1 — docs-infra small fixes (F020/F022/F024/F075/F076)
+// ---------------------------------------------------------------------------
+group('A2/A5/A7/P1: docs-infra small fixes');
+check('F024: compose-page diagram uses {viewport} placeholders, not stale literals', () => {
+  const md = read('.claude/skills/compose-page/SKILL.md');
+  ok(!/375px/.test(md), 'compose-page still hardcodes the stale 375px mobile literal');
+  ok(/\{mobileWidth\}px wide/.test(md) && /\{desktopWidth\}px wide/.test(md), 'diagram should use {mobileWidth}/{desktopWidth}');
+});
+check('F020: validate-instances screenshots fixes to verify (not just grants the tool)', () => {
+  ok(/screenshot each fixed location/i.test(read('.claude/skills/validate-instances/SKILL.md')),
+    'validate-instances body must use get_screenshot to confirm fixes render correctly');
+});
+check('F022: build-phase descriptions carry an exclusivity/negative clause', () => {
+  for (const n of ['analyze-theme', 'build-foundations', 'propose-components', 'build-components', 'compose-page']) {
+    const fm = frontmatter(read('.claude/skills/' + n + '/SKILL.md'));
+    const d = (fm.match(/description:\s*>?\s*([\s\S]*?)\n(?:[a-z-]+:|$)/) || [])[1] || '';
+    ok(/\bONLY\b|not |does not|no figma|nothing/i.test(d), n + ' description needs a "not for / only" disambiguation clause');
+  }
+});
+check('F075/F076: analyze-theme + setup ship a seeded gotchas.md', () => {
+  for (const n of ['analyze-theme', 'setup']) {
+    const g = read('.claude/skills/' + n + '/gotchas.md');
+    ok(g.length > 60 && /^#/m.test(g), n + '/gotchas.md must exist with a header + a real gotcha');
+  }
+});
+
+// ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) {

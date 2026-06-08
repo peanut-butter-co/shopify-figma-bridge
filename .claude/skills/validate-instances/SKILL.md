@@ -153,7 +153,7 @@ For each violation:
 
 ## Step 5: Re-validate
 
-After fixes, re-run the scan to confirm 0 violations remain.
+After fixes, re-run the scan AND **screenshot each fixed location** with `get_screenshot` to visually confirm the new instance renders correctly — a passing scan with a broken-looking screenshot still means a problem (never rationalize a visual anomaly). Confirm 0 violations remain.
 
 ```
 Instance audit complete!

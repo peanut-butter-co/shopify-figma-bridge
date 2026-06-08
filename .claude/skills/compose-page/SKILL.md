@@ -89,8 +89,8 @@ Each page type gets a labeled group:
 
 ```
 "Homepage" label (Inter Bold 18px)
-├── Homepage / Desktop (1440px wide) — left
-└── Homepage / Mobile (375px wide) — right, 40px gap
+├── Homepage / Desktop ({desktopWidth}px wide) — left
+└── Homepage / Mobile ({mobileWidth}px wide) — right, 40px gap
 
 120px gap to next page group
 
