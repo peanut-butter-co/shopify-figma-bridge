@@ -281,8 +281,24 @@ theme editor, the preset applies with invalid values. The theme editor may
 silently clamp or ignore these values, causing the preset to look different
 from what was intended.
 
-**Detection:** Apply the same validation rules from template setting validation
-(Phase 1.4 in SKILL.md) to every setting value inside every preset.
+**Detection:** Apply the same setting-value rules — scripted as `settingValueIssue` in
+`.claude/scripts/shopify-validate.js` — to every setting value inside every preset.
+
+---
+
+## 11. Color Value Format
+
+**The rule:** A `color` setting value must be a hex color (`#rgb`, `#rgba`, `#rrggbb`,
+or `#rrggbbaa` — the 4- and 8-digit forms carry an alpha channel) **or** a functional
+`rgb()/rgba()/hsl()/hsla()` string. Shopify stores a fully transparent color as the literal
+`rgba(0,0,0,0)`, so functional strings are valid, not just hex. An empty string means
+"cleared" and is also valid.
+
+**What goes wrong:** Hand-editing a `color` value to a named CSS color (`red`) or a
+malformed hex makes it silently fail to apply. (Gradients/backgrounds use the separate
+`color_background` type, not `color`.)
+
+**Detection:** `settingValueIssue` (type `color`) in `.claude/scripts/shopify-validate.js`.
 
 ---
 
