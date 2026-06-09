@@ -160,22 +160,44 @@ check('F066: sync-colors shows a real diff + verifies ONLY color keys changed (r
 });
 
 // ---------------------------------------------------------------------------
-// HIGH-C — every MCP-dependent skill must STOP when a required tool is missing
+// HIGH-C / HR-2 — every skill whose work depends on an EXTERNAL RESOURCE (an MCP
+//   server OR the web tools) must hard-STOP when that resource is unavailable, rather
+//   than silently degrade or fabricate. The guard selects skills by the resource tools
+//   their frontmatter declares; HR-2 generalized that selector beyond the figma/chrome
+//   MCP servers to ALSO cover WebSearch/WebFetch (refresh-figma-practices) and any other
+//   mcp__<server>__ tool, so a resource-dependent skill can never slip the guard silently.
 // ---------------------------------------------------------------------------
-group('HIGH-C: MCP-dependent skills STOP on missing tool');
+group('HIGH-C: resource-dependent skills STOP when an MCP/web tool is unavailable');
 const skillsDir = path.join(ROOT, '.claude', 'skills');
+// A hard STOP pre-flight = the word STOP, plus a resource name tied to an unavailability
+// predicate (or a "verify ... available" check). Resource-agnostic: MCP tools OR web tools.
+const UNAVAILABLE = 'missing|unavailable|not available|not connected|not installed|disconnected|blocked';
+const RESOURCE_NAME = 'required (?:MCP |web )?tools?|MCP tools?|WebSearch|WebFetch|web (?:research )?tools?|use_figma|navigate_page';
+function hasAvailabilityStop(body) {
+  if (!/\bSTOP\b/.test(body)) return false;
+  const near = (a, b) => new RegExp('(?:' + a + ')[^\\n]{0,40}(?:' + b + ')', 'is').test(body);
+  return near(RESOURCE_NAME, UNAVAILABLE)                                      // "use_figma is missing" / "web tools are unavailable"
+      || near(UNAVAILABLE, RESOURCE_NAME)                                      // "unavailable ... web research tools"
+      || /verify[^\n]{0,40}(?:MCP|web|tools?)[^\n]{0,40}available/is.test(body); // "verify required MCP tools are available"
+}
+// HR-2: a skill depends on an external resource if its frontmatter declares ANY MCP tool
+// (`mcp__<server>__*`, not just the figma/chrome servers) OR a web tool (WebSearch/WebFetch).
+const dependsOnResource = (fm) => /mcp__[\w-]+__|\bWebSearch\b|\bWebFetch\b/.test(fm);
+const resourceGuarded = [];
 for (const name of fs.readdirSync(skillsDir).sort()) {
   const sp = path.join(skillsDir, name, 'SKILL.md');
   if (!fs.existsSync(sp)) continue;
   const body = fs.readFileSync(sp, 'utf8');
-  const mcpDependent = /mcp__figma__|mcp__chrome-devtools__/.test(frontmatter(body));
-  if (!mcpDependent) continue;
-  check(name + ': has a "required MCP tool missing -> STOP" pre-flight', () => {
-    const hasStop = /\bSTOP\b/.test(body);
-    const checksTools = /(required MCP tools?|MCP tool[s]?[^\n]{0,40}(missing|unavailable|not available|not connected|not installed|disconnected)|verify[^\n]{0,40}MCP[^\n]{0,40}available|if[^\n]{0,30}(use_figma|navigate_page)[^\n]{0,40}(missing|unavailable|not available|not connected))/is.test(body);
-    ok(hasStop && checksTools, 'no hard STOP-on-missing-tool instruction');
+  if (!dependsOnResource(frontmatter(body))) continue;
+  resourceGuarded.push(name);
+  check(name + ': resource-dependent skill hard-STOPs when its MCP/web tool is unavailable', () => {
+    ok(hasAvailabilityStop(body), 'no hard STOP-on-missing-resource pre-flight (MCP or WebSearch/WebFetch)');
   });
 }
+check('HR-2: the availability guard covers web-tool skills (refresh-figma-practices), not just MCP', () => {
+  ok(resourceGuarded.includes('refresh-figma-practices'),
+    'refresh-figma-practices declares WebSearch/WebFetch and MUST be in the availability-guarded set (selector must reach beyond mcp__)');
+});
 
 // ---------------------------------------------------------------------------
 // C4 / state-contract — manifest producer/consumer field agreements

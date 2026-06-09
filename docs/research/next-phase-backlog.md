@@ -31,7 +31,7 @@ Do these first: cheap, and they harden the harness before the big items lean on 
   AND the extracted prose function (so a fix to one fails the test until the other matches).
   Start with `rgbaToShopifyHex`/`shopifyHexToRGBA` in sync-colors. That kills the drift class.
 
-- [ ] **HR-2 · harness-rigor · S — broaden the resource-availability guard beyond the frontmatter regex.**
+- [x] **HR-2 · harness-rigor · S — broaden the resource-availability guard beyond the frontmatter regex.**
   The HIGH-C check selects MCP-dependent skills via `/mcp__figma__|mcp__chrome-devtools__/` in
   frontmatter. Skills that depend on other resources are silently unchecked — notably
   `refresh-figma-practices` (WebSearch/WebFetch; it *got* a web-tools STOP in #18 but HIGH-C
