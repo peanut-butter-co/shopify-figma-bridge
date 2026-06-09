@@ -258,7 +258,7 @@ Risk concentrates in 3b/3c — bespoke detached sections where *maybe* a generic
 | `exists` (Glob), `schema` (extractSchema) | candidate-match for bespoke detached sections |
 | expressibility (settingValueIssue / block-type / maxBlocks) | `settings` / `blocks` values |
 | css-hardcoded (horizon.json) → CODE | order + colorScheme read from Figma frames |
-| invariants 1–4 | the fuzzy half of the verdict (biased to CODE) |
+| invariants 1–5 | the fuzzy half of the verdict (biased to CODE) |
 | desktop↔mobile pairing when built as a variant set | desktop↔mobile pairing when separate components; `mobileDivergence` type |
 
 ---

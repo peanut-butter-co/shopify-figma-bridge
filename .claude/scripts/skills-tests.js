@@ -959,8 +959,8 @@ const fixCM = (loadFix('design-rules.json') || {}).componentMap || null;
 const fixComp = (loadFix('compositions.json') || {}).compositions || null;
 const fixWO = loadFix('work-order.expected.json');
 check('contract.js exists with the shape + invariant + derivation helpers', () => {
-  ok(ct && ['contractShapeIssues', 'referentialIntegrityIssues', 'configRealityIssues', 'nonexistentNonConfigIssues', 'deriveWorkOrder'].every((f) => typeof ct[f] === 'function'),
-    'create .claude/scripts/contract.js exporting the five contract helpers');
+  ok(ct && ['contractShapeIssues', 'referentialIntegrityIssues', 'configRealityIssues', 'nonexistentNonConfigIssues', 'colorSchemeIntegrityIssues', 'deriveWorkOrder'].every((f) => typeof ct[f] === 'function'),
+    'create .claude/scripts/contract.js exporting the contract helpers (incl. colorSchemeIntegrityIssues)');
 });
 check('the contract fixture loaded (componentMap + compositions + expected work-order)', () => {
   ok(fixCM && typeof fixCM === 'object', 'fixtures/contract/design-rules.json must carry a componentMap');
@@ -1133,13 +1133,13 @@ if (ct && ariCM && ariComp) {
   check('SP-1 inv-1: referential integrity (every composition component is a componentMap key)', () => eq(ct.referentialIntegrityIssues(ariCM, ariComp), []));
   check('SP-1 inv-2: config => real (exists + candidate + schema)', () => eq(ct.configRealityIssues(ariCM), []));
   check('SP-1 inv-3: nonexistent => non-config', () => eq(ct.nonexistentNonConfigIssues(ariCM), []));
-  check('SP-1 inv-5: every colorScheme is a foundations scheme', () => eq(ct.colorSchemeIntegrityIssues(ariComp, ariMan.foundations), []));
   check('SP-1 inv-4: committed work-order.json equals deriveWorkOrder(componentMap, compositions)', () => {
     const norm = (wo) => ({ codeRequired: [...(wo.codeRequired || [])].map((e) => JSON.stringify(e)).sort(),
       appBlocks: [...(wo.appBlocks || [])].map((e) => JSON.stringify(e)).sort(),
       outOfScope: [...(wo.outOfScope || [])].map((e) => JSON.stringify(e)).sort() });
     eq(norm(ct.deriveWorkOrder(ariCM, ariComp)), norm(ariWO));
   });
+  check('SP-1 inv-5: every colorScheme is a foundations scheme', () => eq(ct.colorSchemeIntegrityIssues(ariComp, ariMan.foundations), []));
 }
 // ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));

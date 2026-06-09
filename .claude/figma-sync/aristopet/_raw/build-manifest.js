@@ -11,10 +11,8 @@ const RAW = __dirname;
 const OUT = path.join(RAW, '..', 'manifest.json');
 
 const skeleton = JSON.parse(fs.readFileSync(path.join(RAW, 'skeleton.json'), 'utf8'));
-const sec = (slug) => {
-  try { return JSON.parse(fs.readFileSync(path.join(RAW, `sec-${slug}.json`), 'utf8')); }
-  catch (e) { return null; }
-};
+// Fail loud: a missing or malformed sec-<slug>.json is a real data error, not an empty section.
+const sec = (slug) => JSON.parse(fs.readFileSync(path.join(RAW, `sec-${slug}.json`), 'utf8'));
 
 // --- P0 foundations: 4 schemes clustered from section backgrounds (confidence: medium) ---
 const foundations = {
@@ -75,13 +73,24 @@ const foundations = {
 
 // --- scheme assignment by background hex ---
 const BG_TO_SCHEME = { '#fffefd': 'scheme-1', '#faf7f2': 'scheme-2', '#ede8e1': 'scheme-3', '#1e1b18': 'scheme-4' };
-const schemeFor = (s) => BG_TO_SCHEME[(s && s.bg) || ''] || 'scheme-1';
+// colorScheme is a single scalar per composition entry. A multiScheme section (e.g. split-banner:
+// light left / dark right) cannot be captured by one scheme — it is componentMap verdict=code, so the
+// dual scheme is preserved via the code path (the build reads Figma directly). Here we record the
+// DOMINANT scheme (by background) and never fall back SILENTLY: an unmapped background is warned.
+function schemeFor(s) {
+  const bg = (s && s.bg) || '';
+  if (BG_TO_SCHEME[bg]) return BG_TO_SCHEME[bg];
+  const who = (s && s.slug && s.slug !== 'undefined') ? s.slug : '(unnamed)';
+  if (s && s.multiScheme) console.warn(`  note: ${who} is multiScheme -> colorScheme collapsed to dominant scheme-1 (dual scheme preserved via its code verdict)`);
+  else console.warn(`  warn: unmapped background "${bg}" for ${who} -> defaulting colorScheme to scheme-1`);
+  return 'scheme-1';
+}
 
 // --- blocks from blockTypes (preserves repeats; @app for app components) ---
 const blocksOf = (s) => ((s && Array.isArray(s.blockTypes)) ? s.blockTypes : []).map((t, i) => ({ type: t, order: i }));
 
 // --- section-level mobile divergence rules (deterministic from skeleton notes) ---
-function divergenceFor(slug, item) {
+function divergenceFor(slug) {
   if (slug === 'header-v2') return { type: 'behavior', note: 'desktop Header v2 / mobile Header v1 — different section layout by viewport' };
   if (slug === 'product-information') return { type: 'behavior', note: 'desktop two-column gallery / mobile swipe carousel — behaviour differs' };
   return null;
@@ -101,7 +110,7 @@ for (const [tpl, t] of Object.entries(skeleton.templates)) {
       colorScheme: schemeFor(s),
       settings: (s && s.settings) || {},
       blocks: blocksOf(s),
-      mobileDivergence: divergenceFor(item.slug, item),
+      mobileDivergence: divergenceFor(item.slug),
     });
   }
   compositions[tpl] = { template: tpl, figmaNodeId: t.desktopFrame, figmaNodeIdMobile: t.mobileFrame, order };

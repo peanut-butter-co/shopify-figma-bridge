@@ -51,7 +51,7 @@ deterministic half lives in this repo today** (`reachability.js`); the fuzzy hal
 | `resolveHostSection` -> `exists` + parsed `schema` | candidate-match for bespoke detached sections |
 | `expressibilityIssues` (settingValueIssue / blockTypeAccepted / maxBlocks, run in reverse) | `settings` / `blocks` values |
 | `isCssHardcoded` (horizon.json) -> CODE | order + colorScheme read from Figma frames |
-| invariants 1-4 (`contract.js`) | the fuzzy half of the verdict (biased to CODE) |
+| invariants 1-5 (`contract.js`) | the fuzzy half of the verdict (biased to CODE) |
 
 **Bias to CODE (D3):** never claim `config` without proof against the schema. An unknown setting id, an
 unparseable/absent schema, or any expressibility failure routes to CODE — a false `code` is visible and
