@@ -40,7 +40,7 @@ Do these first: cheap, and they harden the harness before the big items lean on 
   (MCP **or** WebSearch/WebFetch) must have an availability STOP pre-flight," and include
   `refresh-figma-practices` in the guarded set with a dedicated assertion.
 
-- [ ] **HR-3 · harness-rigor · S — audit the remaining substring-loose asserts.**
+- [x] **HR-3 · harness-rigor · S — audit the remaining substring-loose asserts.**
   Tightened CRIT-A/CRIT-B/HIGH-F/HIGH-C in #8. Sweep the rest of `skills-tests.js` for
   `/.../i.test(md)` checks that a reworded-but-correct prose change could false-pass (or a
   correct rewrite could false-red). Tighten the load-bearing ones; leave a comment marking each
