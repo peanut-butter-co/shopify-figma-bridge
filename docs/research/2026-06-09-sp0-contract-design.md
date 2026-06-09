@@ -105,7 +105,7 @@ One entry per component, keyed by slug (sections) or component name (atoms/block
                   { "id": "color_scheme", "type": "color_scheme" },
                   { "id": "layout", "type": "select", "options": ["overlay","split"] } ],
     "blocks":   ["text","button","@theme/icon"],
-    "maxBlocks": 5, "presets": true, "enabledOn": null
+    "max_blocks": 5, "presets": true, "enabledOn": null
   },
   "reachability": {                                     // COMPONENT-LEVEL baseline (see §4)
     "verdict": "config",                               // config | code | app | out-of-scope

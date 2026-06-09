@@ -14,7 +14,7 @@ VERIFIED from the filesystem (never guessed — closes `[DESIGN-RULES-TRUST]`); 
 - `figma.representation`: `variant-set` | `separate-components`.
 - `figma.desktop` / `figma.mobile`: the two design frames (D4); `mobile` is `null` when there is no distinct mobile frame.
 - `theme.exists`: boolean (from `resolveHostSection`). `theme.kind`: `section` | `theme-block` | `app-block` | `snippet`.
-- `schema`: `null` when `exists:false`; else `{ settings, blocks, max_blocks, presets, enabledOn }`.
+- `schema`: `null` when `exists:false`; else `{ settings, blocks, max_blocks, presets, enabledOn }`. Only `settings`/`blocks`/`max_blocks` are load-bearing for the deterministic expressibility check; `presets`/`enabledOn` are informational and not shape-enforced.
 - `reachability.verdict`: `config` | `code` | `app` | `out-of-scope`.
 - `reachability.basis` enum: `instance-of-library` · `css-hardcoded` · `schema-expressible` · `no-candidate`
   · `block-type-unsupported` · `value-out-of-domain` · `max-blocks-exceeded` · `mobile-divergence` · `app-slot` · `liquid-only`.
