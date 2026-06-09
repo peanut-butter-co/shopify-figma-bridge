@@ -618,6 +618,10 @@ if (sv && sv.rangeStepIssue) {
     ok(sv.blockTypeAccepted('anything', [{ type: '@app' }], [])); // section opts into @app blocks
     ok(!sv.blockTypeAccepted('ghost', [{ type: 'text' }], []));   // not declared, no file, no @app
   });
+  check('blockTypeAccepted: numeric schema block type matches by string-coercion (byte-equivalent to old inline logic)', () => {
+    ok(sv.blockTypeAccepted(1, [{ type: 1 }], []));   // numeric type declared
+    ok(sv.blockTypeAccepted('1', [{ type: 1 }], [])); // string query against numeric decl
+  });
 }
 // BL-3 — validateTheme() orchestrator: run the deterministic checks end-to-end against a
 //   committed theme fixture (.claude/scripts/fixtures/theme), exercising the same code path
@@ -934,6 +938,11 @@ if (rc && rc.cssHardcodedPrefixes) {
     });
     eq(prefixes.sort(), ['--baz-', '--foo-bar-']);
   });
+  check('cssHardcodedPrefixes: a fixed property with no {placeholder} still yields a prefix (-> CODE, safe direction)', () => {
+    const prefixes = rc.cssHardcodedPrefixes({ a: { source: 'css-hardcoded', pattern: '--page-width, --header-height' } });
+    eq(prefixes.sort(), ['--header-height', '--page-width']);
+    ok(rc.isCssHardcoded({ a: { source: 'css-hardcoded', pattern: '--page-width' } }, '--page-width'));
+  });
 }
 // ---------------------------------------------------------------------------
 // SP-0a — contract invariants (§6 of the SP-0 spec): the four cross-artifact rules that
@@ -974,6 +983,11 @@ if (ct && ct.contractShapeIssues) {
       { component: 'hero', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {}, blocks: [],
         mobileDivergence: { type: 'teleport', note: 'x' } } ] } };
     ok(ct.contractShapeIssues(fixCM, comp).some((m) => /mobileDivergence/.test(m)));
+  });
+  check('inv-shape: an empty-string component slug flags (not a valid reference)', () => {
+    const comp = { index: { template: 'index', order: [
+      { component: '', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {}, blocks: [], mobileDivergence: null } ] } };
+    ok(ct.contractShapeIssues(fixCM, comp).some((m) => /component/.test(m)), 'empty component string must flag');
   });
 }
 if (ct && ct.referentialIntegrityIssues) {
@@ -1040,7 +1054,43 @@ if (ct && ct.deriveWorkOrder) {
     eq(xs.length, 1, 'a code-verdict component with a mobileDivergence must appear exactly once (baseline only)');
     eq(xs[0].basis, 'no-candidate', 'the single entry is the baseline, not a duplicate mobile-divergence row');
   });
+  check('inv-4: a config component that BOTH diverges and fails expressibility -> one mobile-divergence row folding in the expressibility detail', () => {
+    const cm = { x: { type: 'section', figma: {}, theme: { file: 'sections/x.liquid', exists: true, kind: 'section' },
+      schema: { settings: [], blocks: ['slide'], max_blocks: 5 },
+      reachability: { verdict: 'config', basis: 'instance-of-library', confidence: 'high', candidate: 'sections/x.liquid' } } };
+    const comp = { index: { template: 'index', order: [
+      { component: 'x', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {},
+        blocks: Array.from({ length: 6 }, () => ({ type: 'slide' })),
+        mobileDivergence: { type: 'behavior', note: 'grid -> carousel' } } ] } };
+    const rows = ct.deriveWorkOrder(cm, comp).codeRequired.filter((e) => e.component === 'x');
+    eq(rows.length, 1, 'exactly one row (no double-listing)');
+    eq(rows[0].basis, 'mobile-divergence');
+    ok(/grid -> carousel/.test(rows[0].delta) && /max_blocks 5/.test(rows[0].delta), 'delta folds in BOTH the divergence note and the expressibility detail');
+  });
+  check('inv-4: a config component with schema:null is routed to code, not silently dropped (D3 defense-in-depth)', () => {
+    const cm = { x: { type: 'section', figma: {}, theme: { file: 'sections/x.liquid', exists: true, kind: 'section' }, schema: null,
+      reachability: { verdict: 'config', basis: 'instance-of-library', confidence: 'low', candidate: 'sections/x.liquid' } } };
+    const comp = { index: { template: 'index', order: [
+      { component: 'x', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {}, blocks: [], mobileDivergence: null } ] } };
+    const rows = ct.deriveWorkOrder(cm, comp).codeRequired.filter((e) => e.component === 'x');
+    eq(rows.length, 1, 'must appear in codeRequired (not vanish)');
+    ok(ct.BASES.includes(rows[0].basis), 'basis is a valid enum member');
+  });
+  check('inv-4: a note-less mobileDivergence still yields a non-empty string delta (no undefined)', () => {
+    const cm = { x: { type: 'section', figma: {}, theme: { file: 'sections/x.liquid', exists: true, kind: 'section' },
+      schema: { settings: [], blocks: [] },
+      reachability: { verdict: 'config', basis: 'instance-of-library', confidence: 'high', candidate: 'sections/x.liquid' } } };
+    const comp = { index: { template: 'index', order: [
+      { component: 'x', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {}, blocks: [], mobileDivergence: { type: 'reorder' } } ] } };
+    const row = ct.deriveWorkOrder(cm, comp).codeRequired.find((e) => e.component === 'x');
+    ok(row && typeof row.delta === 'string' && row.delta.length > 0 && /reorder/.test(row.delta), 'delta falls back to a type-based default string');
+  });
 }
+check('SP-0a: every basis deriveWorkOrder can emit is a member of contract.BASES (no enum drift)', () => {
+  ok(rc && Array.isArray(rc.EXPRESSIBILITY_KINDS), 'reachability.js must export EXPRESSIBILITY_KINDS');
+  for (const k of rc.EXPRESSIBILITY_KINDS) ok(ct.BASES.includes(k), `expressibility kind "${k}" not in BASES`);
+  for (const b of ['mobile-divergence', 'no-candidate']) ok(ct.BASES.includes(b), `derived basis "${b}" not in BASES`);
+});
 // ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');

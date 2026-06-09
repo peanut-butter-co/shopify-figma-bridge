@@ -51,7 +51,7 @@ function contractShapeIssues(componentMap, compositions) {
     const order = Array.isArray(comp && comp.order) ? comp.order : [];
     order.forEach((o, i) => {
       const at = `compositions["${tpl}"].order[${i}]`;
-      req(o && typeof o.component === 'string', `${at}.component missing`);
+      req(o && typeof o.component === 'string' && o.component.length > 0, `${at}.component missing or empty`);
       req(o && ('desktopNodeId' in o), `${at}.desktopNodeId missing`);
       req(o && ('mobileNodeId' in o), `${at}.mobileNodeId missing`);
       req(o && ('colorScheme' in o), `${at}.colorScheme missing`);
@@ -140,19 +140,37 @@ function deriveWorkOrder(componentMap, compositions) {
       if (!o || !o.component) continue;
       const e = (componentMap || {})[o.component];
       if (!e) continue; // dangling reference -> invariant 1 reports it; not a work-order entry
-      if (o.mobileDivergence && o.mobileDivergence.type) { // (C)
-        // Only a config component routes to code via divergence here. A non-config component
-        // (code/app/out-of-scope) is already represented by its (A) baseline — emitting again
-        // would double-list it, violating the set-UNION semantics of the work-order (§6.4).
-        if (e.reachability && e.reachability.verdict === 'config') {
-          codeRequired.push({ component: o.component, basis: 'mobile-divergence', usedIn: [tpl], delta: o.mobileDivergence.note });
+      const verdict = e.reachability && e.reachability.verdict;
+      // expressibility detail for THIS usage (empty unless config WITH a schema and a real failure)
+      const issues = (verdict === 'config' && e.schema)
+        ? expressibilityIssues(e.schema, { settings: o.settings, blocks: o.blocks })
+        : [];
+      const exprDetail = issues.map((i) => i.detail).join('; ');
+
+      // (C) section-level mobile divergence routes a config section to code. A non-config component
+      // is already represented by its (A) baseline (set-UNION; no double-listing). Any expressibility
+      // failure of this same usage is FOLDED into the divergence row's delta (one row, no info loss):
+      // a divergent section is authored as code wholesale, so its host-schema expressibility is
+      // supplementary detail, not a separate work-order contributor.
+      if (o.mobileDivergence && o.mobileDivergence.type) {
+        if (verdict === 'config') {
+          const note = o.mobileDivergence.note || `mobile divergence (${o.mobileDivergence.type})`;
+          codeRequired.push({ component: o.component, basis: 'mobile-divergence', usedIn: [tpl],
+            delta: exprDetail ? `${note}; also inexpressible: ${exprDetail}` : note });
         }
         continue;
       }
-      if (e.reachability && e.reachability.verdict === 'config' && e.schema) { // (B)
-        const issues = expressibilityIssues(e.schema, { settings: o.settings, blocks: o.blocks });
-        if (issues.length) {
-          codeRequired.push({ component: o.component, basis: issues[0].kind, usedIn: [tpl], delta: issues.map((i) => i.detail).join('; ') });
+
+      // (B) instance delta on a config component.
+      if (verdict === 'config') {
+        if (!e.schema) {
+          // A config verdict without a schema cannot be PROVEN expressible -> route to code, never
+          // silently drop it (D3 bias-to-code). This state is also an inv-2 violation; the guard is
+          // defense-in-depth for a caller that did not run configRealityIssues as a STOP gate.
+          codeRequired.push({ component: o.component, basis: 'no-candidate', usedIn: [tpl],
+            delta: 'config verdict without a schema to prove expressibility (routed to code per D3)' });
+        } else if (issues.length) {
+          codeRequired.push({ component: o.component, basis: issues[0].kind, usedIn: [tpl], delta: exprDetail });
         }
       }
     }

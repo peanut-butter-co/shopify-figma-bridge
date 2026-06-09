@@ -57,7 +57,7 @@ function blockTypeAccepted(type, schemaBlocks, blockFiles) {
   const defs = new Set();
   for (const b of (schemaBlocks || [])) {
     const bt = typeof b === 'string' ? b : (b && b.type);
-    if (bt) defs.add(bt);
+    if (bt) defs.add(String(bt));
   }
   const hasFile = (x) => (blockFiles || []).includes(`${x}.liquid`) || (blockFiles || []).includes(`_${x}.liquid`);
   return defs.has(t) || hasFile(t) || defs.has('@app');

@@ -12,6 +12,12 @@ const fs = require('fs');
 const path = require('path');
 const { extractSchema, settingValueIssue, maxBlocksIssue, blockTypeAccepted } = require('./shopify-validate.js');
 
+// The kinds expressibilityIssues can emit. Exported so contract.js can assert basis ⊆ BASES (no drift).
+const KIND_OUT_OF_DOMAIN = 'value-out-of-domain';
+const KIND_BLOCK_UNSUPPORTED = 'block-type-unsupported';
+const KIND_MAX_BLOCKS = 'max-blocks-exceeded';
+const EXPRESSIBILITY_KINDS = [KIND_OUT_OF_DOMAIN, KIND_BLOCK_UNSUPPORTED, KIND_MAX_BLOCKS];
+
 /**
  * Resolve a section slug against a host theme dir: { file, exists, schema }. `exists` is the real
  * filesystem answer (closes [DESIGN-RULES-TRUST]); `schema` is the parsed {% schema %} (null when the
@@ -40,19 +46,19 @@ function expressibilityIssues(schema, instance) {
   for (const s of (Array.isArray(schema.settings) ? schema.settings : [])) if (s && s.id) settingsById[s.id] = s;
   for (const [id, val] of Object.entries((instance && instance.settings) || {})) {
     const def = settingsById[id];
-    if (!def) { issues.push({ kind: 'value-out-of-domain', detail: `setting "${id}" is not in the host schema` }); continue; }
+    if (!def) { issues.push({ kind: KIND_OUT_OF_DOMAIN, detail: `setting "${id}" is not in the host schema` }); continue; }
     const v = settingValueIssue(def, val); // null for in-domain / structurally-unconstrained types
-    if (v) issues.push({ kind: 'value-out-of-domain', detail: v });
+    if (v) issues.push({ kind: KIND_OUT_OF_DOMAIN, detail: v });
   }
   const blocks = Array.isArray(instance && instance.blocks) ? instance.blocks : [];
   for (const b of blocks) {
     if (!b || !b.type) continue;
     const t = String(b.type);
     if (t.startsWith('@') || t.includes('://')) continue; // @app / @theme/* / shopify://… instances are accepted
-    if (!blockTypeAccepted(t, schema.blocks, [])) issues.push({ kind: 'block-type-unsupported', detail: `block type "${t}" is not accepted by the host schema` });
+    if (!blockTypeAccepted(t, schema.blocks, [])) issues.push({ kind: KIND_BLOCK_UNSUPPORTED, detail: `block type "${t}" is not accepted by the host schema` });
   }
   const mb = maxBlocksIssue(blocks.length, schema.max_blocks, 'section');
-  if (mb) issues.push({ kind: 'max-blocks-exceeded', detail: mb });
+  if (mb) issues.push({ kind: KIND_MAX_BLOCKS, detail: mb });
   return issues;
 }
 
@@ -68,8 +74,10 @@ function cssHardcodedPrefixes(profile) {
     if (!o || typeof o !== 'object') return;
     if (o.source === 'css-hardcoded' && typeof o.pattern === 'string') {
       for (const p of o.pattern.split(',')) {
-        const m = p.trim().match(/^(--[a-z0-9-]+-)\{/i); // "--padding-{size}" -> "--padding-" (multi-segment-safe: "--foo-bar-")
-        if (m) prefixes.push(m[1]);
+        const t = p.trim();
+        const m = t.match(/^(--[a-z0-9-]+-)\{/i); // "--padding-{size}" -> "--padding-" (multi-segment-safe: "--foo-bar-")
+        if (m) { prefixes.push(m[1]); continue; }
+        if (/^--[a-z0-9-]+$/i.test(t)) prefixes.push(t); // fixed property, no placeholder -> exact prefix (safe: -> CODE)
       }
     }
     for (const v of Object.values(o)) if (v && typeof v === 'object') walk(v);
@@ -84,4 +92,4 @@ function isCssHardcoded(profile, property) {
   return cssHardcodedPrefixes(profile).some((pre) => p.startsWith(pre));
 }
 
-module.exports = { resolveHostSection, expressibilityIssues, cssHardcodedPrefixes, isCssHardcoded };
+module.exports = { resolveHostSection, expressibilityIssues, cssHardcodedPrefixes, isCssHardcoded, EXPRESSIBILITY_KINDS };
