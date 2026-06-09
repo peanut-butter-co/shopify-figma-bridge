@@ -587,6 +587,7 @@ if (sv && sv.rangeStepIssue) {
     eq(sv.blockTypeFileIssue('text', ['text.liquid']), null);
     ok(sv.blockTypeFileIssue('nope', ['text.liquid']));
     eq(sv.blockTypeFileIssue('@app', []), null);
+    eq(sv.blockTypeFileIssue('@theme/foo', []), null); // namespaced theme block — exempt from file lookup
     eq(sv.blockTypeFileIssue('_local', []), null);
   });
   check('colorSchemeRefIssues + orphanedSettingIssues', () => {
@@ -604,8 +605,9 @@ check('BL-3: validateTheme() runs over the committed fixture and reports its pla
   const report = sv.validateTheme(path.join(__dirname, 'fixtures', 'theme'));
   ok(report && Array.isArray(report.errors) && Array.isArray(report.warnings),
     'validateTheme must return {errors:[],warnings:[]}');
-  eq(report.errors.length, 1, 'expected exactly the one planted error, got: ' + JSON.stringify(report.errors));
-  ok(/scheme-2/.test(report.errors[0]), 'the planted error must name the undefined color scheme scheme-2');
+  eq(report.errors.length, 2, 'expected exactly the two planted errors, got: ' + JSON.stringify(report.errors));
+  ok(report.errors.some((e) => /scheme-2/.test(e)), 'must flag the undefined color scheme scheme-2 (color-scheme ref)');
+  ok(report.errors.some((e) => /heading_size/.test(e) && /huge/.test(e)), 'must flag the out-of-options select value "huge" (setting-value validation, Phase 1.4)');
   eq(report.warnings.length, 0, 'the otherwise-valid fixture must not raise warnings: ' + JSON.stringify(report.warnings));
 });
 check('BL-3: parseThemeJSON strips Shopify auto-generated JSONC comments but preserves // inside strings', () => {
@@ -616,6 +618,55 @@ check('BL-3: parseThemeJSON strips Shopify auto-generated JSONC comments but pre
   eq(sv.parseThemeJSON('{"url":"https://x.com//y","b":2}'), { url: 'https://x.com//y', b: 2 }); // // inside a string survives
   eq(sv.parseThemeJSON('{"note":"/* not a comment */"}'), { note: '/* not a comment */' });
   eq(sv.parseThemeJSON('{"q":"a\\"b","c":3}'), { q: 'a"b', c: 3 }); // escaped quote must not mis-close the string
+  eq(sv.parseThemeJSON('\uFEFF{"a":1}'), { a: 1 }); // a leading UTF-8 BOM must be tolerated
+});
+check('BL-3: settingValueIssue validates a value against its schema setting def (Phase 1.4)', () => {
+  ok(sv && typeof sv.settingValueIssue === 'function', 'shopify-validate.js must export settingValueIssue(def, value)');
+  // range: bounds + on-step; the -1 padding sentinel is valid when min is -1 (schema-rules #7)
+  eq(sv.settingValueIssue({ type: 'range', id: 'p', min: 0, max: 100, step: 4 }, 20), null);
+  ok(sv.settingValueIssue({ type: 'range', id: 'p', min: 0, max: 100, step: 4 }, 22), 'off-step must flag');
+  ok(sv.settingValueIssue({ type: 'range', id: 'p', min: 0, max: 100, step: 4 }, 120), 'above max must flag');
+  ok(sv.settingValueIssue({ type: 'range', id: 'p', min: 0, max: 100, step: 4 }, 'x'), 'non-number must flag');
+  eq(sv.settingValueIssue({ type: 'range', id: 'p', min: -1, max: 100, step: 1 }, -1), null);
+  // select / radio: membership in options[].value
+  eq(sv.settingValueIssue({ type: 'select', id: 's', options: [{ value: 'a' }, { value: 'b' }] }, 'a'), null);
+  ok(sv.settingValueIssue({ type: 'select', id: 's', options: [{ value: 'a' }] }, 'z'));
+  eq(sv.settingValueIssue({ type: 'radio', id: 'r', options: [{ value: 'x' }] }, 'x'), null);
+  eq(sv.settingValueIssue({ type: 'select', id: 's', options: [{ value: 1 }, { value: '2' }] }, 2), null); // number/string options compare equal
+  eq(sv.settingValueIssue({ type: 'select', id: 's', options: [{ value: 'a' }] }, ''), null); // cleared/unset is not a violation
+  // checkbox boolean; number bounds; color hex-or-empty
+  eq(sv.settingValueIssue({ type: 'checkbox', id: 'c' }, true), null);
+  ok(sv.settingValueIssue({ type: 'checkbox', id: 'c' }, 'yes'));
+  ok(sv.settingValueIssue({ type: 'number', id: 'n', min: 1, max: 5 }, 9));
+  eq(sv.settingValueIssue({ type: 'color', id: 'k' }, '#fff'), null);
+  eq(sv.settingValueIssue({ type: 'color', id: 'k' }, '#00000026'), null); // 8-digit #rrggbbaa (alpha) is valid
+  eq(sv.settingValueIssue({ type: 'color', id: 'k' }, 'rgba(0,0,0,0)'), null); // functional rgba() (transparent) is valid
+  eq(sv.settingValueIssue({ type: 'color', id: 'k' }, ''), null);
+  ok(sv.settingValueIssue({ type: 'color', id: 'k' }, 'red'));
+  // font_picker delegates to the font format; unconstrained types pass
+  ok(sv.settingValueIssue({ type: 'font_picker', id: 'f' }, 'Inter'));
+  eq(sv.settingValueIssue({ type: 'font_picker', id: 'f' }, 'inter_n4'), null);
+  eq(sv.settingValueIssue({ type: 'text', id: 't' }, 'anything goes'), null);
+});
+check('BL-3: fontValueIssue validates {family}_{style}{weight} (Phase 3.3)', () => {
+  ok(sv && typeof sv.fontValueIssue === 'function', 'export fontValueIssue(value)');
+  eq(sv.fontValueIssue('inter_n4'), null);
+  eq(sv.fontValueIssue('abril_fatface_i7'), null);
+  ok(sv.fontValueIssue('Inter'), 'capitalized family / no style+weight must flag');
+  ok(sv.fontValueIssue('inter_x4'), 'bad style letter must flag');
+  ok(sv.fontValueIssue('inter_n0'), 'weight 0 must flag');
+});
+check('BL-3: idUniquenessIssues flags duplicate setting ids within a scope (Phase 2.4)', () => {
+  ok(sv && typeof sv.idUniquenessIssues === 'function', 'export idUniquenessIssues(settings, scopeLabel)');
+  eq(sv.idUniquenessIssues([{ id: 'a' }, { id: 'b' }]).length, 0);
+  eq(sv.idUniquenessIssues([{ id: 'a' }, { id: 'a' }, { id: 'b' }, { id: 'b' }]).length, 2);
+  eq(sv.idUniquenessIssues([{}, { id: 'a' }]).length, 0); // settings without ids (e.g. type:header) are skipped
+});
+check('BL-3: maxBlocksIssue flags exceeding a positive max_blocks', () => {
+  ok(sv && typeof sv.maxBlocksIssue === 'function', 'export maxBlocksIssue(count, max, label)');
+  eq(sv.maxBlocksIssue(3, 5), null);
+  ok(sv.maxBlocksIssue(6, 5));
+  eq(sv.maxBlocksIssue(99, undefined), null); // no max_blocks defined -> no limit
 });
 check('F006/F021: validate-shopify cites the script + defers detail to schema-rules.md', () => {
   const md = read('.claude/skills/validate-shopify/SKILL.md');

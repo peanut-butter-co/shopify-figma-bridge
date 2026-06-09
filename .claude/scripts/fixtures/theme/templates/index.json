@@ -11,7 +11,7 @@
       "type": "hero",
       "settings": {
         "padding_top": 20,
-        "heading_size": "large",
+        "heading_size": "huge",
         "color_scheme": "scheme-2"
       },
       "blocks": {

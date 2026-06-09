@@ -16,14 +16,17 @@ test asserts `validateTheme()` reports exactly these:
 - `templates/index.json` → `sections.hero.settings.color_scheme` references
   `scheme-2`, which is **not** defined in `config/settings_data.json` (only
   `scheme-1` exists) → 1 ERROR (`colorSchemeRefIssues`).
+- `templates/index.json` → `sections.hero.settings.heading_size` is `"huge"`, which
+  is **not** one of the `select` options (`small`, `large`) defined in the hero
+  schema → 1 ERROR (`settingValueIssue`, Phase 1.4).
 
 Everything else is intentionally clean: the range step (4) divides the interval
-(0–100) evenly, the select has 2 options (≤ 50), and block type `text` resolves to
-`blocks/text.liquid`. The two JSON files carry the auto-generated `/* … */` header
-Shopify's theme editor writes, so `validateTheme()`'s JSONC parser is exercised
-end-to-end (bare `JSON.parse` would choke on it).
+(0–100) evenly, the select itself has 2 options (≤ 50), block type `text` resolves to
+`blocks/text.liquid`, setting ids are unique, and the preset is valid. The two JSON
+files carry the auto-generated `/* … */` header Shopify's theme editor writes, so
+`validateTheme()`'s JSONC parser is exercised end-to-end (bare `JSON.parse` would choke).
 
-The harness asserts exactly **1 error, 0 warnings** (the `0 warnings` part is a
+The harness asserts exactly **2 errors, 0 warnings** (the `0 warnings` part is a
 no-false-positive guard — no WARNING-producing check, e.g. orphaned settings, is
 wired into `validateTheme()` yet; those land in BL-3 PR-B with their own planted
 cases). To preserve the no-false-positive guarantee, add NEW planted issues here
