@@ -1,0 +1,13 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ * (Test fixture — mirrors the JSONC header Shopify writes.)
+ * ------------------------------------------------------------
+ */
+{
+  "current": {
+    "color_schemes": {
+      "scheme-1": { "settings": { "background": "#ffffff", "text": "#1a1a1a" } }
+    }
+  }
+}
