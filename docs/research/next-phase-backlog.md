@@ -46,7 +46,7 @@ Do these first: cheap, and they harden the harness before the big items lean on 
   correct rewrite could false-red). Tighten the load-bearing ones; leave a comment marking each
   remaining check as "lint-strength" vs "contract-strength" so the distinction is explicit.
 
-- [ ] **BL-1 · build-components · M — pin the section node-naming so the completeness check resolves.**
+- [x] **BL-1 · build-components · M — pin the section node-naming so the completeness check resolves.**
   `validation.md`'s variant-completeness lookup matches `n.name === section.name || n.name === slug`,
   but the build phase never guarantees the built `COMPONENT_SET` is named by the slug. If sections
   are built with PascalCase names (e.g. "Hero", "Image with text"), `findOne` returns null and every
