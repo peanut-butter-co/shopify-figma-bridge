@@ -63,5 +63,6 @@ cancelable; a false `config` ships a silently-broken store.
 2. config => real: `verdict === "config"` => `theme.exists === true ∧ candidate != null ∧ schema != null`.
 3. nonexistent => non-config: `exists === false` => `verdict ∈ {code, app, out-of-scope}`.
 4. work-order = pure derivation (no manual entries).
+5. colorScheme integrity: every `compositions[*].order[*].colorScheme` (non-null) ∈ keys(`foundations.colors.schemes`). (Added by SP-1 when foundations entered the contract instance's scope — a dangling scheme ref ships a store with undefined colors.)
 
 The shape enforcer `contractShapeIssues()` additionally checks required keys + enum membership.

@@ -1086,6 +1086,25 @@ if (ct && ct.deriveWorkOrder) {
     ok(row && typeof row.delta === 'string' && row.delta.length > 0 && /reorder/.test(row.delta), 'delta falls back to a type-based default string');
   });
 }
+if (ct && ct.colorSchemeIntegrityIssues) {
+  const FND = { colors: { schemes: { 'scheme-1': { name: 'White' }, 'scheme-2': { name: 'Grey' } } } };
+  check('inv-5 colorScheme integrity: every order colorScheme is a foundations scheme (clean -> [])', () => {
+    const comp = { index: { template: 'index', order: [
+      { component: 'hero', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {}, blocks: [], mobileDivergence: null },
+      { component: 'hero', desktopNodeId: 'c', mobileNodeId: 'd', colorScheme: 'scheme-2', settings: {}, blocks: [], mobileDivergence: null } ] } };
+    eq(ct.colorSchemeIntegrityIssues(comp, FND), []);
+  });
+  check('inv-5: a colorScheme not defined in foundations flags', () => {
+    const comp = { index: { template: 'index', order: [
+      { component: 'hero', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-9', settings: {}, blocks: [], mobileDivergence: null } ] } };
+    ok(ct.colorSchemeIntegrityIssues(comp, FND).some((m) => /scheme-9/.test(m)), 'dangling scheme ref must flag');
+  });
+  check('inv-5: a null colorScheme is skipped (not every section carries a scheme)', () => {
+    const comp = { index: { template: 'index', order: [
+      { component: 'divider', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: null, settings: {}, blocks: [], mobileDivergence: null } ] } };
+    eq(ct.colorSchemeIntegrityIssues(comp, FND), []);
+  });
+}
 check('SP-0a: every basis deriveWorkOrder can emit is a member of contract.BASES (no enum drift)', () => {
   ok(rc && Array.isArray(rc.EXPRESSIBILITY_KINDS), 'reachability.js must export EXPRESSIBILITY_KINDS');
   for (const k of rc.EXPRESSIBILITY_KINDS) ok(ct.BASES.includes(k), `expressibility kind "${k}" not in BASES`);
