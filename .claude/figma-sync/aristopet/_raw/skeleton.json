@@ -1,0 +1,80 @@
+{
+  "_provenance": "Deterministic backbone extracted from get_metadata(fileKey=73Qy4BbWWqFUky9b5LXTGT, nodeId=93:2 '05 - Pages'). Order, node-ids, isInstance, and desktop<->mobile pairing are deterministic. wrapper:true marks the 'Section Heading'/'Section Footer' spacing wrappers (folded into the wrapped section in compositions, per SPIKE.md). settings/colorScheme are filled by inference in P1/P2.",
+  "templates": {
+    "index": {
+      "desktopFrame": "3436:1867",
+      "mobileFrame": "3520:3400",
+      "order": [
+        { "slug": "header-utility-bar", "figmaName": "Section / Header Utility Bar", "desktopNodeId": "3436:1874", "mobileNodeId": "3520:3401", "isInstance": true },
+        { "slug": "header-v2", "figmaName": "Section / Header v2", "desktopNodeId": "3463:8540", "mobileNodeId": "3520:3417", "isInstance": true, "_note": "mobile frame uses Header v1 (3520:3417) — header differs by viewport" },
+        { "slug": "split-banner", "figmaName": "Section / Split Banner", "desktopNodeId": "3436:1954", "mobileNodeId": "3520:3457", "isInstance": true },
+        { "slug": "trust-bar", "figmaName": "Section / Trust Bar", "desktopNodeId": "3438:2300", "mobileNodeId": "3520:3476", "isInstance": true },
+        { "slug": "marquee", "figmaName": "Section / Marquee", "desktopNodeId": "3436:1973", "mobileNodeId": "3520:3539", "isInstance": true },
+        { "slug": "section-heading", "figmaName": "Section / Section Heading", "desktopNodeId": "3463:8658", "mobileNodeId": "3520:3545", "isInstance": true, "wrapper": true },
+        { "slug": "product-card-row", "figmaName": "Section / Product Card Row", "desktopNodeId": "3437:2040", "mobileNodeId": "3520:3566", "isInstance": true },
+        { "slug": "section-footer", "figmaName": "Section / Section Footer", "desktopNodeId": "3463:8674", "mobileNodeId": "3520:3660", "isInstance": true, "wrapper": true },
+        { "slug": "image-with-text", "figmaName": "Section / Image with Text", "desktopNodeId": "3437:2122", "mobileNodeId": "3520:3683", "isInstance": true },
+        { "slug": "section-heading", "figmaName": "Section / Section Heading", "desktopNodeId": "3463:8689", "mobileNodeId": "3521:3680", "isInstance": true, "wrapper": true },
+        { "slug": "collection-list-grid", "figmaName": "Section / Collection List - Grid", "desktopNodeId": "3436:1979", "mobileNodeId": "3521:3697", "isInstance": true },
+        { "slug": "promo-banner", "figmaName": "Section / Promo Banner", "desktopNodeId": "3437:2294", "mobileNodeId": "3521:3757", "isInstance": true },
+        { "slug": "section-heading", "figmaName": "Section / Section Heading", "desktopNodeId": "3487:11163", "mobileNodeId": "3521:3777", "isInstance": true, "wrapper": true },
+        { "slug": "product-card-row", "figmaName": "Section / Product Card Row", "desktopNodeId": "3487:11164", "mobileNodeId": "3521:3794", "isInstance": true },
+        { "slug": "section-footer", "figmaName": "Section / Section Footer", "desktopNodeId": "3487:11165", "mobileNodeId": "3521:3888", "isInstance": true, "wrapper": true },
+        { "slug": "brand-logos", "figmaName": "Section / Brand Logos", "desktopNodeId": "3437:2138", "mobileNodeId": "3521:3902", "isInstance": true },
+        { "slug": "section-heading", "figmaName": "Section / Section Heading", "desktopNodeId": "3768:10494", "mobileNodeId": "3768:10576", "isInstance": true, "wrapper": true },
+        { "slug": "ugc-captions-below", "figmaName": "UGC — Captions Below", "desktopNodeId": "3768:10495", "mobileNodeId": "3768:10577", "isInstance": true, "_note": "bespoke; multi-scheme; -> CODE" },
+        { "slug": "section-footer", "figmaName": "Section / Section Footer", "desktopNodeId": "3768:10496", "mobileNodeId": "3768:10578", "isInstance": true, "wrapper": true },
+        { "slug": "newsletter-signup", "figmaName": "Section / Newsletter Signup", "desktopNodeId": "3438:2347", "mobileNodeId": "3521:4054", "isInstance": true },
+        { "slug": "footer", "figmaName": "Section / Footer", "desktopNodeId": "3438:2372", "mobileNodeId": "3521:4079", "isInstance": true }
+      ]
+    },
+    "collection": {
+      "desktopFrame": "3365:614",
+      "mobileFrame": "3370:1199",
+      "order": [
+        { "slug": "header-utility-bar", "figmaName": "Section / Header Utility Bar", "desktopNodeId": "3365:621", "mobileNodeId": "3370:1206", "isInstance": true },
+        { "slug": "header-v2", "figmaName": "Section / Header v2", "desktopNodeId": "3463:8711", "mobileNodeId": "3370:1228", "isInstance": true, "_note": "mobile uses Header v1 (3370:1228)" },
+        { "slug": "collection-header", "figmaName": "Section / Collection Header", "desktopNodeId": "3365:701", "mobileNodeId": "3370:1292", "isInstance": true },
+        { "slug": "sub-collection-navigation", "figmaName": "Section / Sub Collection Navigation", "desktopNodeId": "3365:706", "mobileNodeId": "3370:1297", "isInstance": true, "_note": "bespoke" },
+        { "slug": "filter-bar", "figmaName": "Section / Filter Bar", "desktopNodeId": "3365:726", "mobileNodeId": "3370:1317", "isInstance": true },
+        { "slug": "product-card-row", "figmaName": "Section / Product Card Row", "desktopNodeId": "3366:732", "mobileNodeId": "3407:6729", "isInstance": true, "_note": "desktop also has detached repeat frames 3732:9943, 3732:10015; mobile repeat 3407:6815 — a product grid; one componentMap entry" },
+        { "slug": "pagination", "figmaName": "Section / Pagination", "desktopNodeId": "3366:1048", "mobileNodeId": "3371:1524", "isInstance": true },
+        { "slug": "newsletter-signup", "figmaName": "Section / Newsletter Signup", "desktopNodeId": "3366:1089", "mobileNodeId": "3371:1559", "isInstance": true },
+        { "slug": "footer", "figmaName": "Section / Footer", "desktopNodeId": "3366:1114", "mobileNodeId": "3371:1587", "isInstance": true }
+      ]
+    },
+    "product": {
+      "desktopFrame": "3627:5365",
+      "mobileFrame": "3626:4195",
+      "order": [
+        { "slug": "header-utility-bar", "figmaName": "Section / Header Utility Bar", "desktopNodeId": "3627:5372", "mobileNodeId": "3626:4202", "isInstance": true },
+        { "slug": "header-v1", "figmaName": "Section / Header v1", "desktopNodeId": "3627:5389", "mobileNodeId": "3626:4218", "isInstance": true },
+        { "slug": "breadcrumbs", "figmaName": "Section / Breadcrumbs", "desktopNodeId": "3627:5452", "mobileNodeId": "3626:4258", "isInstance": true },
+        { "slug": "product-information", "figmaName": "Section Product Information", "desktopNodeId": "3644:14712", "mobileNodeId": "3626:4273", "isInstance": false, "_note": "mobile is 'Mobile — Carousel' variant; detached on desktop -> bespoke; mobileDivergence behavior" },
+        { "slug": "section-heading", "figmaName": "Section / Section Heading", "desktopNodeId": "3611:14613", "mobileNodeId": "3644:14917", "isInstance": true, "wrapper": true },
+        { "slug": "related-products", "figmaName": "Section / Related Products", "desktopNodeId": "3627:6204", "mobileNodeId": "3626:5045", "isInstance": true },
+        { "slug": "section-footer", "figmaName": "Section / Section Footer", "desktopNodeId": "3644:14963", "mobileNodeId": "3644:14918", "isInstance": true, "wrapper": true },
+        { "slug": "section-heading", "figmaName": "Section / Section Heading", "desktopNodeId": "3732:10094", "mobileNodeId": "3626:5205", "isInstance": true, "wrapper": true },
+        { "slug": "ugc-captions-below", "figmaName": "UGC — Captions Below", "desktopNodeId": "3670:15808", "mobileNodeId": "3718:7438", "isInstance": true, "_note": "bespoke; multi-scheme; -> CODE" },
+        { "slug": "section-footer", "figmaName": "Section / Section Footer", "desktopNodeId": "3644:15087", "mobileNodeId": "3626:5247", "isInstance": true, "wrapper": true },
+        { "slug": "product-reviews", "figmaName": "Section / Product Reviews", "desktopNodeId": "3718:7182", "mobileNodeId": "3732:10132", "isInstance": true, "_note": "candidate app-slot or bespoke -> app/code" },
+        { "slug": "newsletter-signup", "figmaName": "Section / Newsletter Signup", "desktopNodeId": "3627:6282", "mobileNodeId": "3626:5248", "isInstance": true },
+        { "slug": "footer", "figmaName": "Section / Footer", "desktopNodeId": "3627:6307", "mobileNodeId": "3626:5273", "isInstance": true }
+      ]
+    }
+  },
+  "overlays_excluded": [
+    { "name": "Cart Drawer / Desktop", "nodeId": "3803:6422" },
+    { "name": "Cart Drawer / Mobile", "nodeId": "3797:7142" },
+    { "name": "Sticky Add to Cart / Mobile", "nodeId": "3813:8301" },
+    { "name": "Dropdown Menu v1/v2", "nodeId": "3487:10963" },
+    { "name": "Menu Drawer L1/L2", "nodeId": "3487:10426" }
+  ],
+  "distinctSlugs": [
+    "header-utility-bar", "header-v1", "header-v2", "split-banner", "trust-bar", "marquee",
+    "section-heading", "section-footer", "product-card-row", "image-with-text", "collection-list-grid",
+    "promo-banner", "brand-logos", "ugc-captions-below", "newsletter-signup", "footer",
+    "collection-header", "sub-collection-navigation", "filter-bar", "pagination",
+    "breadcrumbs", "product-information", "related-products", "product-reviews"
+  ]
+}
