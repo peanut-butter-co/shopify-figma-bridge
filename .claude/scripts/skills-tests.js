@@ -668,6 +668,19 @@ check('BL-3: maxBlocksIssue flags exceeding a positive max_blocks', () => {
   ok(sv.maxBlocksIssue(6, 5));
   eq(sv.maxBlocksIssue(99, undefined), null); // no max_blocks defined -> no limit
 });
+check('BL-3: templateStructureIssues flags order/sections mismatches (Phase 1.1)', () => {
+  ok(sv && typeof sv.templateStructureIssues === 'function', 'export templateStructureIssues(template)');
+  eq(sv.templateStructureIssues({ sections: { a: {} }, order: ['a'] }).length, 0);
+  ok(sv.templateStructureIssues({ sections: { a: {} }, order: ['a', 'b'] }).some((m) => /"b"/.test(m)));        // order key not in sections
+  ok(sv.templateStructureIssues({ sections: { a: {}, b: {} }, order: ['a'] }).some((m) => /orphan/.test(m)));   // section not in order
+  eq(sv.templateStructureIssues({ foo: 1 }).length, 0); // not a standard page template -> no structural check (FP-safe)
+});
+check('BL-3: sectionFileIssue flags a template section type with no sections/<type>.liquid (Phase 1.2)', () => {
+  ok(sv && typeof sv.sectionFileIssue === 'function', 'export sectionFileIssue(type, sectionFiles)');
+  eq(sv.sectionFileIssue('hero', ['hero.liquid']), null);
+  ok(sv.sectionFileIssue('ghost', ['hero.liquid']));
+  eq(sv.sectionFileIssue('shopify://shop/whatever', []), null); // shopify-managed sections have no local file
+});
 check('F006/F021: validate-shopify cites the script + defers detail to schema-rules.md', () => {
   const md = read('.claude/skills/validate-shopify/SKILL.md');
   ok(/shopify-validate\.js/.test(md) && /schema-rules\.md/.test(md), 'SKILL.md must cite the script and defer detail to schema-rules.md');

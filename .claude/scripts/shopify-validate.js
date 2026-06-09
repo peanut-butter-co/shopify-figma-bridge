@@ -133,6 +133,30 @@ function maxBlocksIssue(blockCount, maxBlocks, label) {
   return blockCount > maxBlocks ? `${label || 'section'}: ${blockCount} blocks exceeds max_blocks ${maxBlocks}` : null;
 }
 
+/**
+ * Template order/sections cross-consistency (Phase 1.1): every `order` key must exist in
+ * `sections`, and every `sections` key must appear in `order` (else it never renders). Returns
+ * [] for anything that isn't a standard page template (no sections object / no order array) —
+ * section groups and non-JSON templates are out of scope, so this never false-flags them.
+ */
+function templateStructureIssues(template) {
+  if (!template || typeof template !== 'object') return [];
+  const { sections, order } = template;
+  if (!sections || typeof sections !== 'object' || !Array.isArray(order)) return [];
+  const issues = [];
+  const keys = new Set(Object.keys(sections));
+  const inOrder = new Set(order);
+  for (const k of order) if (!keys.has(k)) issues.push(`order references "${k}" which is not in sections`);
+  for (const k of keys) if (!inOrder.has(k)) issues.push(`section "${k}" is not in order (orphaned, will not render)`);
+  return issues;
+}
+
+/** A template section `type` must resolve to sections/<type>.liquid (shopify://-managed exempt). Phase 1.2. */
+function sectionFileIssue(type, sectionFiles) {
+  if (!type || String(type).startsWith('shopify://')) return null;
+  return (sectionFiles || []).includes(`${type}.liquid`) ? null : `section type "${type}" has no sections/${type}.liquid`;
+}
+
 /** Extract + parse the {% schema %} JSON from a section/block .liquid source (null if none). */
 const SCHEMA_RE = /\{%[-\s]*schema\s*[-]?%\}([\s\S]*?)\{%[-\s]*endschema\s*[-]?%\}/;
 function extractSchema(liquidSource) {
@@ -202,13 +226,14 @@ function validateTheme(themeDir) {
     }
   }
 
-  // index block files for block-type → file resolution
+  // index block + section files for type → file resolution
   const blockFiles = listFiles('blocks', '.liquid');
+  const sectionFiles = listFiles('sections', '.liquid');
 
   // sections: parse each {% schema %} once, run schema-level checks, and index by type so the
   // templates loop can validate setting VALUES against their definitions.
   const sectionSchemas = {}; // type -> parsed schema (or null when the file has no schema block)
-  for (const file of listFiles('sections', '.liquid')) {
+  for (const file of sectionFiles) {
     const type = file.replace(/\.liquid$/, '');
     let schema;
     try { schema = extractSchema(readText(`sections/${file}`)); }
@@ -241,8 +266,11 @@ function validateTheme(themeDir) {
   const referencedSchemes = [];
   for (const file of listFiles('templates', '.json')) {
     const tpl = readJSONSafe(`templates/${file}`, `templates/${file}`);
+    for (const issue of templateStructureIssues(tpl)) errors.push(`templates/${file}: ${issue}`); // Phase 1.1
     for (const [secKey, sec] of Object.entries((tpl && tpl.sections) || {})) {
       if (!sec) continue;
+      const sfi = sectionFileIssue(sec.type, sectionFiles); // Phase 1.2: type resolves to a section file
+      if (sfi) errors.push(`templates/${file} → ${secKey}: ${sfi}`);
       const schema = sectionSchemas[sec.type];
       const settingsById = {};
       if (schema && Array.isArray(schema.settings)) for (const s of schema.settings) if (s && s.id) settingsById[s.id] = s;
@@ -306,6 +334,7 @@ function main(argv) {
 module.exports = {
   rangeStepIssue, selectLimitIssue, blockTypeFileIssue, colorSchemeRefIssues, orphanedSettingIssues,
   fontValueIssue, settingValueIssue, idUniquenessIssues, maxBlocksIssue,
+  templateStructureIssues, sectionFileIssue,
   extractSchema, parseThemeJSON, validateTheme,
 };
 
