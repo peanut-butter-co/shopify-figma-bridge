@@ -1,0 +1,55 @@
+{
+  "compositions": {
+    "index": {
+      "template": "index",
+      "figmaNodeId": "3436:1867",
+      "figmaNodeIdMobile": "3520:3400",
+      "order": [
+        { "component": "hero",
+          "desktopNodeId": "3436:1900", "mobileNodeId": "3520:3450",
+          "colorScheme": "scheme-1",
+          "settings": { "padding_top": 20, "heading_size": "small", "color_scheme": "scheme-1" },
+          "blocks": [ { "type": "text", "order": 0, "settings": { "content": "Welcome" } } ],
+          "mobileDivergence": null },
+        { "component": "slideshow",
+          "desktopNodeId": "3436:1950", "mobileNodeId": "3520:3500",
+          "colorScheme": "scheme-2",
+          "settings": {},
+          "blocks": [
+            { "type": "slide", "order": 0, "settings": {} },
+            { "type": "slide", "order": 1, "settings": {} },
+            { "type": "slide", "order": 2, "settings": {} },
+            { "type": "slide", "order": 3, "settings": {} },
+            { "type": "slide", "order": 4, "settings": {} },
+            { "type": "slide", "order": 5, "settings": {} }
+          ],
+          "mobileDivergence": null },
+        { "component": "homepage-marquee-promo",
+          "desktopNodeId": "3436:1990", "mobileNodeId": "3520:3550",
+          "colorScheme": "scheme-2",
+          "settings": {},
+          "blocks": [],
+          "mobileDivergence": { "type": "behavior", "note": "grid (desktop) -> 1.5-card carousel (mobile) needs responsive CSS/JS" } }
+      ]
+    },
+    "product": {
+      "template": "product",
+      "figmaNodeId": "3600:1000",
+      "figmaNodeIdMobile": "3600:2000",
+      "order": [
+        { "component": "pdp-ugc-section",
+          "desktopNodeId": "3600:1100", "mobileNodeId": "3600:2100",
+          "colorScheme": "scheme-1",
+          "settings": {},
+          "blocks": [],
+          "mobileDivergence": null },
+        { "component": "reviews",
+          "desktopNodeId": "3600:1200", "mobileNodeId": "3600:2200",
+          "colorScheme": "scheme-1",
+          "settings": {},
+          "blocks": [],
+          "mobileDivergence": null }
+      ]
+    }
+  }
+}

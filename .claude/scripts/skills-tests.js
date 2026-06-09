@@ -609,6 +609,19 @@ if (sv && sv.rangeStepIssue) {
     eq(sv.colorSchemeRefIssues(['scheme-1', 'scheme-9'], ['scheme-1']).length, 1);
     eq(sv.orphanedSettingIssues(['a', 'b'], ['a']).length, 1);
   });
+  check('blockTypeAccepted mirrors validateTheme acceptance (declared / block-file / @app opt-in / unknown)', () => {
+    ok(typeof sv.blockTypeAccepted === 'function', 'export blockTypeAccepted(type, schemaBlocks, blockFiles)');
+    ok(sv.blockTypeAccepted('text', [{ type: 'text' }], []));     // declared in schema.blocks (object form)
+    ok(sv.blockTypeAccepted('text', ['text'], []));               // declared (string-array form, as in componentMap.schema.blocks)
+    ok(sv.blockTypeAccepted('text', [], ['text.liquid']));        // resolves to blocks/text.liquid
+    ok(sv.blockTypeAccepted('promo', [], ['_promo.liquid']));     // private/static block file (_-prefixed)
+    ok(sv.blockTypeAccepted('anything', [{ type: '@app' }], [])); // section opts into @app blocks
+    ok(!sv.blockTypeAccepted('ghost', [{ type: 'text' }], []));   // not declared, no file, no @app
+  });
+  check('blockTypeAccepted: numeric schema block type matches by string-coercion (byte-equivalent to old inline logic)', () => {
+    ok(sv.blockTypeAccepted(1, [{ type: 1 }], []));   // numeric type declared
+    ok(sv.blockTypeAccepted('1', [{ type: 1 }], [])); // string query against numeric decl
+  });
 }
 // BL-3 — validateTheme() orchestrator: run the deterministic checks end-to-end against a
 //   committed theme fixture (.claude/scripts/fixtures/theme), exercising the same code path
@@ -806,6 +819,8 @@ const GROUP_STRENGTH = {
   'B6: pipeline-phase enforcement gates are MANDATORY': 'contract',
   'A6: deterministic Shopify validation checks (scripted + unit-tested)': 'contract',
   'HR-1: sync-colors prose color JS is single-sourced with color-utils.js': 'contract',
+  'SP-0a: reachability (deterministic expressibility + host resolution)': 'contract',
+  'SP-0a: design-build contract invariants': 'contract',
   'HR-3: every group is classified by assertion strength (lint vs contract)': 'contract',
   // lint — checks whose only assertions are case-insensitive natural-language substrings (no
   // structural/identifier/file anchor). They guard "did the idea get deleted"; a behavior-
@@ -831,6 +846,251 @@ check('HR-3: every group() in skills-tests.js is classified in GROUP_STRENGTH (n
   ok(bad.length === 0, 'invalid strength value(s): ' + bad.map(([k]) => k).join(' | '));
 });
 
+// ---------------------------------------------------------------------------
+// SP-0a — reachability: the DETERMINISTIC half of the design->build contract.
+//   resolveHostSection (exists + schema via extractSchema), expressibilityIssues
+//   (settingValueIssue / blockTypeAccepted / maxBlocksIssue run in REVERSE against a
+//   parsed host schema), and the css-hardcoded -> CODE lookup from horizon.json.
+//   Reuses .claude/scripts/shopify-validate.js (no logic re-derived). The FUZZY half
+//   (candidate-match) is SP-1's inference and is intentionally NOT here.
+// ---------------------------------------------------------------------------
+group('SP-0a: reachability (deterministic expressibility + host resolution)');
+const rc = tryRequire('./reachability.js');
+const THEME_FIX = path.join(__dirname, 'fixtures', 'theme');
+check('reachability.js exists with the deterministic helpers', () => {
+  ok(rc && typeof rc.resolveHostSection === 'function' && typeof rc.expressibilityIssues === 'function'
+     && typeof rc.isCssHardcoded === 'function',
+    'create .claude/scripts/reachability.js exporting resolveHostSection, expressibilityIssues, isCssHardcoded');
+});
+if (rc && rc.resolveHostSection) {
+  check('resolveHostSection: existing slug -> exists:true + parsed schema (extractSchema reuse)', () => {
+    const r = rc.resolveHostSection(THEME_FIX, 'hero');
+    eq(r.file, 'sections/hero.liquid');
+    eq(r.exists, true);
+    ok(r.schema && Array.isArray(r.schema.settings), 'must parse the {% schema %} block');
+    ok(r.schema.settings.some((s) => s.id === 'heading_size'), 'parsed schema must expose the hero settings');
+  });
+  check('resolveHostSection: missing slug -> exists:false, schema:null (no guess; [DESIGN-RULES-TRUST])', () => {
+    const r = rc.resolveHostSection(THEME_FIX, 'ghost');
+    eq(r.exists, false);
+    eq(r.schema, null);
+    eq(r.file, 'sections/ghost.liquid');
+  });
+}
+if (rc && rc.expressibilityIssues) {
+  // In-memory mirror of fixtures/theme/sections/hero.liquid, plus a max_blocks cap.
+  const HERO = {
+    settings: [
+      { type: 'range', id: 'padding_top', min: 0, max: 100, step: 4 },
+      { type: 'select', id: 'heading_size', options: [{ value: 'small' }, { value: 'large' }] },
+      { type: 'color_scheme', id: 'color_scheme' },
+    ],
+    blocks: ['text'],
+    max_blocks: 5,
+  };
+  check('expressibilityIssues: a fully in-domain instance is expressible (-> [])', () => {
+    eq(rc.expressibilityIssues(HERO, { settings: { padding_top: 20, heading_size: 'small', color_scheme: 'scheme-1' }, blocks: [{ type: 'text' }] }), []);
+  });
+  check('expressibilityIssues: a null/absent host schema yields no proof -> [] (D3 safe-default arm)', () => {
+    eq(rc.expressibilityIssues(null, { settings: { anything: 'x' }, blocks: [{ type: 'whatever' }] }), []);
+  });
+  check('expressibilityIssues: out-of-domain select value -> value-out-of-domain', () => {
+    const is = rc.expressibilityIssues(HERO, { settings: { heading_size: 'huge' }, blocks: [] });
+    eq(is.length, 1); eq(is[0].kind, 'value-out-of-domain');
+  });
+  check('expressibilityIssues: off-step range value -> value-out-of-domain', () => {
+    const is = rc.expressibilityIssues(HERO, { settings: { padding_top: 22 }, blocks: [] });
+    eq(is.length, 1); eq(is[0].kind, 'value-out-of-domain');
+  });
+  check('expressibilityIssues: an unknown setting id is NOT expressible (bias-to-code, D3)', () => {
+    const is = rc.expressibilityIssues(HERO, { settings: { totally_made_up: 'x' }, blocks: [] });
+    eq(is.length, 1); eq(is[0].kind, 'value-out-of-domain');
+  });
+  check('expressibilityIssues: a block type the schema does not declare -> block-type-unsupported', () => {
+    const is = rc.expressibilityIssues(HERO, { settings: {}, blocks: [{ type: 'video' }] });
+    eq(is.length, 1); eq(is[0].kind, 'block-type-unsupported');
+  });
+  check('expressibilityIssues: @app/@theme block instance types are accepted (no false code-route)', () => {
+    eq(rc.expressibilityIssues(HERO, { settings: {}, blocks: [{ type: '@app' }, { type: '@theme/icon' }] }), []);
+  });
+  check('expressibilityIssues: more blocks than max_blocks -> max-blocks-exceeded', () => {
+    const is = rc.expressibilityIssues(HERO, { settings: {}, blocks: Array.from({ length: 6 }, () => ({ type: 'text' })) });
+    eq(is.length, 1); eq(is[0].kind, 'max-blocks-exceeded');
+  });
+}
+if (rc && rc.isCssHardcoded) {
+  const profile = readJSON('.claude/figma-sync/theme-profiles/horizon.json');
+  check('isCssHardcoded: the horizon spacing scale (margin/padding/gap) routes to CODE', () => {
+    ok(rc.isCssHardcoded(profile, '--padding-lg'), 'padding scale is source:css-hardcoded -> CODE');
+    ok(rc.isCssHardcoded(profile, '--gap-md'), 'gap is part of the css-hardcoded scale');
+    ok(rc.isCssHardcoded(profile, '--margin-2xl'), 'margin is part of the css-hardcoded scale');
+  });
+  check('isCssHardcoded: settings-driven / unrelated properties are NOT css-hardcoded', () => {
+    ok(!rc.isCssHardcoded(profile, 'button_border_radius_primary'), 'radii are source:settings -> not css-hardcoded');
+    ok(!rc.isCssHardcoded(profile, 'padding_top'), 'a section setting is not the hardcoded CSS scale');
+  });
+}
+if (rc && rc.cssHardcodedPrefixes) {
+  check('cssHardcodedPrefixes: parses multi-segment patterns + dedups (generalized beyond single-token)', () => {
+    const prefixes = rc.cssHardcodedPrefixes({
+      a: { source: 'css-hardcoded', pattern: '--foo-bar-{size}, --baz-{size}' },
+      b: { nested: { source: 'css-hardcoded', pattern: '--baz-{size}' } },
+    });
+    eq(prefixes.sort(), ['--baz-', '--foo-bar-']);
+  });
+  check('cssHardcodedPrefixes: a fixed property with no {placeholder} still yields a prefix (-> CODE, safe direction)', () => {
+    const prefixes = rc.cssHardcodedPrefixes({ a: { source: 'css-hardcoded', pattern: '--page-width, --header-height' } });
+    eq(prefixes.sort(), ['--header-height', '--page-width']);
+    ok(rc.isCssHardcoded({ a: { source: 'css-hardcoded', pattern: '--page-width' } }, '--page-width'));
+  });
+}
+// ---------------------------------------------------------------------------
+// SP-0a — contract invariants (§6 of the SP-0 spec): the four cross-artifact rules that
+//   keep the normalized contract honest, the schema-shape enforcer, and the work-order
+//   DERIVATION (invariant 4: the work-order is a pure function of componentMap + compositions,
+//   never hand-maintained). Run against the committed fixture (.claude/scripts/fixtures/contract).
+// ---------------------------------------------------------------------------
+group('SP-0a: design-build contract invariants');
+const ct = tryRequire('./contract.js');
+const CONTRACT_FIX = '.claude/scripts/fixtures/contract';
+const loadFix = (rel) => { try { return readJSON(CONTRACT_FIX + '/' + rel); } catch (e) { return null; } };
+const fixCM = (loadFix('design-rules.json') || {}).componentMap || null;
+const fixComp = (loadFix('compositions.json') || {}).compositions || null;
+const fixWO = loadFix('work-order.expected.json');
+check('contract.js exists with the shape + invariant + derivation helpers', () => {
+  ok(ct && ['contractShapeIssues', 'referentialIntegrityIssues', 'configRealityIssues', 'nonexistentNonConfigIssues', 'deriveWorkOrder'].every((f) => typeof ct[f] === 'function'),
+    'create .claude/scripts/contract.js exporting the five contract helpers');
+});
+check('the contract fixture loaded (componentMap + compositions + expected work-order)', () => {
+  ok(fixCM && typeof fixCM === 'object', 'fixtures/contract/design-rules.json must carry a componentMap');
+  ok(fixComp && typeof fixComp === 'object', 'fixtures/contract/compositions.json must carry compositions');
+  ok(fixWO && Array.isArray(fixWO.codeRequired), 'fixtures/contract/work-order.expected.json must carry codeRequired[]');
+});
+if (ct && ct.contractShapeIssues) {
+  check('inv-shape: the valid fixture satisfies the contract shape (-> [])', () => {
+    eq(ct.contractShapeIssues(fixCM, fixComp), []);
+  });
+  check('inv-shape: a bad verdict enum value flags', () => {
+    const bad = { hero: { type: 'section',
+      figma: { name: 'hero', isInstance: true, representation: 'variant-set', desktop: { nodeId: '1:1' }, mobile: null },
+      theme: { file: 'sections/hero.liquid', exists: true, kind: 'section' },
+      schema: { settings: [], blocks: [] },
+      reachability: { verdict: 'maybe', basis: 'instance-of-library', confidence: 'high', candidate: 'sections/hero.liquid' } } };
+    ok(ct.contractShapeIssues(bad, {}).some((m) => /verdict/.test(m)), 'verdict not in {config,code,app,out-of-scope} must flag');
+  });
+  check('inv-shape: a bad mobileDivergence type flags', () => {
+    const comp = { index: { template: 'index', order: [
+      { component: 'hero', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {}, blocks: [],
+        mobileDivergence: { type: 'teleport', note: 'x' } } ] } };
+    ok(ct.contractShapeIssues(fixCM, comp).some((m) => /mobileDivergence/.test(m)));
+  });
+  check('inv-shape: an empty-string component slug flags (not a valid reference)', () => {
+    const comp = { index: { template: 'index', order: [
+      { component: '', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {}, blocks: [], mobileDivergence: null } ] } };
+    ok(ct.contractShapeIssues(fixCM, comp).some((m) => /component/.test(m)), 'empty component string must flag');
+  });
+}
+if (ct && ct.referentialIntegrityIssues) {
+  check('inv-1 referential integrity: every composition component is a componentMap key (fixture clean)', () => {
+    eq(ct.referentialIntegrityIssues(fixCM, fixComp), []);
+  });
+  check('inv-1: a composition referencing an unknown component flags', () => {
+    const comp = { index: { template: 'index', order: [
+      { component: 'ghost-section', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {}, blocks: [], mobileDivergence: null } ] } };
+    ok(ct.referentialIntegrityIssues(fixCM, comp).some((m) => /ghost-section/.test(m)));
+  });
+}
+if (ct && ct.configRealityIssues) {
+  check('inv-2 config=>real: every config verdict has exists:true + candidate + schema (fixture clean)', () => {
+    eq(ct.configRealityIssues(fixCM), []);
+  });
+  check('inv-2: a config verdict with schema:null flags', () => {
+    const bad = { x: { theme: { file: 'sections/x.liquid', exists: true, kind: 'section' }, schema: null,
+      reachability: { verdict: 'config', basis: 'schema-expressible', confidence: 'medium', candidate: 'sections/x.liquid' } } };
+    ok(ct.configRealityIssues(bad).some((m) => /schema/.test(m)));
+  });
+}
+if (ct && ct.nonexistentNonConfigIssues) {
+  check('inv-3 nonexistent=>non-config: exists:false => verdict in {code,app,out-of-scope} (fixture clean)', () => {
+    eq(ct.nonexistentNonConfigIssues(fixCM), []);
+  });
+  check('inv-3: exists:false with verdict:config flags', () => {
+    const bad = { x: { theme: { file: null, exists: false, kind: 'section' }, schema: null,
+      reachability: { verdict: 'config', basis: 'no-candidate', confidence: 'low', candidate: null } } };
+    ok(ct.nonexistentNonConfigIssues(bad).some((m) => /x/.test(m)));
+  });
+}
+if (ct && ct.deriveWorkOrder) {
+  // Order-independent compare: the derivation is set-like per bucket.
+  const norm = (wo) => ({
+    codeRequired: [...((wo && wo.codeRequired) || [])].map((e) => JSON.stringify(e)).sort(),
+    appBlocks: [...((wo && wo.appBlocks) || [])].map((e) => JSON.stringify(e)).sort(),
+    outOfScope: [...((wo && wo.outOfScope) || [])].map((e) => JSON.stringify(e)).sort(),
+  });
+  check('inv-4 work-order = pure derivation: deriveWorkOrder(cm, compositions) === committed expected', () => {
+    eq(norm(ct.deriveWorkOrder(fixCM, fixComp)), norm(fixWO));
+  });
+  check('inv-4: derivation is idempotent (no manual/sticky entries)', () => {
+    const once = ct.deriveWorkOrder(fixCM, fixComp);
+    eq(norm(ct.deriveWorkOrder(fixCM, fixComp)), norm(once));
+  });
+  check('inv-4: nulling one mobileDivergence drops exactly one mobile-divergence code entry', () => {
+    const stripped = JSON.parse(JSON.stringify(fixComp));
+    let removed = 0;
+    for (const t of Object.values(stripped)) for (const o of t.order) if (o.mobileDivergence) { o.mobileDivergence = null; removed++; }
+    ok(removed >= 1, 'fixture must contain at least one mobileDivergence entry to exercise this');
+    const before = ct.deriveWorkOrder(fixCM, fixComp).codeRequired.filter((e) => e.basis === 'mobile-divergence').length;
+    const after = ct.deriveWorkOrder(fixCM, stripped).codeRequired.filter((e) => e.basis === 'mobile-divergence').length;
+    eq(before - after, removed, 'each nulled mobileDivergence must drop exactly one mobile-divergence code entry');
+  });
+  check('inv-4: a non-config component carrying a mobileDivergence is NOT double-listed (union semantics)', () => {
+    const cm = { x: { type: 'section', figma: {}, theme: { file: null, exists: false, kind: 'section' }, schema: null,
+      reachability: { verdict: 'code', basis: 'no-candidate', confidence: 'high', candidate: null } } };
+    const comp = { index: { template: 'index', order: [
+      { component: 'x', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {}, blocks: [],
+        mobileDivergence: { type: 'behavior', note: 'diverges' } } ] } };
+    const wo = ct.deriveWorkOrder(cm, comp);
+    const xs = wo.codeRequired.filter((e) => e.component === 'x');
+    eq(xs.length, 1, 'a code-verdict component with a mobileDivergence must appear exactly once (baseline only)');
+    eq(xs[0].basis, 'no-candidate', 'the single entry is the baseline, not a duplicate mobile-divergence row');
+  });
+  check('inv-4: a config component that BOTH diverges and fails expressibility -> one mobile-divergence row folding in the expressibility detail', () => {
+    const cm = { x: { type: 'section', figma: {}, theme: { file: 'sections/x.liquid', exists: true, kind: 'section' },
+      schema: { settings: [], blocks: ['slide'], max_blocks: 5 },
+      reachability: { verdict: 'config', basis: 'instance-of-library', confidence: 'high', candidate: 'sections/x.liquid' } } };
+    const comp = { index: { template: 'index', order: [
+      { component: 'x', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {},
+        blocks: Array.from({ length: 6 }, () => ({ type: 'slide' })),
+        mobileDivergence: { type: 'behavior', note: 'grid -> carousel' } } ] } };
+    const rows = ct.deriveWorkOrder(cm, comp).codeRequired.filter((e) => e.component === 'x');
+    eq(rows.length, 1, 'exactly one row (no double-listing)');
+    eq(rows[0].basis, 'mobile-divergence');
+    ok(/grid -> carousel/.test(rows[0].delta) && /max_blocks 5/.test(rows[0].delta), 'delta folds in BOTH the divergence note and the expressibility detail');
+  });
+  check('inv-4: a config component with schema:null is routed to code, not silently dropped (D3 defense-in-depth)', () => {
+    const cm = { x: { type: 'section', figma: {}, theme: { file: 'sections/x.liquid', exists: true, kind: 'section' }, schema: null,
+      reachability: { verdict: 'config', basis: 'instance-of-library', confidence: 'low', candidate: 'sections/x.liquid' } } };
+    const comp = { index: { template: 'index', order: [
+      { component: 'x', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {}, blocks: [], mobileDivergence: null } ] } };
+    const rows = ct.deriveWorkOrder(cm, comp).codeRequired.filter((e) => e.component === 'x');
+    eq(rows.length, 1, 'must appear in codeRequired (not vanish)');
+    ok(ct.BASES.includes(rows[0].basis), 'basis is a valid enum member');
+  });
+  check('inv-4: a note-less mobileDivergence still yields a non-empty string delta (no undefined)', () => {
+    const cm = { x: { type: 'section', figma: {}, theme: { file: 'sections/x.liquid', exists: true, kind: 'section' },
+      schema: { settings: [], blocks: [] },
+      reachability: { verdict: 'config', basis: 'instance-of-library', confidence: 'high', candidate: 'sections/x.liquid' } } };
+    const comp = { index: { template: 'index', order: [
+      { component: 'x', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {}, blocks: [], mobileDivergence: { type: 'reorder' } } ] } };
+    const row = ct.deriveWorkOrder(cm, comp).codeRequired.find((e) => e.component === 'x');
+    ok(row && typeof row.delta === 'string' && row.delta.length > 0 && /reorder/.test(row.delta), 'delta falls back to a type-based default string');
+  });
+}
+check('SP-0a: every basis deriveWorkOrder can emit is a member of contract.BASES (no enum drift)', () => {
+  ok(rc && Array.isArray(rc.EXPRESSIBILITY_KINDS), 'reachability.js must export EXPRESSIBILITY_KINDS');
+  for (const k of rc.EXPRESSIBILITY_KINDS) ok(ct.BASES.includes(k), `expressibility kind "${k}" not in BASES`);
+  for (const b of ['mobile-divergence', 'no-candidate']) ok(ct.BASES.includes(b), `derived basis "${b}" not in BASES`);
+});
 // ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');

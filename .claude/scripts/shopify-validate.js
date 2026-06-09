@@ -45,6 +45,24 @@ function blockTypeFileIssue(type, existingBlockFiles) {
   return (existingBlockFiles || []).includes(file) ? null : `block type "${type}" has no blocks/${file}`;
 }
 
+/**
+ * Is a template/composition block `type` ACCEPTED by a section schema? Mirrors the inline
+ * acceptance validateTheme() uses, extracted so the contract's expressibility check (reachability.js)
+ * reuses the exact same rule. Accepted if: the schema declares the type, OR the section opts into
+ * @app blocks, OR the type resolves to a real blocks/<type>.liquid (or _<type>.liquid static block).
+ * `schemaBlocks` may be the raw {% schema %} array of objects, OR a string[] (as componentMap.schema.blocks).
+ */
+function blockTypeAccepted(type, schemaBlocks, blockFiles) {
+  const t = String(type);
+  const defs = new Set();
+  for (const b of (schemaBlocks || [])) {
+    const bt = typeof b === 'string' ? b : (b && b.type);
+    if (bt) defs.add(String(bt));
+  }
+  const hasFile = (x) => (blockFiles || []).includes(`${x}.liquid`) || (blockFiles || []).includes(`_${x}.liquid`);
+  return defs.has(t) || hasFile(t) || defs.has('@app');
+}
+
 /** Every referenced color scheme id must be defined in settings_data's color_schemes. */
 function colorSchemeRefIssues(referenced, defined) {
   const have = new Set(defined || []);
@@ -301,8 +319,6 @@ function validateTheme(themeDir) {
         const schemaBlocks = Array.isArray(schema.blocks) ? schema.blocks : [];
         const blockDefsByType = {};
         for (const b of schemaBlocks) if (b && b.type) blockDefsByType[b.type] = b;
-        const acceptsAppBlocks = '@app' in blockDefsByType;
-        const hasBlockFile = (t) => blockFiles.includes(`${t}.liquid`) || blockFiles.includes(`_${t}.liquid`);
         const tplBlocks = (sec.blocks && typeof sec.blocks === 'object') ? Object.entries(sec.blocks) : [];
         const mb = maxBlocksIssue(tplBlocks.length, schema.max_blocks, `templates/${file} → ${secKey}`);
         if (mb) errors.push(mb);
@@ -314,7 +330,7 @@ function validateTheme(themeDir) {
           // blocks/<type>.liquid file (theme & statically-rendered blocks — used even when the
           // section lists no @theme wildcard), OR the section opts into @app blocks. Only a type
           // with no definition anywhere (typo'd / deleted block file) is a genuine error.
-          const allowed = (t in blockDefsByType) || hasBlockFile(t) || acceptsAppBlocks;
+          const allowed = blockTypeAccepted(t, schemaBlocks, blockFiles);
           if (!allowed) {
             errors.push(`templates/${file} → ${secKey} → ${bKey}: block type "${t}" has no definition (not in section "${sec.type}" schema blocks, and no blocks/${t}.liquid)`);
             continue;
@@ -349,7 +365,7 @@ function main(argv) {
 }
 
 module.exports = {
-  rangeStepIssue, selectLimitIssue, blockTypeFileIssue, colorSchemeRefIssues, orphanedSettingIssues,
+  rangeStepIssue, selectLimitIssue, blockTypeFileIssue, blockTypeAccepted, colorSchemeRefIssues, orphanedSettingIssues,
   fontValueIssue, settingValueIssue, idUniquenessIssues, maxBlocksIssue,
   templateStructureIssues, sectionFileIssue,
   extractSchema, parseThemeJSON, validateTheme,

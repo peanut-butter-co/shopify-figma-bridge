@@ -1,0 +1,11 @@
+{
+  "codeRequired": [
+    { "component": "pdp-ugc-section", "basis": "no-candidate", "usedIn": ["product"] },
+    { "component": "slideshow", "basis": "max-blocks-exceeded", "usedIn": ["index"], "delta": "section: 6 blocks exceeds max_blocks 5" },
+    { "component": "homepage-marquee-promo", "basis": "mobile-divergence", "usedIn": ["index"], "delta": "grid (desktop) -> 1.5-card carousel (mobile) needs responsive CSS/JS" }
+  ],
+  "appBlocks": [
+    { "component": "reviews", "basis": "app-slot", "usedIn": ["product"] }
+  ],
+  "outOfScope": []
+}

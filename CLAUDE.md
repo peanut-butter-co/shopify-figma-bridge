@@ -42,6 +42,14 @@ Or run everything: `/build-design-system [template]`
 | `/build-design-rules` (optional) | `design-rules.json`, `buildStatus.designRules = "complete"` | consumed opportunistically by `/compose-page`, `/sync-colors` |
 | `/compose-page` | `buildStatus["composition-{template}"] = "complete"` | — |
 
+SP-0 hardens this seam with the **design→build contract**: `design-rules.json › componentMap`
+(now carrying `exists` + parsed `schema` + a `reachability` verdict), `manifest.compositions` (the
+per-template layout, referencing `componentMap` by key), and a **derived** work-order. Shapes,
+enums, and the deterministic-vs-inferred split live in
+[docs/contract/design-build-contract.md](docs/contract/design-build-contract.md); the invariants are
+enforced in `skills-tests.js` (group `SP-0a: design-build contract invariants`) against the fixture
+under `.claude/scripts/fixtures/contract/`.
+
 ## Maintenance
 
 - `/sync-colors` — bidirectional color sync

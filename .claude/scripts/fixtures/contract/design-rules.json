@@ -1,0 +1,58 @@
+{
+  "generatedAt": "2026-06-09T00:00:00Z",
+  "componentMap": {
+    "hero": {
+      "type": "section",
+      "figma": { "name": "hero", "isInstance": true, "representation": "variant-set",
+        "desktop": { "nodeId": "2120:2", "page": "04 - Sections" },
+        "mobile": { "nodeId": "2122:5", "page": "04 - Sections" } },
+      "theme": { "file": "sections/hero.liquid", "exists": true, "kind": "section" },
+      "schema": {
+        "settings": [
+          { "type": "range", "id": "padding_top", "min": 0, "max": 100, "step": 4 },
+          { "type": "select", "id": "heading_size", "options": [ { "value": "small" }, { "value": "large" } ] },
+          { "type": "color_scheme", "id": "color_scheme" }
+        ],
+        "blocks": ["text"],
+        "max_blocks": 5, "presets": true, "enabledOn": null
+      },
+      "reachability": { "verdict": "config", "basis": "instance-of-library", "confidence": "high", "candidate": "sections/hero.liquid" }
+    },
+    "slideshow": {
+      "type": "section",
+      "figma": { "name": "slideshow", "isInstance": true, "representation": "variant-set",
+        "desktop": { "nodeId": "2200:1", "page": "04 - Sections" },
+        "mobile": { "nodeId": "2200:9", "page": "04 - Sections" } },
+      "theme": { "file": "sections/slideshow.liquid", "exists": true, "kind": "section" },
+      "schema": { "settings": [], "blocks": ["slide"], "max_blocks": 5, "presets": true, "enabledOn": null },
+      "reachability": { "verdict": "config", "basis": "instance-of-library", "confidence": "high", "candidate": "sections/slideshow.liquid" }
+    },
+    "homepage-marquee-promo": {
+      "type": "section",
+      "figma": { "name": "marquee", "isInstance": true, "representation": "variant-set",
+        "desktop": { "nodeId": "2300:1", "page": "04 - Sections" },
+        "mobile": { "nodeId": "2300:7", "page": "04 - Sections" } },
+      "theme": { "file": "sections/marquee.liquid", "exists": true, "kind": "section" },
+      "schema": { "settings": [], "blocks": ["text"], "max_blocks": 10, "presets": true, "enabledOn": null },
+      "reachability": { "verdict": "config", "basis": "instance-of-library", "confidence": "medium", "candidate": "sections/marquee.liquid" }
+    },
+    "pdp-ugc-section": {
+      "type": "section",
+      "figma": { "name": "Section / UGC", "isInstance": false, "representation": "separate-components",
+        "desktop": { "nodeId": "3480:2100", "page": "04 - Sections" },
+        "mobile": { "nodeId": "3484:2601", "page": "04 - Sections" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "reviews": {
+      "type": "section",
+      "figma": { "name": "Section / Reviews", "isInstance": false, "representation": "separate-components",
+        "desktop": { "nodeId": "3500:10", "page": "04 - Sections" },
+        "mobile": null },
+      "theme": { "file": null, "exists": false, "kind": "app-block" },
+      "schema": null,
+      "reachability": { "verdict": "app", "basis": "app-slot", "confidence": "high", "candidate": null }
+    }
+  }
+}
