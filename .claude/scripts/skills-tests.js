@@ -24,6 +24,22 @@ const readJSON = (rel) => JSON.parse(read(rel));
 const frontmatter = (md) => (md.split('---')[1] || '');
 const tryRequire = (rel) => { try { return require(rel); } catch (e) { return null; } };
 
+/**
+ * HR-1: extract a named function from a ```javascript fenced block in a .md and eval it.
+ * The agent runs the JS *prose* embedded in the skills (it cannot require() a Node module
+ * inside the Figma sandbox), so that prose must be exercised by the SAME vectors as the
+ * sibling util — otherwise the two silently drift. Returns the live function; throws loudly
+ * (never returns a silent stub) if no ```javascript block defines `function <name>(`.
+ */
+function extractFnFromMarkdown(rel, fnName) {
+  const blocks = [...read(rel).matchAll(/```javascript\b[^\n]*\n([\s\S]*?)\n```/g)].map((m) => m[1]);
+  const decl = new RegExp('function\\s+' + fnName + '\\s*\\(');
+  const src = blocks.find((b) => decl.test(b));
+  if (!src) throw new Error('no ```javascript block defining function ' + fnName + '() in ' + rel);
+  // eval the prose exactly as written (trusted, in-repo) and hand back the named function.
+  return new Function(src + '\nreturn ' + fnName + ';')();
+}
+
 let pass = 0, fail = 0;
 const failures = [];
 function group(t) { console.log('\n=== ' + t + ' ==='); }
@@ -524,6 +540,73 @@ if (sv && sv.rangeStepIssue) {
 check('F006/F021: validate-shopify cites the script + defers detail to schema-rules.md', () => {
   const md = read('.claude/skills/validate-shopify/SKILL.md');
   ok(/shopify-validate\.js/.test(md) && /schema-rules\.md/.test(md), 'SKILL.md must cite the script and defer detail to schema-rules.md');
+});
+
+// ---------------------------------------------------------------------------
+// HR-1 — single-source the extracted utils vs the PROSE the agent actually runs.
+//   The agent runs the JS *prose* in the SKILL.md (it cannot require() a Node module
+//   inside the Figma sandbox); the unit tests cover the sibling *util*. The two can
+//   silently drift. extractFnFromMarkdown() pulls the named function out of the skill's
+//   ```javascript block and we run the SAME shared vectors against BOTH the util and the
+//   prose — so a fix to one side fails the test until the other matches. (sync-colors:
+//   rgbaToShopifyHex / shopifyHexToRGBA. Kills the drift class for color conversion.)
+// ---------------------------------------------------------------------------
+group('HR-1: sync-colors prose color JS is single-sourced with color-utils.js');
+
+// Shared conversion vectors — the single source of truth, applied to BOTH impls.
+const HEX_TO_RGBA_VECTORS = [
+  { in: '#ff0000', rgb: { r: 1, g: 0, b: 0 }, a: 1 },
+  { in: '#00000080', rgb: { r: 0, g: 0, b: 0 }, a: 128 / 255 },
+  { in: 'rgba(255,0,0,0.5)', rgb: { r: 1, g: 0, b: 0 }, a: 0.5 },
+  { in: 'rgba( 255, 0, 0, 0.5 )', rgb: { r: 1, g: 0, b: 0 }, a: 0.5 },
+  { in: '#3a5f8c', rgb: { r: 0x3a / 255, g: 0x5f / 255, b: 0x8c / 255 }, a: 1 },
+];
+const RGBA_TO_HEX_VECTORS = [
+  { in: { r: 0x3a / 255, g: 0x5f / 255, b: 0x8c / 255, a: 1 }, out: '#3a5f8c' },
+  { in: { r: 0x11 / 255, g: 0x22 / 255, b: 0x33 / 255, a: 0x80 / 255 }, out: '#11223380' },
+  { in: { r: 0, g: 0, b: 0, a: 0 }, out: 'rgba(0,0,0,0)' },
+  { in: { r: 1, g: 0, b: 0 }, out: '#ff0000' }, // missing alpha -> defaults to opaque
+  // Non-byte-aligned channels exercise the ROUNDING mode itself: every k/255 vector lets
+  // Math.round/floor/ceil collapse to the same byte, so a prose round->floor drift in the
+  // Figma->Shopify write path would false-pass. 0.5*255 = 127.5 splits round(128='80') from
+  // floor(127='7f'), catching that sub-class on both an rgb channel and the alpha channel.
+  { in: { r: 0.5, g: 0.5, b: 0.5, a: 1 }, out: '#808080' },
+  { in: { r: 0, g: 0, b: 0, a: 0.5 }, out: '#00000080' },
+];
+// Assert a given {shopifyHexToRGBA, rgbaToShopifyHex} impl satisfies every shared vector.
+function runConversionVectors(label, impl) {
+  for (const v of HEX_TO_RGBA_VECTORS) {
+    const c = impl.shopifyHexToRGBA(v.in);
+    approx(c.r, v.rgb.r, 1e-6, label + ' ' + v.in + '.r');
+    approx(c.g, v.rgb.g, 1e-6, label + ' ' + v.in + '.g');
+    approx(c.b, v.rgb.b, 1e-6, label + ' ' + v.in + '.b');
+    approx(c.a, v.a, 1e-6, label + ' ' + v.in + '.a');
+  }
+  for (const v of RGBA_TO_HEX_VECTORS) {
+    eq(impl.rgbaToShopifyHex(v.in), v.out, label + ' rgbaToShopifyHex(' + JSON.stringify(v.in) + ')');
+  }
+}
+const SYNC_COLORS_MD = '.claude/skills/sync-colors/SKILL.md';
+check('HR-1: color-utils.js satisfies the shared conversion vectors', () => {
+  ok(cu && cu.shopifyHexToRGBA, 'color-utils must be loadable');
+  runConversionVectors('util', cu);
+});
+check('HR-1: sync-colors PROSE satisfies the SAME vectors (extracted from the ```javascript block + eval-run)', () => {
+  const prose = {
+    shopifyHexToRGBA: extractFnFromMarkdown(SYNC_COLORS_MD, 'shopifyHexToRGBA'),
+    rgbaToShopifyHex: extractFnFromMarkdown(SYNC_COLORS_MD, 'rgbaToShopifyHex'),
+  };
+  runConversionVectors('prose', prose);
+});
+check('HR-1: prose and util agree EXACTLY across every vector input (no drift)', () => {
+  const proseHexToRGBA = extractFnFromMarkdown(SYNC_COLORS_MD, 'shopifyHexToRGBA');
+  const proseRGBAToHex = extractFnFromMarkdown(SYNC_COLORS_MD, 'rgbaToShopifyHex');
+  for (const v of HEX_TO_RGBA_VECTORS) {
+    eq(proseHexToRGBA(v.in), cu.shopifyHexToRGBA(v.in), 'shopifyHexToRGBA prose<->util drift @ ' + v.in);
+  }
+  for (const v of RGBA_TO_HEX_VECTORS) {
+    eq(proseRGBAToHex(v.in), cu.rgbaToShopifyHex(v.in), 'rgbaToShopifyHex prose<->util drift @ ' + JSON.stringify(v.in));
+  }
 });
 
 // ---------------------------------------------------------------------------
