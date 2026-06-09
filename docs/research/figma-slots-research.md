@@ -380,14 +380,14 @@ Three converging forces make composable systems essential:
 
 - Slots are **generally available** as of **2026-06-01** (release notes, *"Sharper controls for every slot"* — verbatim: *"Slots are generally available."*). Timeline: **Schema 2025 debut (2025-10-28)** → **open beta (2026-03-05)** → **GA (2026-06-01)**.
 - GA shipped **four guardrail settings**, all reachable programmatically via `SlotSettings`: min/max layers · *only allow preferred instances* · *display empty slot by default* · *fill as default*.
-- ⚠️ **Seat caveat:** docs say "all plans," but slot **creation** may require a **Full seat** on paid plans (secondary source) — confirm our Figma seat before relying on it.
+- ✅ **Seat caveat — cleared:** slot **creation** can require a **Full seat** on paid plans (secondary source). Verified via `whoami` (2026-06-09): the project's Figma account holds a **Full seat** on both relevant teams, so this is not a blocker for us.
 
 ### 9.2 API automation: Plugin API ✅ / REST API ❌ — *the decisive finding*
 
 - **Plugin API (the surface our `mcp__figma` pipeline drives) fully supports slots:** a `SlotNode` type (`type: 'SLOT'`), **`ComponentNode.createSlot()`** (auto-adds the matching `ComponentPropertyDefinitions` entry), and **`addComponentProperty()` accepts `'SLOT'`** as a first-class type alongside `BOOLEAN | TEXT | INSTANCE_SWAP | VARIANT`. → Emitting slots needs **no new transport** — mechanically in scope for `build-components` today.
   - ⚠️ **Nuance:** `'SLOT'` properties take **no `defaultValue`** — they use `preferredValues` / `description` / `slotSettings`. The proposal/build code must **special-case** slot props, not reuse the enum/boolean creation path.
 - **REST API: slots are entirely absent** — 0 matches in the v0.40.0 OpenAPI spec (no node type, field, or endpoint) — and REST is **read-only** for node/component content anyway (the only content write is `POST .../variables`). → Slot work must go through the **Plugin-API-backed MCP, never REST** (confirms our existing architecture).
-- 🔴 **The one real gap — populating slots inside INSTANCES:** `appendChild()` into a slot that lives inside an *instance* throws `"Cannot move node. New parent is an instance…"` (`figma/plugin-typings#351`, open since 2026-03-20; only workaround is `detachInstance`, which defeats the point). **Creating slots + filling default content at the MAIN-component level works.** → `/compose-page` should **not** yet auto-fill per-page slot content; keep page composition on instance-swap/variants (or manual fill). Re-verify post-GA.
+- ✅ **Reported gap — populating slots inside INSTANCES — does NOT reproduce in our env (verified 2026-06-09, see §9.7).** `figma/plugin-typings#351` (open since 2026-03-20) reported that `appendChild()` into a slot inside an *instance* threw `"Cannot move node. New parent is an instance…"`. A live probe against the project's Figma MCP shows this **works now** — both for a raw node and for an *instance* of a block component, and the override persists. **Consequence:** `/compose-page` **can** auto-fill per-page slot content, not just instance-swap/variants. (Creating slots + filling default content at the MAIN-component level also works, as expected.)
 
 ### 9.3 Design-to-code mapping
 
@@ -409,20 +409,39 @@ A Figma slot is the design-side analog of a section's `{%- for block in section.
 - **Fixed single-child swaps** (one icon) — instance-swap is simpler and codegens more completely.
 - **Deep nesting** (`section→block→sub-block`) — slot codegen traversal is one level deep and buggy today.
 
-**Costs / risks:** net-new slot path in `propose-components` Phase B + `build-components` (no `defaultValue`); `/compose-page` per-instance fill blocked (`#351`); GA is days old (churn risk); MCP slot coverage still maturing.
+**Costs / risks:** net-new slot path in `propose-components` Phase B + `build-components` (no `defaultValue`); ~~`/compose-page` per-instance fill blocked (`#351`)~~ — **lifted, verified working (§9.7)**; GA is days old (churn risk); slot-to-code MCP coverage still maturing.
 
 **Rollout:** pilot **one** high-value section (e.g. **multicolumn**) end-to-end — propose → build → Code Connect → Liquid — using the branch-per-component migration approach (above) before broad adoption.
 
-**🚦 Capability gate** (ties to our *"STOP if required tools missing"* rule): before emitting any slot, `build-components` must **probe that the live Figma MCP exposes `createSlot` / `'SLOT'`**. If not, fall back to variants + instance-swap rather than failing.
+**🚦 Capability gate** (ties to our *"STOP if required tools missing"* rule): before emitting any slot, `build-components` must **probe that the live Figma MCP exposes `createSlot` / `'SLOT'`**. If not, fall back to variants + instance-swap rather than failing. *(As of 2026-06-09 the gate passes — see §9.7 — but keep the runtime check for portability across environments / MCP versions.)*
 
 ### 9.6 Open questions (verify against live tooling before building)
 
-1. Does our `mcp__figma__use_figma` actually surface `createSlot()` / `addComponentProperty('SLOT')` today, or only canvas ops?
-2. Is the in-instance population gap (`#351`) fixed in GA? (Decides whether `/compose-page` can auto-fill slots.)
+1. ✅ **RESOLVED (2026-06-09, §9.7):** our `mcp__figma__use_figma` **does** surface `createSlot()`, `addComponentProperty('SLOT')`, and the `SLOT` node type.
+2. ✅ **RESOLVED (2026-06-09, §9.7):** the in-instance population gap (`#351`) **does not reproduce** — `/compose-page` can auto-fill slots (re-verify per environment).
 3. When slot-to-code MCP ships, will it traverse children well enough for nested Shopify block markup, or will instance-swap stay better for deep nesting?
 4. Cleanest mapping from `{%- for block in section.blocks -%}` + permitted block `type`s → a slot's `preferredValues` + min/max guardrails?
 
-> **Confidence & freshness:** GA / API / Code-Connect findings are high-confidence (3-0 adversarial, primary sources). The in-instance gap (`#351`) and the adopt-or-not mapping are **medium-confidence / time-sensitive** — GA is ~7 days old at research time (2026-06-08); re-verify live before building.
+> **Confidence & freshness:** GA / API / Code-Connect findings are high-confidence (3-0 adversarial, primary sources). The capability gate and the `#351` gap were **verified live on 2026-06-09** (§9.7), flipping #351 from "blocker" to "not reproducing." The adopt-or-not mapping remains applied judgment. GA is ~8 days old — re-verify the live probe per environment before broad rollout.
+
+### 9.7 Live verification (2026-06-09)
+
+Probed the project's Figma MCP (`use_figma`, Plugin API) directly — resolving the §9.6 open questions the research flagged as "verify against live tooling." Each check used a throwaway component/instance that was removed afterward (net-zero file change).
+
+| Check | Result |
+|---|---|
+| `ComponentNode.createSlot()` exists & runs | ✅ returns a node of `type: "SLOT"` |
+| `addComponentProperty(name, 'SLOT', …)` accepted | ✅ creates a `SLOT`-type component property |
+| Fill a slot in the **main component** (`appendChild`) | ✅ works |
+| Fill a slot **inside an instance** (the `#351` case) | ✅ works — **no** `"New parent is an instance"` error |
+| Fill an instance's slot with **another instance** + persist (the `/compose-page` case) | ✅ works, persists (`slotChildCount: 1`, type `INSTANCE`) |
+| Figma seat (`whoami`) | ✅ **Full** seat — slot creation allowed |
+
+**What changed vs the research:** the research rated `#351` (in-instance population) a *medium-confidence, time-sensitive blocker* and advised keeping `/compose-page` off slot auto-fill. **Live testing flips that** — in this environment the gap does not reproduce, so `/compose-page` can auto-fill section slots with per-page block instances.
+
+**Still true / unchanged:** the REST API has no slot support (§9.2, unaffected); Code Connect still does not traverse slot children (§9.3) — slots remain a structural contract, not full nested codegen.
+
+**Caveat:** verified on one file/account, ~8 days after GA, against a previously-documented bug. Treat the capability gate (§9.5) as standing policy and re-run this probe as **step 1 of the pilot** before committing slot-emitting code.
 
 ---
 
