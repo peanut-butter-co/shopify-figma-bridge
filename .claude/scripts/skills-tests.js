@@ -263,6 +263,21 @@ check('BL-1: compose-page instantiates sections by slug (consumer lockstep with 
   ok(/\bslug\b/.test(composeMd),
     'compose-page must document looking up section components by their slug (lockstep with build-components)');
 });
+check('compose-page: components.sections is keyed by slug with NO .type field (grounds the resolution contract)', () => {
+  for (const [slug, sec] of Object.entries(fixture.components.sections)) {
+    ok(sec && typeof sec === 'object', slug + ' must be an object');
+    ok(!('type' in sec), `components.sections["${slug}"] must not carry a .type field — the object is keyed by slug`);
+  }
+});
+check('compose-page: resolves a template section to components.sections by its SLUG KEY, not a phantom .type', () => {
+  const md = read('.claude/skills/compose-page/SKILL.md');
+  // components.sections is keyed by slug (no .type field), so matching against components.sections[].type
+  // never resolves — every section would map to nothing.
+  ok(!/components\.sections\[\]\.type/.test(md),
+    'compose-page must NOT match the section type against components.sections[].type (no such field — keyed by slug)');
+  ok(/keyed by[^\n]{0,20}slug/i.test(md),
+    'compose-page Step 1 must state components.sections is keyed by slug (look the section type up as the slug key)');
+});
 
 // ---------------------------------------------------------------------------
 // C1 / A1 — triggering & description disambiguation
