@@ -594,6 +594,29 @@ if (sv && sv.rangeStepIssue) {
     eq(sv.orphanedSettingIssues(['a', 'b'], ['a']).length, 1);
   });
 }
+// BL-3 — validateTheme() orchestrator: run the deterministic checks end-to-end against a
+//   committed theme fixture (.claude/scripts/fixtures/theme), exercising the same code path
+//   the CLI `node .claude/scripts/shopify-validate.js <dir>` uses. The fixture is valid except
+//   for documented planted issues (see its README); this asserts exactly those, no false positives.
+check('BL-3: validateTheme() runs over the committed fixture and reports its planted issues', () => {
+  ok(sv && typeof sv.validateTheme === 'function',
+    'shopify-validate.js must export validateTheme(themeDir) returning {errors,warnings}');
+  const report = sv.validateTheme(path.join(__dirname, 'fixtures', 'theme'));
+  ok(report && Array.isArray(report.errors) && Array.isArray(report.warnings),
+    'validateTheme must return {errors:[],warnings:[]}');
+  eq(report.errors.length, 1, 'expected exactly the one planted error, got: ' + JSON.stringify(report.errors));
+  ok(/scheme-2/.test(report.errors[0]), 'the planted error must name the undefined color scheme scheme-2');
+  eq(report.warnings.length, 0, 'the otherwise-valid fixture must not raise warnings: ' + JSON.stringify(report.warnings));
+});
+check('BL-3: parseThemeJSON strips Shopify auto-generated JSONC comments but preserves // inside strings', () => {
+  ok(sv && typeof sv.parseThemeJSON === 'function',
+    'shopify-validate.js must export parseThemeJSON — real templates/settings_data carry a /* auto-generated */ header that bare JSON.parse rejects');
+  eq(sv.parseThemeJSON('/* IMPORTANT: auto-generated */\n{"a":1}'), { a: 1 });
+  eq(sv.parseThemeJSON('{\n  // a line comment\n  "a": 1\n}'), { a: 1 });
+  eq(sv.parseThemeJSON('{"url":"https://x.com//y","b":2}'), { url: 'https://x.com//y', b: 2 }); // // inside a string survives
+  eq(sv.parseThemeJSON('{"note":"/* not a comment */"}'), { note: '/* not a comment */' });
+  eq(sv.parseThemeJSON('{"q":"a\\"b","c":3}'), { q: 'a"b', c: 3 }); // escaped quote must not mis-close the string
+});
 check('F006/F021: validate-shopify cites the script + defers detail to schema-rules.md', () => {
   const md = read('.claude/skills/validate-shopify/SKILL.md');
   ok(/shopify-validate\.js/.test(md) && /schema-rules\.md/.test(md), 'SKILL.md must cite the script and defer detail to schema-rules.md');

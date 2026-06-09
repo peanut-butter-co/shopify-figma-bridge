@@ -33,6 +33,11 @@
 !.claude/scripts/
 !.claude/scripts/*.js
 
+# Theme fixture for the validate-shopify end-to-end harness (committed so the harness is
+# reproducible; the real Shopify theme in the project root stays ignored by the `*` catch-all).
+!.claude/scripts/fixtures/
+!.claude/scripts/fixtures/**
+
 # Docs
 !docs/
 !docs/**

@@ -1,0 +1,20 @@
+<section class="hero" style="padding-top: {{ section.settings.padding_top }}px">
+  <h1 class="heading--{{ section.settings.heading_size }}">{{ section.settings.color_scheme }}</h1>
+  {% for block in section.blocks %}{{ block.settings.content }}{% endfor %}
+</section>
+{% schema %}
+{
+  "name": "Hero",
+  "settings": [
+    { "type": "range", "id": "padding_top", "min": 0, "max": 100, "step": 4, "default": 0, "label": "Padding top" },
+    { "type": "select", "id": "heading_size", "label": "Heading size", "options": [ { "value": "small", "label": "Small" }, { "value": "large", "label": "Large" } ] },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" }
+  ],
+  "blocks": [
+    { "type": "text", "name": "Text" }
+  ],
+  "presets": [
+    { "name": "Hero" }
+  ]
+}
+{% endschema %}
