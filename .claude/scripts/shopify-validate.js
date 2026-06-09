@@ -206,6 +206,23 @@ function validateTheme(themeDir) {
   const exists = (p) => fs.existsSync(abs(p));
   const readText = (p) => fs.readFileSync(abs(p), 'utf8');
   const listFiles = (sub, ext) => (exists(sub) ? fs.readdirSync(abs(sub)).filter((f) => f.endsWith(ext)) : []);
+  // Templates are commonly nested one level under templates/ on real themes — templates/customers/*.json
+  // (account, login, order, register, reset_password, addresses) and sometimes templates/metaobject/*.json.
+  // A flat readdir silently skips those, so none of the template-level checks (1.1/1.2/1.4/1.5, color-scheme
+  // refs) run on them — a coverage gap. Recurse into subdirectories and return paths RELATIVE to templates/
+  // (forward-slashed) so error labels stay theme-root-relative, e.g. "templates/customers/login.json → …".
+  const listTemplateFiles = () => {
+    const out = [];
+    const walk = (rel) => { // rel is relative to templates/ ('' at the templates root)
+      for (const ent of fs.readdirSync(abs(rel ? `templates/${rel}` : 'templates'), { withFileTypes: true })) {
+        const childRel = rel ? `${rel}/${ent.name}` : ent.name;
+        if (ent.isDirectory()) walk(childRel);
+        else if (ent.name.endsWith('.json')) out.push(childRel);
+      }
+    };
+    if (exists('templates')) walk('');
+    return out;
+  };
   const readJSONSafe = (p, label) => {
     try { return parseThemeJSON(readText(p)); } catch (e) { errors.push(`${label}: invalid JSON (${e.message})`); return null; }
   };
@@ -264,7 +281,7 @@ function validateTheme(themeDir) {
   // templates: validate setting VALUES (1.4), blocks (1.5: type membership + max_blocks + values),
   // and collect color-scheme references (validated against settings_data below).
   const referencedSchemes = [];
-  for (const file of listFiles('templates', '.json')) {
+  for (const file of listTemplateFiles()) {
     const tpl = readJSONSafe(`templates/${file}`, `templates/${file}`);
     for (const issue of templateStructureIssues(tpl)) errors.push(`templates/${file}: ${issue}`); // Phase 1.1
     for (const [secKey, sec] of Object.entries((tpl && tpl.sections) || {})) {

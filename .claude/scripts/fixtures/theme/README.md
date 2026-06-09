@@ -2,8 +2,8 @@
 
 A deliberately minimal Shopify theme used by `.claude/scripts/skills-tests.js` to
 exercise `shopify-validate.js`'s `validateTheme()` end to end. **Not a real theme** —
-just enough structure (one template, one section schema, one block, settings_data)
-to drive the deterministic checks.
+just enough structure (two templates — one nested under `templates/customers/` — one
+section schema, one block, settings_data) to drive the deterministic checks.
 
 The repo gitignores theme files by default (whitelist `.gitignore`); this fixture is
 explicitly un-ignored so the harness stays reproducible.
@@ -19,14 +19,24 @@ test asserts `validateTheme()` reports exactly these:
 - `templates/index.json` → `sections.hero.settings.heading_size` is `"huge"`, which
   is **not** one of the `select` options (`small`, `large`) defined in the hero
   schema → 1 ERROR (`settingValueIssue`, Phase 1.4).
+- `templates/customers/login.json` (a **nested** customer template, one directory
+  deep) → `sections.main.settings.heading_size` is `"enormous"`, again not a hero
+  `select` option → 1 ERROR (`settingValueIssue`, Phase 1.4). This file exists to
+  prove `validateTheme()` **recurses** into `templates/` subdirectories
+  (`templates/customers/`, `templates/metaobject/` on real themes) instead of
+  silently skipping them, and that the error label stays theme-root-relative
+  (`templates/customers/login.json → …`). It is otherwise clean — its `main` section
+  resolves to `hero.liquid` and its `order`/`sections` are consistent — so only the
+  planted select value flags.
 
 Everything else is intentionally clean: the range step (4) divides the interval
 (0–100) evenly, the select itself has 2 options (≤ 50), block type `text` resolves to
-`blocks/text.liquid`, setting ids are unique, and the preset is valid. The two JSON
-files carry the auto-generated `/* … */` header Shopify's theme editor writes, so
-`validateTheme()`'s JSONC parser is exercised end-to-end (bare `JSON.parse` would choke).
+`blocks/text.liquid`, setting ids are unique, and the preset is valid. All three JSON
+files (both templates + settings_data) carry the auto-generated `/* … */` header
+Shopify's theme editor writes, so `validateTheme()`'s JSONC parser is exercised
+end-to-end (bare `JSON.parse` would choke).
 
-The harness asserts exactly **2 errors, 0 warnings** (the `0 warnings` part is a
+The harness asserts exactly **3 errors, 0 warnings** (the `0 warnings` part is a
 no-false-positive guard — no WARNING-producing check, e.g. orphaned settings, is
 wired into `validateTheme()` yet; those land in BL-3 PR-B with their own planted
 cases). To preserve the no-false-positive guarantee, add NEW planted issues here
