@@ -58,8 +58,8 @@ For each Figma component, find its corresponding code file:
 3. **Blocks (internal):** `blocks/_{name}.liquid`
 4. **Snippets:** `snippets/{name}.liquid`
 
-Scan the `blocks/`, `sections/`, and `snippets/` directories. Match Figma component names to file names using these rules:
-- Figma "Header" → `sections/header.liquid`
+Scan the `blocks/`, `sections/`, and `snippets/` directories. Match Figma component names to file names using these rules (**section** components are named by their slug — see build-components' "Node name" rule — so a section's Figma name maps directly to its file; atoms/blocks keep their component names):
+- Figma "header" (section, slug-named) → `sections/header.liquid`
 - Figma "Product Card" → `blocks/_product-card.liquid` + `snippets/product-card.liquid`
 - Figma "Button" → `snippets/button.liquid` + `blocks/button.liquid`
 - Figma "Footer / Menu" → `blocks/menu.liquid`
@@ -96,7 +96,7 @@ Write `.claude/figma-sync/design-rules.json` with this structure:
 {
   "generatedAt": "2026-03-28T...",
   "componentMap": {
-    "Hero Section": {
+    "hero": {
       "file": "sections/hero.liquid",
       "type": "section",
       "variants": ["Overlay", "Split"]
@@ -142,7 +142,7 @@ Write `.claude/figma-sync/design-rules.json` with this structure:
 }
 ```
 
-Populate each section from the Figma scan (Step 1) and manifest data (Step 3). The `componentMap` keys must match Figma component names exactly.
+Populate each section from the Figma scan (Step 1) and manifest data (Step 3). The `componentMap` keys must match Figma component names exactly — **section** components are named by their slug (e.g. `hero`, per build-components' "Node name" rule), while atoms/blocks use their component names.
 
 ---
 

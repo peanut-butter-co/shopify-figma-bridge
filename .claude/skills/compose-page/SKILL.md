@@ -110,7 +110,9 @@ Desktop and mobile templates are ALWAYS side by side, never in separate areas.
 Templates are composed ENTIRELY from component instances:
 
 ```javascript
-const heroSet = page.findOne(n => n.name === "Hero Section" && n.type === "COMPONENT_SET");
+// Section components are named by their SLUG (build-components → Sections Desktop → "Node name"
+// rule), so look them up by slug — NOT a display name like "Hero Section" (findOne returns null).
+const heroSet = page.findOne(n => n.name === "hero" && n.type === "COMPONENT_SET");
 const overlayVariant = heroSet.children.find(c => c.name.includes("Overlay"));
 const heroInstance = overlayVariant.createInstance();
 templateFrame.appendChild(heroInstance);

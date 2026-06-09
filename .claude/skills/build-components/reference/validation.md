@@ -61,6 +61,11 @@ Run this via `use_figma` after all sections are built. The canonical count logic
 `values.length`. An empty `variants` object means a single, non-variant component → 1.
 (Equivalently, read `section.totalVariantCombinations.desktop`.)
 
+**Naming contract:** this lookup resolves the built node by `n.name === section.name || n.name === slug`.
+`section.name` is usually absent, so the build phase names each section Component/Component Set by its
+**slug** (build-components → Sections Desktop → "Node name" rule). Keep the two in lockstep — a
+PascalCase display name makes `findOne` return null and every section falsely reports `MISSING`.
+
 ```javascript
 const issues = [];
 for (const [slug, section] of Object.entries(manifest.components.sections)) {

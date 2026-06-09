@@ -158,6 +158,7 @@ Update `buildStatus.blocks = "complete"` in manifest.
 Build all sections from `components.sections` on the Sections page, desktop variants only.
 
 ### General rules:
+- **Node name:** name the created Component (or Component Set) **exactly the section slug** — the `components.sections` object key (e.g. `hero`, `media-with-content`), NOT a PascalCase display name. The variant-completeness check (`reference/validation.md`) resolves the built node via `findOne(n => n.name === section.name || n.name === slug)`; since `section.name` is usually absent, the `slug` branch is what matches — a display name like `Hero` makes `findOne` return null, so every section falsely reports `MISSING` and real incomplete-variant problems are masked. Put the human-readable schema name in the **description** (`Schema: {name}`), not the node name.
 - **Width:** `config.desktopWidth`
 - **Background:** Bind to `Essential/Background` variable — NEVER hardcode colors
 - **Color scheme:** Use `setExplicitVariableModeForCollection` for the correct mode
@@ -168,7 +169,7 @@ Build all sections from `components.sections` on the Sections page, desktop vari
 2. **Read template JSON** for actual settings and block instances
 3. **Build the frame hierarchy** matching HTML/CSS structure
 4. **Instantiate blocks and atoms** where they exist as components
-5. **Create as Component** (or Component Set if variants exist)
+5. **Create as Component** (or Component Set if variants exist), **named exactly the section slug** (see the Node name rule above — required for the completeness check to resolve)
 
 ### Grid layouts:
 ```javascript

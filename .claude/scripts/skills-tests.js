@@ -239,6 +239,30 @@ check('F059: build-components stamps buildMeta.practicesVersion on completion', 
 check('F057: build-design-rules is documented in CLAUDE.md (not orphaned)', () => {
   ok(/build-design-rules/.test(read('CLAUDE.md')), 'CLAUDE.md must document build-design-rules in the pipeline');
 });
+check('BL-1: build-components pins the section node name to the slug so validation.md findOne resolves', () => {
+  const buildMd = read('.claude/skills/build-components/SKILL.md');
+  const valMd = read('.claude/skills/build-components/reference/validation.md');
+  // Lockstep guard: the completeness check resolves the built set by name. If this lookup changes
+  // shape, the build-side naming instruction below must be re-pinned to match (section.name is
+  // often absent in the manifest — see manifest-test.json — so the slug branch is what bites).
+  ok(/n\.name === section\.name \|\| n\.name === slug/.test(valMd),
+    'validation.md completeness lookup changed shape — re-pin the build-components section naming to match');
+  // Build side: the Sections phase must NAME the created component(-set) by the section slug, not a
+  // PascalCase display name — else findOne() returns null and every section falsely reports MISSING.
+  ok(/\bname[d]?\b[^\n]{0,80}\bsection slug\b|\bsection slug\b[^\n]{0,80}\bname[d]?\b/i.test(buildMd),
+    'build-components Sections phase must instruct naming the built component(-set) by the section slug');
+  ok(/validation\.md|completeness|\bMISSING\b/.test(buildMd),
+    'the naming rule must reference the variant-completeness check it exists to satisfy');
+});
+check('BL-1: compose-page instantiates sections by slug (consumer lockstep with build-components naming)', () => {
+  const composeMd = read('.claude/skills/compose-page/SKILL.md');
+  // build-components names sections by slug; compose-page INSTANCES them, so its lookup example
+  // must use the slug — a PascalCase "<X> Section" display name makes findOne return null.
+  ok(!/n\.name === ["'][A-Z][^"'\n]*Section["']/.test(composeMd),
+    'compose-page still looks up a section by a PascalCase display name (e.g. "Hero Section") — build-components names sections by slug, so findOne would return null');
+  ok(/\bslug\b/.test(composeMd),
+    'compose-page must document looking up section components by their slug (lockstep with build-components)');
+});
 
 // ---------------------------------------------------------------------------
 // C1 / A1 — triggering & description disambiguation
