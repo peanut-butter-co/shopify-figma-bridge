@@ -821,6 +821,7 @@ const GROUP_STRENGTH = {
   'HR-1: sync-colors prose color JS is single-sourced with color-utils.js': 'contract',
   'SP-0a: reachability (deterministic expressibility + host resolution)': 'contract',
   'SP-0a: design-build contract invariants': 'contract',
+  'SP-1: Aristopet inference artifact set (real contract instance)': 'contract',
   'HR-3: every group is classified by assertion strength (lint vs contract)': 'contract',
   // lint — checks whose only assertions are case-insensitive natural-language substrings (no
   // structural/identifier/file anchor). They guard "did the idea get deleted"; a behavior-
@@ -1110,6 +1111,36 @@ check('SP-0a: every basis deriveWorkOrder can emit is a member of contract.BASES
   for (const k of rc.EXPRESSIBILITY_KINDS) ok(ct.BASES.includes(k), `expressibility kind "${k}" not in BASES`);
   for (const b of ['mobile-divergence', 'no-candidate']) ok(ct.BASES.includes(b), `derived basis "${b}" not in BASES`);
 });
+// ---------------------------------------------------------------------------
+// SP-1 — the REAL contract instance (Aristopet). The synthetic fixtures/contract set proves the
+//   invariants in isolation; this proves the actual handoff satisfies them end-to-end.
+// ---------------------------------------------------------------------------
+group('SP-1: Aristopet inference artifact set (real contract instance)');
+const ARI = '.claude/figma-sync/aristopet';
+const loadAri = (rel) => { try { return readJSON(ARI + '/' + rel); } catch (e) { return null; } }; // mirrors loadFix
+const ariCM = (loadAri('design-rules.json') || {}).componentMap || null;
+const ariMan = loadAri('manifest.json') || null;
+const ariWO = loadAri('work-order.json') || null;
+const ariComp = ariMan && ariMan.compositions;
+check('the Aristopet artifact set exists (design-rules + manifest + work-order)', () => {
+  ok(ariCM && typeof ariCM === 'object', 'aristopet/design-rules.json must carry a componentMap');
+  ok(ariComp && typeof ariComp === 'object', 'aristopet/manifest.json must carry compositions');
+  ok(ariMan && ariMan.foundations && ariMan.foundations.colors, 'aristopet/manifest.json must carry foundations.colors');
+  ok(ariWO && Array.isArray(ariWO.codeRequired), 'aristopet/work-order.json must carry codeRequired[]');
+});
+if (ct && ariCM && ariComp) {
+  check('SP-1 inv-shape: the real set satisfies the contract shape (-> [])', () => eq(ct.contractShapeIssues(ariCM, ariComp), []));
+  check('SP-1 inv-1: referential integrity (every composition component is a componentMap key)', () => eq(ct.referentialIntegrityIssues(ariCM, ariComp), []));
+  check('SP-1 inv-2: config => real (exists + candidate + schema)', () => eq(ct.configRealityIssues(ariCM), []));
+  check('SP-1 inv-3: nonexistent => non-config', () => eq(ct.nonexistentNonConfigIssues(ariCM), []));
+  check('SP-1 inv-5: every colorScheme is a foundations scheme', () => eq(ct.colorSchemeIntegrityIssues(ariComp, ariMan.foundations), []));
+  check('SP-1 inv-4: committed work-order.json equals deriveWorkOrder(componentMap, compositions)', () => {
+    const norm = (wo) => ({ codeRequired: [...(wo.codeRequired || [])].map((e) => JSON.stringify(e)).sort(),
+      appBlocks: [...(wo.appBlocks || [])].map((e) => JSON.stringify(e)).sort(),
+      outOfScope: [...(wo.outOfScope || [])].map((e) => JSON.stringify(e)).sort() });
+    eq(norm(ct.deriveWorkOrder(ariCM, ariComp)), norm(ariWO));
+  });
+}
 // ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
