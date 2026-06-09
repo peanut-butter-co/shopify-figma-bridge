@@ -816,6 +816,7 @@ const GROUP_STRENGTH = {
   'A6: deterministic Shopify validation checks (scripted + unit-tested)': 'contract',
   'HR-1: sync-colors prose color JS is single-sourced with color-utils.js': 'contract',
   'SP-0a: reachability (deterministic expressibility + host resolution)': 'contract',
+  'SP-0a: design-build contract invariants': 'contract',
   'HR-3: every group is classified by assertion strength (lint vs contract)': 'contract',
   // lint — checks whose only assertions are case-insensitive natural-language substrings (no
   // structural/identifier/file anchor). They guard "did the idea get deleted"; a behavior-
@@ -932,6 +933,101 @@ if (rc && rc.cssHardcodedPrefixes) {
       b: { nested: { source: 'css-hardcoded', pattern: '--baz-{size}' } },
     });
     eq(prefixes.sort(), ['--baz-', '--foo-bar-']);
+  });
+}
+// ---------------------------------------------------------------------------
+// SP-0a — contract invariants (§6 of the SP-0 spec): the four cross-artifact rules that
+//   keep the normalized contract honest, the schema-shape enforcer, and the work-order
+//   DERIVATION (invariant 4: the work-order is a pure function of componentMap + compositions,
+//   never hand-maintained). Run against the committed fixture (.claude/scripts/fixtures/contract).
+// ---------------------------------------------------------------------------
+group('SP-0a: design-build contract invariants');
+const ct = tryRequire('./contract.js');
+const CONTRACT_FIX = '.claude/scripts/fixtures/contract';
+const loadFix = (rel) => { try { return readJSON(CONTRACT_FIX + '/' + rel); } catch (e) { return null; } };
+const fixCM = (loadFix('design-rules.json') || {}).componentMap || null;
+const fixComp = (loadFix('compositions.json') || {}).compositions || null;
+const fixWO = loadFix('work-order.expected.json');
+check('contract.js exists with the shape + invariant + derivation helpers', () => {
+  ok(ct && ['contractShapeIssues', 'referentialIntegrityIssues', 'configRealityIssues', 'nonexistentNonConfigIssues', 'deriveWorkOrder'].every((f) => typeof ct[f] === 'function'),
+    'create .claude/scripts/contract.js exporting the five contract helpers');
+});
+check('the contract fixture loaded (componentMap + compositions + expected work-order)', () => {
+  ok(fixCM && typeof fixCM === 'object', 'fixtures/contract/design-rules.json must carry a componentMap');
+  ok(fixComp && typeof fixComp === 'object', 'fixtures/contract/compositions.json must carry compositions');
+  ok(fixWO && Array.isArray(fixWO.codeRequired), 'fixtures/contract/work-order.expected.json must carry codeRequired[]');
+});
+if (ct && ct.contractShapeIssues) {
+  check('inv-shape: the valid fixture satisfies the contract shape (-> [])', () => {
+    eq(ct.contractShapeIssues(fixCM, fixComp), []);
+  });
+  check('inv-shape: a bad verdict enum value flags', () => {
+    const bad = { hero: { type: 'section',
+      figma: { name: 'hero', isInstance: true, representation: 'variant-set', desktop: { nodeId: '1:1' }, mobile: null },
+      theme: { file: 'sections/hero.liquid', exists: true, kind: 'section' },
+      schema: { settings: [], blocks: [] },
+      reachability: { verdict: 'maybe', basis: 'instance-of-library', confidence: 'high', candidate: 'sections/hero.liquid' } } };
+    ok(ct.contractShapeIssues(bad, {}).some((m) => /verdict/.test(m)), 'verdict not in {config,code,app,out-of-scope} must flag');
+  });
+  check('inv-shape: a bad mobileDivergence type flags', () => {
+    const comp = { index: { template: 'index', order: [
+      { component: 'hero', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {}, blocks: [],
+        mobileDivergence: { type: 'teleport', note: 'x' } } ] } };
+    ok(ct.contractShapeIssues(fixCM, comp).some((m) => /mobileDivergence/.test(m)));
+  });
+}
+if (ct && ct.referentialIntegrityIssues) {
+  check('inv-1 referential integrity: every composition component is a componentMap key (fixture clean)', () => {
+    eq(ct.referentialIntegrityIssues(fixCM, fixComp), []);
+  });
+  check('inv-1: a composition referencing an unknown component flags', () => {
+    const comp = { index: { template: 'index', order: [
+      { component: 'ghost-section', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {}, blocks: [], mobileDivergence: null } ] } };
+    ok(ct.referentialIntegrityIssues(fixCM, comp).some((m) => /ghost-section/.test(m)));
+  });
+}
+if (ct && ct.configRealityIssues) {
+  check('inv-2 config=>real: every config verdict has exists:true + candidate + schema (fixture clean)', () => {
+    eq(ct.configRealityIssues(fixCM), []);
+  });
+  check('inv-2: a config verdict with schema:null flags', () => {
+    const bad = { x: { theme: { file: 'sections/x.liquid', exists: true, kind: 'section' }, schema: null,
+      reachability: { verdict: 'config', basis: 'schema-expressible', confidence: 'medium', candidate: 'sections/x.liquid' } } };
+    ok(ct.configRealityIssues(bad).some((m) => /schema/.test(m)));
+  });
+}
+if (ct && ct.nonexistentNonConfigIssues) {
+  check('inv-3 nonexistent=>non-config: exists:false => verdict in {code,app,out-of-scope} (fixture clean)', () => {
+    eq(ct.nonexistentNonConfigIssues(fixCM), []);
+  });
+  check('inv-3: exists:false with verdict:config flags', () => {
+    const bad = { x: { theme: { file: null, exists: false, kind: 'section' }, schema: null,
+      reachability: { verdict: 'config', basis: 'no-candidate', confidence: 'low', candidate: null } } };
+    ok(ct.nonexistentNonConfigIssues(bad).some((m) => /x/.test(m)));
+  });
+}
+if (ct && ct.deriveWorkOrder) {
+  // Order-independent compare: the derivation is set-like per bucket.
+  const norm = (wo) => ({
+    codeRequired: [...((wo && wo.codeRequired) || [])].map((e) => JSON.stringify(e)).sort(),
+    appBlocks: [...((wo && wo.appBlocks) || [])].map((e) => JSON.stringify(e)).sort(),
+    outOfScope: [...((wo && wo.outOfScope) || [])].map((e) => JSON.stringify(e)).sort(),
+  });
+  check('inv-4 work-order = pure derivation: deriveWorkOrder(cm, compositions) === committed expected', () => {
+    eq(norm(ct.deriveWorkOrder(fixCM, fixComp)), norm(fixWO));
+  });
+  check('inv-4: derivation is idempotent (no manual/sticky entries)', () => {
+    const once = ct.deriveWorkOrder(fixCM, fixComp);
+    eq(norm(ct.deriveWorkOrder(fixCM, fixComp)), norm(once));
+  });
+  check('inv-4: nulling one mobileDivergence drops exactly one mobile-divergence code entry', () => {
+    const stripped = JSON.parse(JSON.stringify(fixComp));
+    let removed = 0;
+    for (const t of Object.values(stripped)) for (const o of t.order) if (o.mobileDivergence) { o.mobileDivergence = null; removed++; }
+    ok(removed >= 1, 'fixture must contain at least one mobileDivergence entry to exercise this');
+    const before = ct.deriveWorkOrder(fixCM, fixComp).codeRequired.filter((e) => e.basis === 'mobile-divergence').length;
+    const after = ct.deriveWorkOrder(fixCM, stripped).codeRequired.filter((e) => e.basis === 'mobile-divergence').length;
+    eq(before - after, removed, 'each nulled mobileDivergence must drop exactly one mobile-divergence code entry');
   });
 }
 // ---------------------------------------------------------------------------
