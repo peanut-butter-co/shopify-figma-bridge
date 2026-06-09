@@ -1029,6 +1029,17 @@ if (ct && ct.deriveWorkOrder) {
     const after = ct.deriveWorkOrder(fixCM, stripped).codeRequired.filter((e) => e.basis === 'mobile-divergence').length;
     eq(before - after, removed, 'each nulled mobileDivergence must drop exactly one mobile-divergence code entry');
   });
+  check('inv-4: a non-config component carrying a mobileDivergence is NOT double-listed (union semantics)', () => {
+    const cm = { x: { type: 'section', figma: {}, theme: { file: null, exists: false, kind: 'section' }, schema: null,
+      reachability: { verdict: 'code', basis: 'no-candidate', confidence: 'high', candidate: null } } };
+    const comp = { index: { template: 'index', order: [
+      { component: 'x', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {}, blocks: [],
+        mobileDivergence: { type: 'behavior', note: 'diverges' } } ] } };
+    const wo = ct.deriveWorkOrder(cm, comp);
+    const xs = wo.codeRequired.filter((e) => e.component === 'x');
+    eq(xs.length, 1, 'a code-verdict component with a mobileDivergence must appear exactly once (baseline only)');
+    eq(xs[0].basis, 'no-candidate', 'the single entry is the baseline, not a duplicate mobile-divergence row');
+  });
 }
 // ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));

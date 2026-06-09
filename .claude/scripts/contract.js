@@ -141,7 +141,12 @@ function deriveWorkOrder(componentMap, compositions) {
       const e = (componentMap || {})[o.component];
       if (!e) continue; // dangling reference -> invariant 1 reports it; not a work-order entry
       if (o.mobileDivergence && o.mobileDivergence.type) { // (C)
-        codeRequired.push({ component: o.component, basis: 'mobile-divergence', usedIn: [tpl], delta: o.mobileDivergence.note });
+        // Only a config component routes to code via divergence here. A non-config component
+        // (code/app/out-of-scope) is already represented by its (A) baseline — emitting again
+        // would double-list it, violating the set-UNION semantics of the work-order (§6.4).
+        if (e.reachability && e.reachability.verdict === 'config') {
+          codeRequired.push({ component: o.component, basis: 'mobile-divergence', usedIn: [tpl], delta: o.mobileDivergence.note });
+        }
         continue;
       }
       if (e.reachability && e.reachability.verdict === 'config' && e.schema) { // (B)
