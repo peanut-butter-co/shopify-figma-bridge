@@ -886,6 +886,9 @@ if (rc && rc.expressibilityIssues) {
   check('expressibilityIssues: a fully in-domain instance is expressible (-> [])', () => {
     eq(rc.expressibilityIssues(HERO, { settings: { padding_top: 20, heading_size: 'small', color_scheme: 'scheme-1' }, blocks: [{ type: 'text' }] }), []);
   });
+  check('expressibilityIssues: a null/absent host schema yields no proof -> [] (D3 safe-default arm)', () => {
+    eq(rc.expressibilityIssues(null, { settings: { anything: 'x' }, blocks: [{ type: 'whatever' }] }), []);
+  });
   check('expressibilityIssues: out-of-domain select value -> value-out-of-domain', () => {
     const is = rc.expressibilityIssues(HERO, { settings: { heading_size: 'huge' }, blocks: [] });
     eq(is.length, 1); eq(is[0].kind, 'value-out-of-domain');
@@ -920,6 +923,15 @@ if (rc && rc.isCssHardcoded) {
   check('isCssHardcoded: settings-driven / unrelated properties are NOT css-hardcoded', () => {
     ok(!rc.isCssHardcoded(profile, 'button_border_radius_primary'), 'radii are source:settings -> not css-hardcoded');
     ok(!rc.isCssHardcoded(profile, 'padding_top'), 'a section setting is not the hardcoded CSS scale');
+  });
+}
+if (rc && rc.cssHardcodedPrefixes) {
+  check('cssHardcodedPrefixes: parses multi-segment patterns + dedups (generalized beyond single-token)', () => {
+    const prefixes = rc.cssHardcodedPrefixes({
+      a: { source: 'css-hardcoded', pattern: '--foo-bar-{size}, --baz-{size}' },
+      b: { nested: { source: 'css-hardcoded', pattern: '--baz-{size}' } },
+    });
+    eq(prefixes.sort(), ['--baz-', '--foo-bar-']);
   });
 }
 // ---------------------------------------------------------------------------

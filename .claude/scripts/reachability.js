@@ -68,7 +68,7 @@ function cssHardcodedPrefixes(profile) {
     if (!o || typeof o !== 'object') return;
     if (o.source === 'css-hardcoded' && typeof o.pattern === 'string') {
       for (const p of o.pattern.split(',')) {
-        const m = p.trim().match(/^(--[a-z0-9]+-)\{/i); // "--padding-{size}" -> "--padding-"
+        const m = p.trim().match(/^(--[a-z0-9-]+-)\{/i); // "--padding-{size}" -> "--padding-" (multi-segment-safe: "--foo-bar-")
         if (m) prefixes.push(m[1]);
       }
     }
