@@ -609,6 +609,15 @@ if (sv && sv.rangeStepIssue) {
     eq(sv.colorSchemeRefIssues(['scheme-1', 'scheme-9'], ['scheme-1']).length, 1);
     eq(sv.orphanedSettingIssues(['a', 'b'], ['a']).length, 1);
   });
+  check('blockTypeAccepted mirrors validateTheme acceptance (declared / block-file / @app opt-in / unknown)', () => {
+    ok(typeof sv.blockTypeAccepted === 'function', 'export blockTypeAccepted(type, schemaBlocks, blockFiles)');
+    ok(sv.blockTypeAccepted('text', [{ type: 'text' }], []));     // declared in schema.blocks (object form)
+    ok(sv.blockTypeAccepted('text', ['text'], []));               // declared (string-array form, as in componentMap.schema.blocks)
+    ok(sv.blockTypeAccepted('text', [], ['text.liquid']));        // resolves to blocks/text.liquid
+    ok(sv.blockTypeAccepted('promo', [], ['_promo.liquid']));     // private/static block file (_-prefixed)
+    ok(sv.blockTypeAccepted('anything', [{ type: '@app' }], [])); // section opts into @app blocks
+    ok(!sv.blockTypeAccepted('ghost', [{ type: 'text' }], []));   // not declared, no file, no @app
+  });
 }
 // BL-3 — validateTheme() orchestrator: run the deterministic checks end-to-end against a
 //   committed theme fixture (.claude/scripts/fixtures/theme), exercising the same code path
