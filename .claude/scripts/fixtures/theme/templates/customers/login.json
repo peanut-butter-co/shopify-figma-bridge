@@ -1,0 +1,18 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ * (Test fixture — a NESTED customer template, templates/customers/login.json,
+ *  to prove validateTheme() recurses into templates/ subdirectories.)
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "hero",
+      "settings": {
+        "heading_size": "enormous"
+      }
+    }
+  },
+  "order": ["main"]
+}

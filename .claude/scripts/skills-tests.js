@@ -620,9 +620,14 @@ check('BL-3: validateTheme() runs over the committed fixture and reports its pla
   const report = sv.validateTheme(path.join(__dirname, 'fixtures', 'theme'));
   ok(report && Array.isArray(report.errors) && Array.isArray(report.warnings),
     'validateTheme must return {errors:[],warnings:[]}');
-  eq(report.errors.length, 2, 'expected exactly the two planted errors, got: ' + JSON.stringify(report.errors));
+  eq(report.errors.length, 3, 'expected exactly the three planted errors, got: ' + JSON.stringify(report.errors));
   ok(report.errors.some((e) => /scheme-2/.test(e)), 'must flag the undefined color scheme scheme-2 (color-scheme ref)');
   ok(report.errors.some((e) => /heading_size/.test(e) && /huge/.test(e)), 'must flag the out-of-options select value "huge" (setting-value validation, Phase 1.4)');
+  // Nested-template coverage: validateTheme() must recurse into templates/ subdirectories
+  // (templates/customers/*.json, templates/metaobject/*.json on real themes) and label the
+  // finding with the theme-root-relative path — not silently skip the file.
+  ok(report.errors.some((e) => /templates\/customers\/login\.json/.test(e) && /heading_size/.test(e) && /enormous/.test(e)),
+    'must validate the NESTED template templates/customers/login.json (out-of-options select "enormous") with a theme-root-relative label');
   eq(report.warnings.length, 0, 'the otherwise-valid fixture must not raise warnings: ' + JSON.stringify(report.warnings));
 });
 check('BL-3: parseThemeJSON strips Shopify auto-generated JSONC comments but preserves // inside strings', () => {
