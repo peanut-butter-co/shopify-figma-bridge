@@ -1,0 +1,183 @@
+{
+  "_provenance": "SP-1 Aristopet componentMap. figma nodes + isInstance + representation are deterministic from _raw/skeleton.json (get_metadata on 05-Pages). theme.exists/schema are deterministic from resolveHostSection() against the host Skeleton theme. reachability: footer matches host sections/footer.liquid (config baseline); product-reviews is a canonical app-provided feature (app); all other sections have no host candidate in the bare Skeleton -> code/no-candidate (anticipated by spec sec 10.4). One entry per distinct section (deduped across templates); the 'Section Heading'/'Section Footer' spacing wrappers are folded into the wrapped section per _raw/SPIKE.md and are not entries here.",
+  "componentMap": {
+    "header-utility-bar": {
+      "type": "section",
+      "figma": { "name": "Section / Header Utility Bar", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3436:1874", "page": "05 - Pages" }, "mobile": { "nodeId": "3520:3401", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "header-v1": {
+      "type": "section",
+      "figma": { "name": "Section / Header v1", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3627:5389", "page": "05 - Pages" }, "mobile": { "nodeId": "3626:4218", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "header-v2": {
+      "type": "section",
+      "figma": { "name": "Section / Header v2", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3463:8540", "page": "05 - Pages" }, "mobile": { "nodeId": "3520:3417", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "split-banner": {
+      "type": "section",
+      "figma": { "name": "Section / Split Banner", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3436:1954", "page": "05 - Pages" }, "mobile": { "nodeId": "3520:3457", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "trust-bar": {
+      "type": "section",
+      "figma": { "name": "Section / Trust Bar", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3438:2300", "page": "05 - Pages" }, "mobile": { "nodeId": "3520:3476", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "marquee": {
+      "type": "section",
+      "figma": { "name": "Section / Marquee", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3436:1973", "page": "05 - Pages" }, "mobile": { "nodeId": "3520:3539", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "product-card-row": {
+      "type": "section",
+      "figma": { "name": "Section / Product Card Row", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3437:2040", "page": "05 - Pages" }, "mobile": { "nodeId": "3520:3566", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "image-with-text": {
+      "type": "section",
+      "figma": { "name": "Section / Image with Text", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3437:2122", "page": "05 - Pages" }, "mobile": { "nodeId": "3520:3683", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "collection-list-grid": {
+      "type": "section",
+      "figma": { "name": "Section / Collection List - Grid", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3436:1979", "page": "05 - Pages" }, "mobile": { "nodeId": "3521:3697", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "promo-banner": {
+      "type": "section",
+      "figma": { "name": "Section / Promo Banner", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3437:2294", "page": "05 - Pages" }, "mobile": { "nodeId": "3521:3757", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "brand-logos": {
+      "type": "section",
+      "figma": { "name": "Section / Brand Logos", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3437:2138", "page": "05 - Pages" }, "mobile": { "nodeId": "3521:3902", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "ugc-captions-below": {
+      "type": "section",
+      "figma": { "name": "UGC — Captions Below", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3768:10495", "page": "05 - Pages" }, "mobile": { "nodeId": "3768:10577", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "newsletter-signup": {
+      "type": "section",
+      "figma": { "name": "Section / Newsletter Signup", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3438:2347", "page": "05 - Pages" }, "mobile": { "nodeId": "3521:4054", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "footer": {
+      "type": "section",
+      "figma": { "name": "Section / Footer", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3438:2372", "page": "05 - Pages" }, "mobile": { "nodeId": "3521:4079", "page": "05 - Pages" } },
+      "theme": { "file": "sections/footer.liquid", "exists": true, "kind": "section" },
+      "schema": { "name": "t:general.footer",
+                  "settings": [ { "type": "link_list", "id": "menu", "label": "t:labels.menu" },
+                                { "type": "checkbox", "id": "show_payment_icons", "label": "t:labels.show_payment_icons", "default": true } ] },
+      "reachability": { "verdict": "config", "basis": "schema-expressible", "confidence": "high", "candidate": "sections/footer.liquid" }
+    },
+    "collection-header": {
+      "type": "section",
+      "figma": { "name": "Section / Collection Header", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3365:701", "page": "05 - Pages" }, "mobile": { "nodeId": "3370:1292", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "sub-collection-navigation": {
+      "type": "section",
+      "figma": { "name": "Section / Sub Collection Navigation", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3365:706", "page": "05 - Pages" }, "mobile": { "nodeId": "3370:1297", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "filter-bar": {
+      "type": "section",
+      "figma": { "name": "Section / Filter Bar", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3365:726", "page": "05 - Pages" }, "mobile": { "nodeId": "3370:1317", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "pagination": {
+      "type": "section",
+      "figma": { "name": "Section / Pagination", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3366:1048", "page": "05 - Pages" }, "mobile": { "nodeId": "3371:1524", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "breadcrumbs": {
+      "type": "section",
+      "figma": { "name": "Section / Breadcrumbs", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3627:5452", "page": "05 - Pages" }, "mobile": { "nodeId": "3626:4258", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "product-information": {
+      "type": "section",
+      "figma": { "name": "Section Product Information", "isInstance": false, "representation": "separate-components",
+                 "desktop": { "nodeId": "3644:14712", "page": "05 - Pages" }, "mobile": { "nodeId": "3626:4273", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "related-products": {
+      "type": "section",
+      "figma": { "name": "Section / Related Products", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3627:6204", "page": "05 - Pages" }, "mobile": { "nodeId": "3626:5045", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "section" },
+      "schema": null,
+      "reachability": { "verdict": "code", "basis": "no-candidate", "confidence": "high", "candidate": null }
+    },
+    "product-reviews": {
+      "type": "section",
+      "figma": { "name": "Section / Product Reviews", "isInstance": true, "representation": "variant-set",
+                 "desktop": { "nodeId": "3718:7182", "page": "05 - Pages" }, "mobile": { "nodeId": "3732:10132", "page": "05 - Pages" } },
+      "theme": { "file": null, "exists": false, "kind": "app-block" },
+      "schema": null,
+      "reachability": { "verdict": "app", "basis": "app-slot", "confidence": "medium", "candidate": null }
+    }
+  }
+}
