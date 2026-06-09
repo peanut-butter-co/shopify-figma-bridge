@@ -815,6 +815,7 @@ const GROUP_STRENGTH = {
   'B6: pipeline-phase enforcement gates are MANDATORY': 'contract',
   'A6: deterministic Shopify validation checks (scripted + unit-tested)': 'contract',
   'HR-1: sync-colors prose color JS is single-sourced with color-utils.js': 'contract',
+  'SP-0a: reachability (deterministic expressibility + host resolution)': 'contract',
   'HR-3: every group is classified by assertion strength (lint vs contract)': 'contract',
   // lint — checks whose only assertions are case-insensitive natural-language substrings (no
   // structural/identifier/file anchor). They guard "did the idea get deleted"; a behavior-
@@ -840,6 +841,87 @@ check('HR-3: every group() in skills-tests.js is classified in GROUP_STRENGTH (n
   ok(bad.length === 0, 'invalid strength value(s): ' + bad.map(([k]) => k).join(' | '));
 });
 
+// ---------------------------------------------------------------------------
+// SP-0a — reachability: the DETERMINISTIC half of the design->build contract.
+//   resolveHostSection (exists + schema via extractSchema), expressibilityIssues
+//   (settingValueIssue / blockTypeAccepted / maxBlocksIssue run in REVERSE against a
+//   parsed host schema), and the css-hardcoded -> CODE lookup from horizon.json.
+//   Reuses .claude/scripts/shopify-validate.js (no logic re-derived). The FUZZY half
+//   (candidate-match) is SP-1's inference and is intentionally NOT here.
+// ---------------------------------------------------------------------------
+group('SP-0a: reachability (deterministic expressibility + host resolution)');
+const rc = tryRequire('./reachability.js');
+const THEME_FIX = path.join(__dirname, 'fixtures', 'theme');
+check('reachability.js exists with the deterministic helpers', () => {
+  ok(rc && typeof rc.resolveHostSection === 'function' && typeof rc.expressibilityIssues === 'function'
+     && typeof rc.isCssHardcoded === 'function',
+    'create .claude/scripts/reachability.js exporting resolveHostSection, expressibilityIssues, isCssHardcoded');
+});
+if (rc && rc.resolveHostSection) {
+  check('resolveHostSection: existing slug -> exists:true + parsed schema (extractSchema reuse)', () => {
+    const r = rc.resolveHostSection(THEME_FIX, 'hero');
+    eq(r.file, 'sections/hero.liquid');
+    eq(r.exists, true);
+    ok(r.schema && Array.isArray(r.schema.settings), 'must parse the {% schema %} block');
+    ok(r.schema.settings.some((s) => s.id === 'heading_size'), 'parsed schema must expose the hero settings');
+  });
+  check('resolveHostSection: missing slug -> exists:false, schema:null (no guess; [DESIGN-RULES-TRUST])', () => {
+    const r = rc.resolveHostSection(THEME_FIX, 'ghost');
+    eq(r.exists, false);
+    eq(r.schema, null);
+    eq(r.file, 'sections/ghost.liquid');
+  });
+}
+if (rc && rc.expressibilityIssues) {
+  // In-memory mirror of fixtures/theme/sections/hero.liquid, plus a max_blocks cap.
+  const HERO = {
+    settings: [
+      { type: 'range', id: 'padding_top', min: 0, max: 100, step: 4 },
+      { type: 'select', id: 'heading_size', options: [{ value: 'small' }, { value: 'large' }] },
+      { type: 'color_scheme', id: 'color_scheme' },
+    ],
+    blocks: ['text'],
+    max_blocks: 5,
+  };
+  check('expressibilityIssues: a fully in-domain instance is expressible (-> [])', () => {
+    eq(rc.expressibilityIssues(HERO, { settings: { padding_top: 20, heading_size: 'small', color_scheme: 'scheme-1' }, blocks: [{ type: 'text' }] }), []);
+  });
+  check('expressibilityIssues: out-of-domain select value -> value-out-of-domain', () => {
+    const is = rc.expressibilityIssues(HERO, { settings: { heading_size: 'huge' }, blocks: [] });
+    eq(is.length, 1); eq(is[0].kind, 'value-out-of-domain');
+  });
+  check('expressibilityIssues: off-step range value -> value-out-of-domain', () => {
+    const is = rc.expressibilityIssues(HERO, { settings: { padding_top: 22 }, blocks: [] });
+    eq(is.length, 1); eq(is[0].kind, 'value-out-of-domain');
+  });
+  check('expressibilityIssues: an unknown setting id is NOT expressible (bias-to-code, D3)', () => {
+    const is = rc.expressibilityIssues(HERO, { settings: { totally_made_up: 'x' }, blocks: [] });
+    eq(is.length, 1); eq(is[0].kind, 'value-out-of-domain');
+  });
+  check('expressibilityIssues: a block type the schema does not declare -> block-type-unsupported', () => {
+    const is = rc.expressibilityIssues(HERO, { settings: {}, blocks: [{ type: 'video' }] });
+    eq(is.length, 1); eq(is[0].kind, 'block-type-unsupported');
+  });
+  check('expressibilityIssues: @app/@theme block instance types are accepted (no false code-route)', () => {
+    eq(rc.expressibilityIssues(HERO, { settings: {}, blocks: [{ type: '@app' }, { type: '@theme/icon' }] }), []);
+  });
+  check('expressibilityIssues: more blocks than max_blocks -> max-blocks-exceeded', () => {
+    const is = rc.expressibilityIssues(HERO, { settings: {}, blocks: Array.from({ length: 6 }, () => ({ type: 'text' })) });
+    eq(is.length, 1); eq(is[0].kind, 'max-blocks-exceeded');
+  });
+}
+if (rc && rc.isCssHardcoded) {
+  const profile = readJSON('.claude/figma-sync/theme-profiles/horizon.json');
+  check('isCssHardcoded: the horizon spacing scale (margin/padding/gap) routes to CODE', () => {
+    ok(rc.isCssHardcoded(profile, '--padding-lg'), 'padding scale is source:css-hardcoded -> CODE');
+    ok(rc.isCssHardcoded(profile, '--gap-md'), 'gap is part of the css-hardcoded scale');
+    ok(rc.isCssHardcoded(profile, '--margin-2xl'), 'margin is part of the css-hardcoded scale');
+  });
+  check('isCssHardcoded: settings-driven / unrelated properties are NOT css-hardcoded', () => {
+    ok(!rc.isCssHardcoded(profile, 'button_border_radius_primary'), 'radii are source:settings -> not css-hardcoded');
+    ok(!rc.isCssHardcoded(profile, 'padding_top'), 'a section setting is not the hardcoded CSS scale');
+  });
+}
 // ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
