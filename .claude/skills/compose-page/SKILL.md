@@ -71,7 +71,7 @@ Read the template files to get the exact section order:
 3. **Footer sections:** from `sections/footer-group.json` → `sections` object, ordered by `order` field
 
 Build the complete ordered list: header sections → body sections → footer sections.
-Map each entry to the corresponding Figma component by matching the section `type` to `components.sections[].type`.
+Map each entry to its Figma component by looking the template section's `type` up as a **key** in `components.sections` — that object is **keyed by section slug** (there is no `.type` field on the entries), and the built component is named by that slug (build-components' "Node name" rule), so instantiate the component whose name equals the slug.
 
 4. If `.claude/figma-sync/design-rules.json` exists, read `componentMap` to cross-reference section types with their Figma component names (useful when template JSON type names don't match Figma component names exactly).
 
