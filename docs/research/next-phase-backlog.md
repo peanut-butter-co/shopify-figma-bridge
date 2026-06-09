@@ -19,7 +19,7 @@
 
 Do these first: cheap, and they harden the harness before the big items lean on it.
 
-- [ ] **HR-1 · harness-rigor · M — single-source the extracted utils vs the prose the agent runs.**
+- [x] **HR-1 · harness-rigor · M — single-source the extracted utils vs the prose the agent runs.**
   The tested scripts (`color-utils.js`, `variant-utils.js`, `alpha-variants.js`, `shopify-validate.js`)
   duplicate JS that *also* lives as prose inside the skills (`sync-colors/SKILL.md`,
   `build-components/reference/validation.md`, `build-foundations/reference/alpha-variants.md`).
