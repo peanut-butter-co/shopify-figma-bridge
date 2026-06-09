@@ -356,7 +356,12 @@ check('F074: sync-colors runs inline (keeps the approval diff in the main thread
   ok(/context:\s*inline/.test(frontmatter(read('.claude/skills/sync-colors/SKILL.md'))), 'sync-colors should be context: inline, not fork');
 });
 check('F069: setup warns the storefront password is stored in plaintext', () => {
-  ok(/plaintext/i.test(read('.claude/skills/setup/SKILL.md')), 'setup must warn the password is persisted in plaintext before saving it');
+  const md = read('.claude/skills/setup/SKILL.md');
+  // Tightened (HR-3) from a bare /plaintext/i: that false-passes on any unrelated mention AND
+  // false-REDs on the equally-correct "plain text"/"plain-text" spelling (setup already says
+  // "plain text" elsewhere, for *asking*). Contract = tie the PASSWORD to plaintext storage.
+  ok(/password[^\n]{0,80}plain[ -]?text|plain[ -]?text[^\n]{0,80}password/i.test(md),
+    'setup must warn the PASSWORD is stored in plaintext (tie password<->plaintext, tolerate "plain text")');
 });
 
 // ---------------------------------------------------------------------------
@@ -378,16 +383,16 @@ for (const name of SELF_LEARN) {
 // C2/C3 — naming + dedup + structure docs (F049/F051/F053)
 // ---------------------------------------------------------------------------
 group('C2/C3: naming + dedup + structure docs');
-check('F049: build-foundations does not duplicate the Figma-API gotchas inline (single home = gotchas.md)', () => {
+check('F049: build-foundations does not duplicate the Figma-API gotchas inline (single home = gotchas.md)', () => { // contract: structural (inline block absent + gotchas.md present)
   ok(!/###\s*Figma API gotchas for this skill/i.test(read('.claude/skills/build-foundations/SKILL.md')),
     'inline gotcha block still present — duplicates and will drift from gotchas.md');
   ok(/blendMode|lineHeight/i.test(read('.claude/skills/build-foundations/gotchas.md')),
     'gotchas.md must retain the Figma-API gotchas (the single source)');
 });
-check('F053: sync-colors uses the dominant "Grey" spelling (no Color/Gray drift)', () => {
+check('F053: sync-colors uses the dominant "Grey" spelling (no Color/Gray drift)', () => { // lint: spelling-consistency substring
   ok(!/Color\/Gray\b/.test(read('.claude/skills/sync-colors/SKILL.md')), 'standardize Color/Gray -> Color/Grey');
 });
-check('F051: CLAUDE.md documents the skill sub-structure convention', () => {
+check('F051: CLAUDE.md documents the skill sub-structure convention', () => { // lint: loose doc-presence substring
   ok(/Skill layout/i.test(read('CLAUDE.md')), 'CLAUDE.md Architecture should document the SKILL.md/reference/evals/gotchas structure');
 });
 
@@ -403,8 +408,14 @@ check('F062: compose-page handles a password-gated store (storePassword + fill/c
 });
 check('F063: refresh-figma-practices STOPs when web tools are unavailable (no fabrication)', () => {
   const md = read('.claude/skills/refresh-figma-practices/SKILL.md');
-  ok(/\bSTOP\b/.test(md) && /WebSearch|WebFetch|web (research )?tools?/i.test(md),
-    'refresh-figma-practices must STOP if WebSearch/WebFetch are unavailable rather than fabricate');
+  // Tightened (HR-3) from decoupled /STOP/ + /WebSearch/ (which pass even if the two are
+  // unrelated): require the STOP to be tied to the web-tools-unavailable CONDITION on one line,
+  // and require the explicit "don't fabricate" clause — that is the real fabrication-safety contract.
+  const stopOnWebUnavailable =
+    /(WebSearch|WebFetch|web (research )?tools?)[^\n]{0,80}(unavailable|blocked|missing|not available)[^\n]{0,80}STOP/is.test(md) ||
+    /STOP[^\n]{0,80}(WebSearch|WebFetch|web (research )?tools?)[^\n]{0,80}(unavailable|blocked|missing|not available)/is.test(md);
+  ok(stopOnWebUnavailable, 'the STOP must be tied to the web-tools-unavailable condition (proximity), not decoupled');
+  ok(/fabricat/i.test(md), 'must forbid fabricating practices when web tools are unavailable');
 });
 check('F064: validate-shopify declares no MCP tools (nothing to verify)', () => {
   const at = (frontmatter(read('.claude/skills/validate-shopify/SKILL.md')).match(/allowed-tools:\s*\[([^\]]*)\]/) || [])[1] || '';
@@ -415,23 +426,23 @@ check('F064: validate-shopify declares no MCP tools (nothing to verify)', () => 
 // A2/A5/A7/P1 — docs-infra small fixes (F020/F022/F024/F075/F076)
 // ---------------------------------------------------------------------------
 group('A2/A5/A7/P1: docs-infra small fixes');
-check('F024: compose-page diagram uses {viewport} placeholders, not stale literals', () => {
+check('F024: compose-page diagram uses {viewport} placeholders, not stale literals', () => { // contract: structural (no 375px literal + exact placeholders)
   const md = read('.claude/skills/compose-page/SKILL.md');
   ok(!/375px/.test(md), 'compose-page still hardcodes the stale 375px mobile literal');
   ok(/\{mobileWidth\}px wide/.test(md) && /\{desktopWidth\}px wide/.test(md), 'diagram should use {mobileWidth}/{desktopWidth}');
 });
-check('F020: validate-instances screenshots fixes to verify (not just grants the tool)', () => {
+check('F020: validate-instances screenshots fixes to verify (not just grants the tool)', () => { // lint: prose phrase (reword-fragile)
   ok(/screenshot each fixed location/i.test(read('.claude/skills/validate-instances/SKILL.md')),
     'validate-instances body must use get_screenshot to confirm fixes render correctly');
 });
-check('F022: build-phase descriptions carry an exclusivity/negative clause', () => {
+check('F022: build-phase descriptions carry an exclusivity/negative clause', () => { // lint: very loose (`not ` matches broadly) — intentional
   for (const n of ['analyze-theme', 'build-foundations', 'propose-components', 'build-components', 'compose-page']) {
     const fm = frontmatter(read('.claude/skills/' + n + '/SKILL.md'));
     const d = (fm.match(/description:\s*>?\s*([\s\S]*?)\n(?:[a-z-]+:|$)/) || [])[1] || '';
     ok(/\bONLY\b|not |does not|no figma|nothing/i.test(d), n + ' description needs a "not for / only" disambiguation clause');
   }
 });
-check('F075/F076: analyze-theme + setup ship a seeded gotchas.md', () => {
+check('F075/F076: analyze-theme + setup ship a seeded gotchas.md', () => { // contract: file existence + header
   for (const n of ['analyze-theme', 'setup']) {
     const g = read('.claude/skills/' + n + '/gotchas.md');
     ok(g.length > 60 && /^#/m.test(g), n + '/gotchas.md must exist with a header + a real gotcha');
@@ -442,13 +453,13 @@ check('F075/F076: analyze-theme + setup ship a seeded gotchas.md', () => {
 // B5/B6 — manifest single-source-of-truth contract (F034/F035)
 // ---------------------------------------------------------------------------
 group('B5/B6: manifest single-source-of-truth contract');
-check('F034: CLAUDE.md documents the manifest state contract (phase -> keys)', () => {
+check('F034: CLAUDE.md documents the manifest state contract (phase -> keys)', () => { // contract: anchored on the real handoff-key identifiers
   const md = read('CLAUDE.md');
   ok(/state contract/i.test(md), 'CLAUDE.md should carry a phase -> keys-written -> keys-read state-contract table');
   ok(/components\.status/.test(md) && /profileValidation/.test(md) && /buildStatus/.test(md),
     'the contract table must name the real handoff keys');
 });
-check('F035: compose-page Step 8 preserves all other manifest keys (SSOT)', () => {
+check('F035: compose-page Step 8 preserves all other manifest keys (SSOT)', () => { // lint: loose prose substring (reword-fragile)
   ok(/preserving every other key/i.test(read('.claude/skills/compose-page/SKILL.md')),
     'compose-page Step 8 must read+merge the manifest, not overwrite it with the delta object');
 });
@@ -457,11 +468,11 @@ check('F035: compose-page Step 8 preserves all other manifest keys (SSOT)', () =
 // C2 — naming consistency + canonical Plugin-API reference (F047/F050)
 // ---------------------------------------------------------------------------
 group('C2: naming consistency + canonical Plugin-API reference');
-check('F047: build-foundations keeps numeric swatch names (no {Group}/Base rename that breaks aliasing)', () => {
+check('F047: build-foundations keeps numeric swatch names (no {Group}/Base rename that breaks aliasing)', () => { // lint: loose prose substring (reword-fragile)
   ok(/numeric swatch names for ALL/i.test(read('.claude/skills/build-foundations/SKILL.md')),
     'build-foundations Step 2 must keep numeric names for the opaque base so Step 3.5/Step 4 lookups match');
 });
-check('F050: figma-best-practices.md has a canonical Plugin-API gotchas section', () => {
+check('F050: figma-best-practices.md has a canonical Plugin-API gotchas section', () => { // contract: anchored on API identifiers (blendMode + PERCENT)
   const md = read('.claude/figma-best-practices.md');
   ok(/Plugin API Gotchas/i.test(md) && /blendMode/.test(md) && /PERCENT/.test(md),
     'the engineering reference must carry the canonical use_figma/Plugin-API invariants');
@@ -629,6 +640,64 @@ check('HR-1: prose and util agree EXACTLY across every vector input (no drift)',
   for (const v of RGBA_TO_HEX_VECTORS) {
     eq(proseRGBAToHex(v.in), cu.rgbaToShopifyHex(v.in), 'rgbaToShopifyHex prose<->util drift @ ' + JSON.stringify(v.in));
   }
+});
+
+// ---------------------------------------------------------------------------
+// HR-3 — assertion-strength audit. Every group() is classified by how strong its
+//   checks are, so the lint/contract distinction is EXPLICIT and machine-enforced:
+//     contract = anchored / structural / unit-tested. A reworded-but-correct prose
+//                change stays green; a real regression turns it red. Load-bearing.
+//     lint     = case-insensitive substring presence. Intentionally loose — it guards
+//                "did the whole idea get deleted", tolerates rewording, and is NOT a tight
+//                contract (a clever reword could false-pass; that is an accepted tradeoff).
+//     mixed    = the group has both; its individual checks carry inline // lint / // contract.
+//   #8 tightened CRIT-A/CRIT-B/HIGH-F/HIGH-C; this registry documents the rest, and the
+//   meta-check fails if any group is left unclassified (or a key goes stale) — so a new
+//   group can't be added without consciously declaring its strength.
+// ---------------------------------------------------------------------------
+group('HR-3: every group is classified by assertion strength (lint vs contract)');
+const GROUP_STRENGTH = {
+  // contract — unit-tested logic or anchored/structural lints (producer/consumer field tokens,
+  // allowed-tools arrays, file existence, exact ^…$ matches). Reword-tolerant, regression-tight.
+  'CRIT-A: components.status producer/consumer contract': 'contract',
+  'HIGH-F: variant-count logic (no NaN, object-shaped variants)': 'contract',
+  'CRIT-B: sync-colors color conversion + write safety': 'contract',
+  'HIGH-C: resource-dependent skills STOP when an MCP/web tool is unavailable': 'contract',
+  'C4: manifest state-contract (producer/consumer agreement)': 'contract',
+  'A9: skill evals exist and are well-formed': 'contract',
+  'C9: installer + README target .claude/skills (not legacy .claude/commands)': 'contract',
+  'C7: CLAUDE.md + .gitignore reflect reality': 'contract',
+  'C8/C9: least-privilege allowed-tools + context mode': 'contract',
+  'B7/P11: self-learning After-Completion step': 'contract',
+  'C5: tool/resource availability guards': 'contract',
+  'A6: alpha-variant computation (scripted + unit-tested)': 'contract',
+  'C2/C3: validate-shopify reference naming': 'contract',
+  'B6: pipeline-phase enforcement gates are MANDATORY': 'contract',
+  'A6: deterministic Shopify validation checks (scripted + unit-tested)': 'contract',
+  'HR-1: sync-colors prose color JS is single-sourced with color-utils.js': 'contract',
+  'HR-3: every group is classified by assertion strength (lint vs contract)': 'contract',
+  // lint — checks whose only assertions are case-insensitive natural-language substrings (no
+  // structural/identifier/file anchor). They guard "did the idea get deleted"; a behavior-
+  // preserving reword can false-red and a clever reword can false-pass. Accepted tradeoff —
+  // the target is usually prose instructions in a SKILL.md, where there is no code-level
+  // invariant to anchor to (e.g. the non-destructive-auto-fix STEPS, the description fields).
+  'C1/A1: triggering & description disambiguation': 'lint',
+  'B3: validate-instances auto-fix is non-destructive': 'lint',
+  // mixed — both shapes present; the individual checks carry inline // lint / // contract tags.
+  'C2/C3: naming + dedup + structure docs': 'mixed',
+  'A2/A5/A7/P1: docs-infra small fixes': 'mixed',
+  'C2: naming consistency + canonical Plugin-API reference': 'mixed',
+  'B5/B6: manifest single-source-of-truth contract': 'mixed',
+};
+check('HR-3: every group() in skills-tests.js is classified in GROUP_STRENGTH (no gaps, no stale keys)', () => {
+  const src = read('.claude/scripts/skills-tests.js');
+  const titles = [...src.matchAll(/^group\((['"])([\s\S]*?)\1\)/gm)].map((m) => m[2]);
+  const unclassified = titles.filter((t) => !(t in GROUP_STRENGTH));
+  const stale = Object.keys(GROUP_STRENGTH).filter((k) => !titles.includes(k));
+  const bad = Object.entries(GROUP_STRENGTH).filter(([, v]) => !['contract', 'lint', 'mixed'].includes(v));
+  ok(unclassified.length === 0, 'unclassified group(s): ' + unclassified.join(' | '));
+  ok(stale.length === 0, 'stale GROUP_STRENGTH key(s) with no matching group(): ' + stale.join(' | '));
+  ok(bad.length === 0, 'invalid strength value(s): ' + bad.map(([k]) => k).join(' | '));
 });
 
 // ---------------------------------------------------------------------------
