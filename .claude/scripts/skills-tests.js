@@ -821,6 +821,7 @@ const GROUP_STRENGTH = {
   'HR-1: sync-colors prose color JS is single-sourced with color-utils.js': 'contract',
   'SP-0a: reachability (deterministic expressibility + host resolution)': 'contract',
   'SP-0a: design-build contract invariants': 'contract',
+  'SP-1: Aristopet inference artifact set (real contract instance)': 'contract',
   'HR-3: every group is classified by assertion strength (lint vs contract)': 'contract',
   // lint — checks whose only assertions are case-insensitive natural-language substrings (no
   // structural/identifier/file anchor). They guard "did the idea get deleted"; a behavior-
@@ -958,8 +959,8 @@ const fixCM = (loadFix('design-rules.json') || {}).componentMap || null;
 const fixComp = (loadFix('compositions.json') || {}).compositions || null;
 const fixWO = loadFix('work-order.expected.json');
 check('contract.js exists with the shape + invariant + derivation helpers', () => {
-  ok(ct && ['contractShapeIssues', 'referentialIntegrityIssues', 'configRealityIssues', 'nonexistentNonConfigIssues', 'deriveWorkOrder'].every((f) => typeof ct[f] === 'function'),
-    'create .claude/scripts/contract.js exporting the five contract helpers');
+  ok(ct && ['contractShapeIssues', 'referentialIntegrityIssues', 'configRealityIssues', 'nonexistentNonConfigIssues', 'colorSchemeIntegrityIssues', 'deriveWorkOrder'].every((f) => typeof ct[f] === 'function'),
+    'create .claude/scripts/contract.js exporting the contract helpers (incl. colorSchemeIntegrityIssues)');
 });
 check('the contract fixture loaded (componentMap + compositions + expected work-order)', () => {
   ok(fixCM && typeof fixCM === 'object', 'fixtures/contract/design-rules.json must carry a componentMap');
@@ -1086,11 +1087,60 @@ if (ct && ct.deriveWorkOrder) {
     ok(row && typeof row.delta === 'string' && row.delta.length > 0 && /reorder/.test(row.delta), 'delta falls back to a type-based default string');
   });
 }
+if (ct && ct.colorSchemeIntegrityIssues) {
+  const FND = { colors: { schemes: { 'scheme-1': { name: 'White' }, 'scheme-2': { name: 'Grey' } } } };
+  check('inv-5 colorScheme integrity: every order colorScheme is a foundations scheme (clean -> [])', () => {
+    const comp = { index: { template: 'index', order: [
+      { component: 'hero', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-1', settings: {}, blocks: [], mobileDivergence: null },
+      { component: 'hero', desktopNodeId: 'c', mobileNodeId: 'd', colorScheme: 'scheme-2', settings: {}, blocks: [], mobileDivergence: null } ] } };
+    eq(ct.colorSchemeIntegrityIssues(comp, FND), []);
+  });
+  check('inv-5: a colorScheme not defined in foundations flags', () => {
+    const comp = { index: { template: 'index', order: [
+      { component: 'hero', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: 'scheme-9', settings: {}, blocks: [], mobileDivergence: null } ] } };
+    ok(ct.colorSchemeIntegrityIssues(comp, FND).some((m) => /scheme-9/.test(m)), 'dangling scheme ref must flag');
+  });
+  check('inv-5: a null colorScheme is skipped (not every section carries a scheme)', () => {
+    const comp = { index: { template: 'index', order: [
+      { component: 'divider', desktopNodeId: 'a', mobileNodeId: 'b', colorScheme: null, settings: {}, blocks: [], mobileDivergence: null } ] } };
+    eq(ct.colorSchemeIntegrityIssues(comp, FND), []);
+  });
+}
 check('SP-0a: every basis deriveWorkOrder can emit is a member of contract.BASES (no enum drift)', () => {
   ok(rc && Array.isArray(rc.EXPRESSIBILITY_KINDS), 'reachability.js must export EXPRESSIBILITY_KINDS');
   for (const k of rc.EXPRESSIBILITY_KINDS) ok(ct.BASES.includes(k), `expressibility kind "${k}" not in BASES`);
   for (const b of ['mobile-divergence', 'no-candidate']) ok(ct.BASES.includes(b), `derived basis "${b}" not in BASES`);
 });
+// ---------------------------------------------------------------------------
+// SP-1 — the REAL contract instance (Aristopet). The synthetic fixtures/contract set proves the
+//   invariants in isolation; this proves the actual handoff satisfies them end-to-end.
+// ---------------------------------------------------------------------------
+group('SP-1: Aristopet inference artifact set (real contract instance)');
+const ARI = '.claude/figma-sync/aristopet';
+const loadAri = (rel) => { try { return readJSON(ARI + '/' + rel); } catch (e) { return null; } }; // mirrors loadFix
+const ariCM = (loadAri('design-rules.json') || {}).componentMap || null;
+const ariMan = loadAri('manifest.json') || null;
+const ariWO = loadAri('work-order.json') || null;
+const ariComp = ariMan && ariMan.compositions;
+check('the Aristopet artifact set exists (design-rules + manifest + work-order)', () => {
+  ok(ariCM && typeof ariCM === 'object', 'aristopet/design-rules.json must carry a componentMap');
+  ok(ariComp && typeof ariComp === 'object', 'aristopet/manifest.json must carry compositions');
+  ok(ariMan && ariMan.foundations && ariMan.foundations.colors, 'aristopet/manifest.json must carry foundations.colors');
+  ok(ariWO && Array.isArray(ariWO.codeRequired), 'aristopet/work-order.json must carry codeRequired[]');
+});
+if (ct && ariCM && ariComp) {
+  check('SP-1 inv-shape: the real set satisfies the contract shape (-> [])', () => eq(ct.contractShapeIssues(ariCM, ariComp), []));
+  check('SP-1 inv-1: referential integrity (every composition component is a componentMap key)', () => eq(ct.referentialIntegrityIssues(ariCM, ariComp), []));
+  check('SP-1 inv-2: config => real (exists + candidate + schema)', () => eq(ct.configRealityIssues(ariCM), []));
+  check('SP-1 inv-3: nonexistent => non-config', () => eq(ct.nonexistentNonConfigIssues(ariCM), []));
+  check('SP-1 inv-4: committed work-order.json equals deriveWorkOrder(componentMap, compositions)', () => {
+    const norm = (wo) => ({ codeRequired: [...(wo.codeRequired || [])].map((e) => JSON.stringify(e)).sort(),
+      appBlocks: [...(wo.appBlocks || [])].map((e) => JSON.stringify(e)).sort(),
+      outOfScope: [...(wo.outOfScope || [])].map((e) => JSON.stringify(e)).sort() });
+    eq(norm(ct.deriveWorkOrder(ariCM, ariComp)), norm(ariWO));
+  });
+  check('SP-1 inv-5: every colorScheme is a foundations scheme', () => eq(ct.colorSchemeIntegrityIssues(ariComp, ariMan.foundations), []));
+}
 // ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');

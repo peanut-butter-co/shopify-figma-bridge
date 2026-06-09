@@ -1,0 +1,23 @@
+{
+  "bg": "#fffefd",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "foreground_heading": "#1e1b18",
+    "foreground": "#2a2620",
+    "background": "#fffefd",
+    "border": "#ede8e1"
+  },
+  "settings": {
+    "item_1_heading": "Envíos Gratuitos",
+    "item_1_text": "Envío gratis para socios.",
+    "item_2_heading": "Entregas 48/72 hrs",
+    "item_2_text": "Entrega en 2-4 días.",
+    "item_3_heading": "Devoluciones 30 Días",
+    "item_3_text": "Devoluciones en 30 días.",
+    "item_4_heading": "Garantía Total",
+    "item_4_text": "Protección extra ante defectos."
+  },
+  "blockTypes": ["item"],
+  "multiScheme": false,
+  "notes": "Desktop trust bar with 4 inline items, each: icon badge (gift / shipping / return / secure) + bold uppercase overline heading (DM Sans Bold 13, tracking 1.3px) + small regular description (DM Sans Regular 12). Items separated by 1px vertical divider rectangles using Essential/Border (#ede8e1), 40px tall. Outer bg uses Essential/Background (#fffefd) with 40px vertical padding, 0 horizontal. Inner container fixed 1440px wide, items flex 1:1:1:1 with 16px gap between badge and text. No buttons, no eyebrow/CTA. Static (no carousel/marquee/sticky behavior evident). Node is named 'Section / Trust Bar / Desktop' — desktop variant only; mobile divergence not captured in this node. Icons are bespoke instances (Icon/gift, Icon/shipping, Icon/return, Icon/secure)."
+}

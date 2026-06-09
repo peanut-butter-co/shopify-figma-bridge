@@ -1,0 +1,30 @@
+{
+  "slug": "header-v1",
+  "bg": "#fffefd",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "foreground_heading": "#1e1b18",
+    "foreground": "#2a2620",
+    "background": "#fffefd",
+    "primary": "#af7d4f",
+    "border": "#ede8e1",
+    "inputs_hover_background": "#faf7f2"
+  },
+  "settings": {
+    "main_menu_item_1": "Perros",
+    "main_menu_item_2": "Gatos",
+    "main_menu_item_3": "Hogar & Vida",
+    "main_menu_item_4": "Marcas",
+    "main_menu_item_5": "The Aristopeters",
+    "secondary_menu_item_1": "Paseo",
+    "secondary_menu_item_2": "Ropa",
+    "secondary_menu_item_3": "Descanso",
+    "secondary_menu_item_4": "Comida",
+    "secondary_menu_item_5": "Comederos y bebederos",
+    "secondary_menu_item_6": "Salud e higiene",
+    "secondary_menu_item_7": "Juguetes"
+  },
+  "blockTypes": ["link"],
+  "multiScheme": false,
+  "notes": "Site header (navigation), not a content section. Layout: logo + horizontal main menu (5 links, first 'Perros' is the selected/active state in Essential/Primary #af7d4f, rest in Essential/Foreground) + header-icons (search, wishlist/heart, user/account, cart — library icon atoms Icon/search 23:24, Icon/heart 23:105, Icon/account 23:6, Icon/cart 23:15). Has an optional secondaryMenu (boolean variant, default true) rendering a divider + secondary-block row of 7 smaller uppercase links with a 40px primary-colored active indicator bar; the top-level instance passes secondaryMenu={false}. Single scheme variant 'Neutral'; no multi-mode color resolution observed. Page width 1440 (frame 1680 outer). All menu text uppercase DM Sans (Label/Overline Bold for active, Label/Overline SemiBold for inactive, 13px main / 11px secondary). Node is the Desktop variant ('Section Header V1 Desktop'); a separate mobile variant likely exists in the component set but was not in this node."
+}

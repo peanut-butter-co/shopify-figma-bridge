@@ -1,0 +1,24 @@
+{
+  "slug": "image-with-text",
+  "bg": "#faf7f2",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "background": "#faf7f2",
+    "foreground": "#2a2620",
+    "foreground_heading": "#1e1b18",
+    "primary_button_background": "#1e1b18",
+    "primary_button_text": "#faf7f2",
+    "secondary_button_text": "#1e1b18",
+    "secondary_button_background": "#00000000"
+  },
+  "settings": {
+    "eyebrow": "Aristopet, nuestra marca",
+    "heading": "Su bienestar, nuestro compromiso",
+    "text": "Nuestra colección propia está diseñada con materiales de alta calidad, estética cuidada y funcionalidad real. Productos para mejorar la vida de perros y gatos… y la tuya. Porque un Aristopeter quiere siempre lo mejor.",
+    "primary_button_label": "CONOCE LA MARCA",
+    "secondary_button_label": "Ver PRODUCTOS"
+  },
+  "blockTypes": [],
+  "multiScheme": false,
+  "notes": "Two-column image-with-text section: text content column (560px) + image placeholder column side by side, gap 80px. Eyebrow overline has a leading 24px decorative line (::before). Two buttons: primary (solid foreground-heading bg, background-color text) and secondary (transparent bg, foreground-heading border + text). Buttons have radius 0 (square corners). Uses library Button atom instances (Style Primary/Secondary x State Default/Hover; node 21:10). Only the Desktop variant node was inspected (data-name 'Section / Image with Text / Desktop'); a mobile counterpart likely exists but was not in this node. Single color scheme — no variable resolved to multiple hex values."
+}

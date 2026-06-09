@@ -1,0 +1,16 @@
+{
+  "_provenance": "Sample get_variable_defs(fileKey=73Qy4BbWWqFUky9b5LXTGT, nodeId=3436:1954 'Split Banner'). Foundations probe — shows Aristopet's variable naming/values. Full foundations reconstructed in P0.",
+  "variables": {
+    "Essential/Foreground Heading": "#1e1b18",
+    "Essential/Foreground": "#2a2620",
+    "Secondary button/Text": "#1e1b18",
+    "Secondary button/Background": "#00000000",
+    "Label/Overline": "Font(family: DM Sans, style: SemiBold, size: 13, weight: 600, lineHeight: 1.6, letterSpacing: 1.3)",
+    "Label/Overline Bold": "Font(family: DM Sans, style: Bold, size: 13, weight: 700, lineHeight: 1.6, letterSpacing: 1.3)",
+    "Heading/Display H1": "Font(family: Instrument Sans, style: Bold, size: 80, weight: 700, lineHeight: 0.94, letterSpacing: -2)",
+    "Text/Medium": "Font(family: DM Sans, style: Regular, size: 14, weight: 400, lineHeight: 1.6, letterSpacing: 0)",
+    "radius/button_secondary": "0",
+    "spacing-16": "16"
+  },
+  "_observation": "The Split Banner resolves 'Essential/Foreground Heading' to #1e1b18 on the left half and #fffefd on the right half -> two variable MODES (schemes) inside one section -> routes to CODE (not a single section color_scheme)."
+}

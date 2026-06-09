@@ -1,0 +1,186 @@
+{
+  "codeRequired": [
+    {
+      "component": "header-utility-bar",
+      "basis": "no-candidate",
+      "usedIn": [
+        "index",
+        "collection",
+        "product"
+      ]
+    },
+    {
+      "component": "header-v1",
+      "basis": "no-candidate",
+      "usedIn": [
+        "product"
+      ]
+    },
+    {
+      "component": "header-v2",
+      "basis": "no-candidate",
+      "usedIn": [
+        "index",
+        "collection"
+      ]
+    },
+    {
+      "component": "split-banner",
+      "basis": "no-candidate",
+      "usedIn": [
+        "index"
+      ]
+    },
+    {
+      "component": "trust-bar",
+      "basis": "no-candidate",
+      "usedIn": [
+        "index"
+      ]
+    },
+    {
+      "component": "marquee",
+      "basis": "no-candidate",
+      "usedIn": [
+        "index"
+      ]
+    },
+    {
+      "component": "product-card-row",
+      "basis": "no-candidate",
+      "usedIn": [
+        "index",
+        "index",
+        "collection"
+      ]
+    },
+    {
+      "component": "image-with-text",
+      "basis": "no-candidate",
+      "usedIn": [
+        "index"
+      ]
+    },
+    {
+      "component": "collection-list-grid",
+      "basis": "no-candidate",
+      "usedIn": [
+        "index"
+      ]
+    },
+    {
+      "component": "promo-banner",
+      "basis": "no-candidate",
+      "usedIn": [
+        "index"
+      ]
+    },
+    {
+      "component": "brand-logos",
+      "basis": "no-candidate",
+      "usedIn": [
+        "index"
+      ]
+    },
+    {
+      "component": "ugc-captions-below",
+      "basis": "no-candidate",
+      "usedIn": [
+        "index",
+        "product"
+      ]
+    },
+    {
+      "component": "newsletter-signup",
+      "basis": "no-candidate",
+      "usedIn": [
+        "index",
+        "collection",
+        "product"
+      ]
+    },
+    {
+      "component": "collection-header",
+      "basis": "no-candidate",
+      "usedIn": [
+        "collection"
+      ]
+    },
+    {
+      "component": "sub-collection-navigation",
+      "basis": "no-candidate",
+      "usedIn": [
+        "collection"
+      ]
+    },
+    {
+      "component": "filter-bar",
+      "basis": "no-candidate",
+      "usedIn": [
+        "collection"
+      ]
+    },
+    {
+      "component": "pagination",
+      "basis": "no-candidate",
+      "usedIn": [
+        "collection"
+      ]
+    },
+    {
+      "component": "breadcrumbs",
+      "basis": "no-candidate",
+      "usedIn": [
+        "product"
+      ]
+    },
+    {
+      "component": "product-information",
+      "basis": "no-candidate",
+      "usedIn": [
+        "product"
+      ]
+    },
+    {
+      "component": "related-products",
+      "basis": "no-candidate",
+      "usedIn": [
+        "product"
+      ]
+    },
+    {
+      "component": "footer",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "index"
+      ],
+      "delta": "setting \"brand_tagline\" is not in the host schema; setting \"copyright\" is not in the host schema; setting \"legal_links\" is not in the host schema; setting \"col_1_heading\" is not in the host schema; setting \"col_1_links\" is not in the host schema; setting \"col_2_heading\" is not in the host schema; setting \"col_2_links\" is not in the host schema; setting \"col_3_heading\" is not in the host schema; setting \"col_3_links\" is not in the host schema; setting \"social\" is not in the host schema; block type \"menu\" is not accepted by the host schema; block type \"link\" is not accepted by the host schema; block type \"social-icon\" is not accepted by the host schema; block type \"payment-icon\" is not accepted by the host schema"
+    },
+    {
+      "component": "footer",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "collection"
+      ],
+      "delta": "setting \"brand_tagline\" is not in the host schema; setting \"copyright\" is not in the host schema; setting \"legal_links\" is not in the host schema; setting \"col_1_heading\" is not in the host schema; setting \"col_1_links\" is not in the host schema; setting \"col_2_heading\" is not in the host schema; setting \"col_2_links\" is not in the host schema; setting \"col_3_heading\" is not in the host schema; setting \"col_3_links\" is not in the host schema; setting \"social\" is not in the host schema; block type \"menu\" is not accepted by the host schema; block type \"link\" is not accepted by the host schema; block type \"social-icon\" is not accepted by the host schema; block type \"payment-icon\" is not accepted by the host schema"
+    },
+    {
+      "component": "footer",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "product"
+      ],
+      "delta": "setting \"brand_tagline\" is not in the host schema; setting \"copyright\" is not in the host schema; setting \"legal_links\" is not in the host schema; setting \"col_1_heading\" is not in the host schema; setting \"col_1_links\" is not in the host schema; setting \"col_2_heading\" is not in the host schema; setting \"col_2_links\" is not in the host schema; setting \"col_3_heading\" is not in the host schema; setting \"col_3_links\" is not in the host schema; setting \"social\" is not in the host schema; block type \"menu\" is not accepted by the host schema; block type \"link\" is not accepted by the host schema; block type \"social-icon\" is not accepted by the host schema; block type \"payment-icon\" is not accepted by the host schema"
+    }
+  ],
+  "appBlocks": [
+    {
+      "component": "product-reviews",
+      "basis": "app-slot",
+      "usedIn": [
+        "product"
+      ]
+    }
+  ],
+  "outOfScope": []
+}

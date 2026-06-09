@@ -1,0 +1,14 @@
+{
+  "bg": "#ede8e1",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "background": "#ede8e1",
+    "foreground_heading": "#1e1b18"
+  },
+  "settings": {
+    "text": "ESTE VERANO MANTÉN A TU MASCOTA FRESCA, FELIZ Y CON ESTILO   |   ENVÍO GRATIS EN TODA LA NUEVA COLECCIÓN DE VERANO"
+  },
+  "blockTypes": [],
+  "multiScheme": false,
+  "notes": "Scrolling marquee/ticker section: single message string repeated 4x in the 'marquee-track' to create a seamless looping scroll (carousel-like horizontal animation). Segments separated by '|'. Heading style Heading/H3 (Instrument Sans Bold 36, letterSpacing -0.8, fontVariationSettings wdth 100). Vertical padding spacing-12 (12px); inter-copy gap spacing-64 (64px). Single color mode (no multiScheme). Node name 'Section / Marquee / Desktop' implies a Desktop component variant; a separate Mobile variant likely exists. Repetition is animation duplication, not distinct content blocks, hence blockTypes empty."
+}

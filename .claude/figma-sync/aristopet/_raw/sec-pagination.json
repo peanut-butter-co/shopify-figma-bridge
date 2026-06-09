@@ -1,0 +1,19 @@
+{
+  "slug": "pagination",
+  "bg": "#fffefd",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "foreground_heading": "#1e1b18",
+    "foreground": "#2a2620",
+    "background": "#fffefd",
+    "border": "#ede8e1",
+    "foreground_chip": "#1e1b1814"
+  },
+  "settings": {},
+  "blockTypes": [
+    "page-number",
+    "arrow-button"
+  ],
+  "multiScheme": false,
+  "notes": "Pagination control bar (not a content section). Horizontal row centered, gap spacing-12 (12px), vertical padding spacing-48 (48px). Children: left ArrowButtonSquare, then PageNumber chips (1 Selected, 2-5 Default, Dots ellipsis '…', 12), right ArrowButtonSquare. Each chip is 40x40px. Selected chip = foreground_heading bg (#1e1b18) with background-colored text; Default chip = background bg with border; arrow buttons use foreground_chip translucent bg (rgba(30,27,24,0.08)). Text style Text/Medium = DM Sans Regular 14/1.6. Page numbers (1-5, 12) are dynamic/illustrative, not editable theme content. Arrow icons are library atom instances (Icon/arrow-left 23:81, Icon/arrow-right 23:73). Desktop variant only in this node (Section / Pagination / Desktop, w=1680); no mobile divergence captured. No editable text content settings (heading/eyebrow/button labels) — purely structural pagination UI."
+}

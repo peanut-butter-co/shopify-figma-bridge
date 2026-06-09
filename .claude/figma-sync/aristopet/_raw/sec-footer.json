@@ -1,0 +1,26 @@
+{
+  "slug": "footer",
+  "bg": "#1e1b18",
+  "fg": "#fffefd",
+  "schemeRoles": {
+    "foreground_heading": "#fffefd",
+    "foreground": "#faf7f2",
+    "background": "#1e1b18",
+    "border": "#faf7f21a"
+  },
+  "settings": {
+    "brand_tagline": "Lujo editorial para mascotas y para quienes se niegan a vestirlas de menos. Madrid · desde 2026.",
+    "copyright": "© 2026 Aristopet, S.L.",
+    "legal_links": "Términos · privacidad · cookies · Aviso legal",
+    "col_1_heading": "Tienda",
+    "col_1_links": "Aristoperros, Aristogatos, Tarjeta regalo, Pre-sale FW26, Outlet",
+    "col_2_heading": "Casa",
+    "col_2_links": "The Aristopeters, Sobre nosotros, Sostenibilidad, Atelier de Madrid, Prensa",
+    "col_3_heading": "Ayuda",
+    "col_3_links": "Envíos & devoluciones, Guía de tallas, Contacto, FAQ, Mi cuenta",
+    "social": "instagram, tiktok, pinterest"
+  },
+  "blockTypes": ["menu", "link", "social-icon", "payment-icon"],
+  "multiScheme": false,
+  "notes": "Bespoke dark footer (Essential/Background #1e1b18). Layout: 4-zone Desktop container (1440px) — brand column (logo + © + tagline + 3 social icons: instagram/tiktok/pinterest) on the left, and a nav block with 3 link columns (Tienda / Casa / Ayuda), each a heading (Label/Overline, DM Sans SemiBold 13, foreground_heading) over 5 menu links (Label/Caption, DM Sans Medium 11, uppercase, tracking 1.32, foreground). Bottom-wrap: 1px hairline divider bound to Essential/Border (#faf7f21a alpha), then a bottom-bar with copyright (left), 6 payment icons (visa, mastercard, amex, paypal, dinersclub, discover — white-chip card icons), and legal links (right). All text uppercase. Only the Desktop variant was returned (node is Section/Footer/Desktop, 1680px wrap, 1440px inner); mobile divergence not captured here. Single color mode — no multi-scheme. Logo is a multi-vector instance; social/payment icons are library icon instances. No carousel/sticky/marquee behavior."
+}

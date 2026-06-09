@@ -1,0 +1,53 @@
+{
+  "slug": "product-information",
+  "bg": "#fffefd",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "background": "#fffefd",
+    "foreground_heading": "#1e1b18",
+    "foreground": "#2a2620",
+    "border": "#ede8e1",
+    "primary_button_background": "#1e1b18",
+    "primary_button_text": "#fffefd",
+    "primary_button_border": "#1e1b18"
+  },
+  "settings": {
+    "vendor": "Atelier Aristopet",
+    "rating": "4,8",
+    "reviews_label": "132 reseñas →",
+    "product_name": "Albornoz Peggy",
+    "price": "72,00 €",
+    "compare_at_price": "95,00 €",
+    "sale_badge": "−24%",
+    "short_description": "Para después del baño en el campo, o simplemente para no salir del salón. Rizo de algodón orgánico, capucha con orejas y un cinturón que nunca aprieta demasiado. Hecho en Portugal, pensado para Peggy.",
+    "badge_new": "NUEVO",
+    "badge_featured": "DESTACADO",
+    "color_label": "Color",
+    "color_options": "Gold, Royal Blue, Regal Red, Mint Green",
+    "size_label": "Talla",
+    "size_guide_link": "Guía de tallas →",
+    "size_options": "XS (out of stock), S, M (selected), L, XL",
+    "stock_label": "En stock",
+    "wishlist_label": "Wishlist →",
+    "quantity_default": "1",
+    "add_to_cart_label": "Añadir al carrito",
+    "trust_item_1": "Entregas 24/48 h",
+    "trust_item_2": "Envíos gratis +60€",
+    "trust_item_3": "Devoluciónes gratis",
+    "accordion_1": "Descripción",
+    "accordion_2": "Materiales y confección",
+    "accordion_3": "Guía de tallas",
+    "accordion_4": "Envíos y devoluciones",
+    "gallery_caption": "1 / 5 · Albornoz Peggy · vista frontal"
+  },
+  "blockTypes": [
+    "thumbnail",
+    "variant-swatch",
+    "variant-size",
+    "trust-item",
+    "product-accordion",
+    "badge"
+  ],
+  "multiScheme": false,
+  "notes": "Bespoke PDP 'Section Product Information (Desktop)' at 1680px frame / 1440px container. Two-column layout: col-gallery (792px, vertical thumbnail strip of 5 + main image 654px with overlaid New/Featured badges and a '1 / 5 · vista frontal' caption) and col-info (528px). Library-instance heavy: blocks are named 'Block / X / Desktop' (Vendor, Reviews, Product Name, Price, Short Description, Variant Picker Color, Variant Picker Size, Stock, Add to Wishlist, Buy Buttons, Trust Bar) plus Atom components (Badge, Divider, Thumbnail, VariantSize, Quantity Selector, Icon/star/plus/minus/heart). Behavior hints: thumbnail gallery selector (Thumbnail Default/Selected states), variant swatches (image swatches w/ selected ring), size picker with Selected + Out-of-stock(opacity 0.4) states, quantity stepper (minus/value/plus), collapsible product accordions (4, all Closed/plus icon), 5-star reviews. Trust bar uses Merino/Base #faf7f2 bg. Sale price block has line-through compare-at + red sale badge. All names suffixed 'Desktop' — implies a separate Mobile variant exists elsewhere (mobile divergence likely). radius/button & radius/badge & radius/input all 0 (sharp corners). Single color mode observed (no multi-scheme)."
+}

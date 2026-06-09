@@ -1,0 +1,17 @@
+{
+  "slug": "collection-header",
+  "bg": "#faf7f2",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "background": "#faf7f2",
+    "foreground_heading": "#1e1b18",
+    "foreground": "#2a2620"
+  },
+  "settings": {
+    "heading": "Aristoperros",
+    "description": "Prendas y accesorios de diseño para el perro más elegante de la casa."
+  },
+  "blockTypes": [],
+  "multiScheme": false,
+  "notes": "Bespoke section (Section / Collection Header / Desktop). Simple stacked layout: Display H1 heading + Text/Large description, left-aligned in a 1440px desktop container with spacing-16 gap, spacing-32 top / spacing-16 bottom padding. No child blocks, no buttons. Only one color mode observed (single scheme). Desktop-only node id given; no mobile variant inspected. No carousel/sticky/marquee behavior."
+}

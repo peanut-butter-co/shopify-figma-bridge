@@ -102,6 +102,25 @@ function nonexistentNonConfigIssues(componentMap) {
   return issues;
 }
 
+/**
+ * Invariant 5 — colorScheme referential integrity: every compositions[*].order[*].colorScheme
+ * (when non-null) must be a key of foundations.colors.schemes. A dangling scheme ref ships a store
+ * with undefined colors. Null/absent colorScheme is skipped (not every section carries a scheme).
+ * Introduced by SP-1 when foundations entered the contract instance's scope.
+ */
+function colorSchemeIntegrityIssues(compositions, foundations) {
+  const schemes = new Set(Object.keys(((foundations || {}).colors || {}).schemes || {}));
+  const issues = [];
+  for (const [tpl, comp] of Object.entries(compositions || {})) {
+    (Array.isArray(comp && comp.order) ? comp.order : []).forEach((o, i) => {
+      if (o && o.colorScheme != null && !schemes.has(o.colorScheme)) {
+        issues.push(`compositions["${tpl}"].order[${i}] colorScheme "${o.colorScheme}" is not in foundations.colors.schemes`);
+      }
+    });
+  }
+  return issues;
+}
+
 /** component -> [templateKeys] it is used in (deterministic, insertion order of compositions). */
 function usedInIndex(compositions) {
   const idx = {};
@@ -178,4 +197,4 @@ function deriveWorkOrder(componentMap, compositions) {
   return { codeRequired, appBlocks, outOfScope };
 }
 
-module.exports = { contractShapeIssues, referentialIntegrityIssues, configRealityIssues, nonexistentNonConfigIssues, deriveWorkOrder, usedInIndex, VERDICTS, BASES, REPRESENTATIONS, DIVERGENCE_TYPES };
+module.exports = { contractShapeIssues, referentialIntegrityIssues, configRealityIssues, nonexistentNonConfigIssues, colorSchemeIntegrityIssues, deriveWorkOrder, usedInIndex, VERDICTS, BASES, REPRESENTATIONS, DIVERGENCE_TYPES };

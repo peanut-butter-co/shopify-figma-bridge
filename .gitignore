@@ -52,6 +52,12 @@
 # The runtime manifest.json and the generated proposal.html stay ignored.
 !.claude/figma-sync/manifest-test.json
 
+# SP-1 Aristopet inference set (committed — the real handoff AND the SP-2 golden fixture).
+# Binary screenshots under _raw/ stay ignored (provenance is the JSON + SPIKE.md).
+!.claude/figma-sync/aristopet/
+!.claude/figma-sync/aristopet/**
+.claude/figma-sync/aristopet/_raw/*.png
+
 # Always ignore runtime state (generated per project).
 # (Also caught by the catch-all `*`, but name them explicitly so the protection
 # survives any future restructuring of the figma-sync whitelist above.)

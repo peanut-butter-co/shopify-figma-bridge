@@ -1,0 +1,28 @@
+{
+  "slug": "collection-list-grid",
+  "bg": "#fffefd",
+  "fg": "#fffefd",
+  "schemeRoles": {
+    "foreground_heading": "#fffefd",
+    "foreground": "#faf7f2",
+    "background": "#fffefd",
+    "foreground_chip": "#fffefd14"
+  },
+  "settings": {
+    "card1_heading": "Abrigos",
+    "card1_caption": "24 piezas · FW26",
+    "card1_index": "N.º 01",
+    "card2_heading": "Collares",
+    "card2_caption": "12 piezas",
+    "card2_index": "N.º 02",
+    "card3_heading": "Accesorios",
+    "card3_caption": "8 piezas · Edición limitada",
+    "card3_index": "N.º 03",
+    "card4_heading": "Jerseys & Pañuelos",
+    "card4_caption": "16 piezas",
+    "card4_index": "N.º 04"
+  },
+  "blockTypes": ["collection-card"],
+  "multiScheme": true,
+  "notes": "Mosaic grid of 4 'Collection Card / Editorial / Desktop' instances (1 large 708x885 + 2 small 342x430 + 1 wide 708x431) laid out as a bento/mosaic, not a uniform grid. Each card = full-bleed collection image with overlaid index label (N.º 0X, top-left), bottom-left label block (collection heading + piece-count caption), and a square 40px Arrow Button (Icon/arrow-right) bottom-right. Library-instance based (cards + ArrowButtonSquare atom reused). multiScheme=true: the SAME vars resolve to two modes across cards — Essential/Foreground Heading = #fffefd on dark cards (1,3) vs #1e1b18 on light cards (2,4); Essential/Foreground = #faf7f2 (dark) vs #2a2620 (light); Essential/Foreground Chip = rgba(255,254,253,0.08) (dark) vs rgba(30,27,24,0.08) (light). Card 3 heading/caption resolve to var(--black,#000000). No section-level heading/eyebrow/button — all text lives inside the cards. Desktop node only; mobile likely stacks the mosaic. Reported bg/fg use the outer container + first/primary card heading."
+}
