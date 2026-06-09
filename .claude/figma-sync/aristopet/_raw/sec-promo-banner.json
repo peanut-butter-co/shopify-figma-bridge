@@ -1,0 +1,27 @@
+{
+  "slug": "promo-banner",
+  "bg": "#ede8e1",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "background": "#ede8e1",
+    "foreground": "#2a2620",
+    "foreground_heading": "#1e1b18",
+    "primary": "#af7d4f",
+    "primary_button_background": "#1e1b18",
+    "primary_button_text": "#ede8e1",
+    "secondary_button_background": "#00000000",
+    "secondary_button_text": "#1e1b18"
+  },
+  "settings": {
+    "discount_label": "Usa el código",
+    "discount_code": "ARISTOPADRES",
+    "eyebrow": "Oferta por tiempo limitado",
+    "heading": "HASTA UN 75% DE DESCUENTO EN PRODUCTOS DE NUESTRAS MEJORES MARCAS",
+    "disclaimer": "*Oferta válida hasta el 24 de junio de 2026. La oferta se aplica a estilos seleccionados según se indica. El precio online refleja el descuento.",
+    "primary_button_label": "Productos para tu perro",
+    "secondary_button_label": "Productos para tu gato"
+  },
+  "blockTypes": [],
+  "multiScheme": true,
+  "notes": "Bespoke promo/discount banner (Section / Promo Banner / Desktop). Centered single-column layout: a bordered 'Discount Code' pill (label + dark code-box with light code text 'ARISTOPADRES'), an overline eyebrow in primary/accent #af7d4f, an H2 (Instrument Sans Bold 52), a fine-print disclaimer, and two CTA buttons. Primary button = filled foreground-heading bg (#1e1b18) with background-colored text; secondary button = transparent bg + border using secondary-button/text (#1e1b18). multiScheme=true: essential/background resolves to #ede8e1 in get_variable_defs but the design-context inline default for the section bg and the primary-button text is #99ddd7 (teal), indicating the same variable maps to a different scheme in this section context vs the file default. radius/button_primary and radius/button_secondary both 0 (square buttons). Two button atoms are library instances of Button (node 21:10, Style Primary/Secondary x State Default/Hover). Only the Desktop variant was inspected; no repeated child blocks. No carousel/sticky/marquee behavior observed."
+}

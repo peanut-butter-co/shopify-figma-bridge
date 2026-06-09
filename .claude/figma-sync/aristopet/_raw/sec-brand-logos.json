@@ -1,0 +1,23 @@
+{
+  "slug": "brand-logos",
+  "bg": "#faf7f2",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "background": "#faf7f2",
+    "foreground": "#2a2620",
+    "foreground_heading": "#1e1b18",
+    "border": "#ede8e1",
+    "foreground_chip": "#1e1b1814"
+  },
+  "settings": {
+    "eyebrow": "LAS MEJORES MARCAS",
+    "heading": "Marcas selectas",
+    "link_label": "Ver todas las marcas",
+    "counter": "03 — 05"
+  },
+  "blockTypes": [
+    "logo"
+  ],
+  "multiScheme": false,
+  "notes": "Brand-logos carousel: section heading (eyebrow line + H2 + underline-arrow 'Ver todas las marcas' link) over a horizontally-scrolling logos row, with a footer divider, '03 — 05' slide counter, and prev/next square arrow buttons (Essential/Foreground Chip bg) — clearly a carousel/slider. Logos row holds 8 'Logo / *' instances (DOG SHOP, PET CO, BARK, NOBLE, repeated x2) at 120px cells, 48px gap, justify-center. Header uses a bottom border (Essential/Border #ede8e1) under the head. Library/instance based (Section Heading, Section Footer, Logo, Arrow Button, Link, Icon atoms are all component instances). Only the Desktop variant was extracted (node name 'Section / Brand Logos / Desktop'); mobile divergence not captured here. Single color mode — no multi-scheme."
+}

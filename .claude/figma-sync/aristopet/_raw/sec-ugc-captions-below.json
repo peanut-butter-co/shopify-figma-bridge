@@ -1,0 +1,35 @@
+{
+  "bg": "#fffefd",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "background": "#fffefd",
+    "foreground": "#2a2620",
+    "foreground_heading": "#1e1b18"
+  },
+  "settings": {
+    "card_1_handle": "@luna.golden",
+    "card_1_caption": "«Desde que estrenó su arnés no quiere volver a casa. ¡Paseos sin fin!»",
+    "card_1_media_type": "image",
+    "card_2_handle": "@toby.adventures",
+    "card_2_caption": "«Aguanta el barro de todas sus aventuras y sigue impecable.»",
+    "card_2_media_type": "video",
+    "card_3_handle": "@nala.cat",
+    "card_3_caption": "«Duerme como una auténtica reina. No la cambia por nada del mundo.»",
+    "card_3_media_type": "image",
+    "card_4_handle": "@maxthecorgi",
+    "card_4_caption": "«El corgi más coqueto del parque. Todos preguntan de dónde es.»",
+    "card_4_media_type": "image",
+    "card_5_handle": "@coco.pug",
+    "card_5_caption": "«Pequeña pero con muchísimo estilo. Su collar es su favorito.»",
+    "card_5_media_type": "video"
+  },
+  "blockTypes": [
+    "ugc-card",
+    "ugc-card",
+    "ugc-card",
+    "ugc-card",
+    "ugc-card"
+  ],
+  "multiScheme": false,
+  "notes": "UGC grid: 5 equal-width columns (flex-[1_0_0], 16px gap), no section heading/eyebrow. Each card = UGC Card / Below / Desktop: a 344px-tall image (caption-below layout) with a circular semi-transparent white badge (rgba(255,255,255,0.85), 999px radius) bottom-right showing a media-type icon — image icon (cards 1,3,4) or play/video icon (cards 2,5). Below the image: caption block with an uppercase handle (Label/Caption text style, foreground_heading) and a quote line (Text/Small, foreground). Bespoke card component (UGC Card / Below / Desktop instances), not a known shared library atom. Single color scheme (Essential roles only, no mode divergence). Outer container 1440px desktop, 40px vertical padding; section frame 1680px. No mobile variant present at this node — desktop only."
+}

@@ -1,0 +1,28 @@
+{
+  "slug": "newsletter-signup",
+  "bg": "#ede8e1",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "foreground_heading": "#1e1b18",
+    "foreground": "#2a2620",
+    "background": "#ede8e1",
+    "border": "#c9a88280",
+    "inputs_text": "#1e1b18",
+    "inputs_border": "#c9a88280",
+    "primary_button_background": "#1e1b18",
+    "primary_button_border": "#1e1b18",
+    "primary_button_text": "#fffefd"
+  },
+  "settings": {
+    "eyebrow": "Comunidad Aristopet",
+    "heading": "Únete a la comunidad aristopet",
+    "subheading": "Novedades, inspiración y consejos para cuidar mejor a tu mascota",
+    "body": "Suscríbete y recibe contenido exclusivo, lanzamientos y ventajas exclusivas para ti",
+    "input_placeholder": "Introduce tu email",
+    "button_label": "Suscribirme",
+    "terms_label": "Acepto la política de privacidad."
+  },
+  "blockTypes": [],
+  "multiScheme": false,
+  "notes": "Two-column layout (left: eyebrow + H2 heading + subheading; right: body + email form + privacy checkbox) split by a vertical divider bound to Essential/Border. Form = Input Field atom (placeholder) + primary Button atom; below it a Checkbox atom + terms text. Atoms are library instances: Input Field (node 22:2), Button (node 21:10, variants Style Primary/Secondary x State Default/Hover), Checkbox (node 24:35, variants Unchecked/Checked). Square corners (radius/input=0, radius/button_primary=0). Node name says 'Desktop' — a separate Mobile variant likely exists (columns would stack). All colors resolve to a single mode; no multi-scheme divergence observed. No repeated child blocks."
+}

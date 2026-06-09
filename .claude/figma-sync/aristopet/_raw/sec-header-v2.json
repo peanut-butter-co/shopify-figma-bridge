@@ -1,0 +1,35 @@
+{
+  "slug": "header-v2",
+  "bg": "#fffefd",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "foreground_heading": "#1e1b18",
+    "foreground": "#2a2620",
+    "background": "#fffefd",
+    "primary": "#af7d4f",
+    "border": "#ede8e1",
+    "inputs_text": "#1e1b18",
+    "inputs_hover_background": "#faf7f2"
+  },
+  "settings": {
+    "menu_item_1": "PERROS",
+    "menu_item_2": "GATOS",
+    "menu_item_3": "HOGAR & VIDA",
+    "menu_item_4": "MARCAS",
+    "menu_item_5": "THE ARISTOPETERS",
+    "search_placeholder": "Buscar artículos y marcas",
+    "secondary_item_1": "Paseo",
+    "secondary_item_2": "Ropa",
+    "secondary_item_3": "Descanso",
+    "secondary_item_4": "Comida",
+    "secondary_item_5": "Comederos y bebederos",
+    "secondary_item_6": "Salud e higiene",
+    "secondary_item_7": "Juguetes"
+  },
+  "blockTypes": [
+    "menu-item",
+    "secondary-link"
+  ],
+  "multiScheme": false,
+  "notes": "Bespoke site header (not a library instance). Two-tier layout: top-block has logo + horizontal main-menu (PERROS selected, shown in Primary #af7d4f with a bordered selected-tab), a search input (Inputs/Hover Background fill, placeholder text), and 3 header icons (wishlist/heart, user/account, cart). Secondary-block below is a horizontal category nav (7 links) with an active underline indicator in Primary. Atoms referenced: Input Field, Icon/search, Icon/heart, Icon/account, Icon/cart. Component variant props exposed: scheme=\"Inverted\" and secondaryMenu=true (so an inverted color scheme exists, though this captured node resolves to a single light scheme — no multi-mode hex divergence observed here). Selected menu item and active secondary indicator suggest sticky/anchored nav behavior. Desktop variant (width 1440 container in 1680 frame); a separate mobile variant likely exists. Fonts: DM Sans (SemiBold overline 13/1.3 tracking for main menu, Medium caption 11/1.32 tracking uppercase for secondary nav, Regular 14 for search)."
+}

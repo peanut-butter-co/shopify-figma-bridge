@@ -1,0 +1,18 @@
+{
+  "bg": "#fffefd",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "background": "#fffefd",
+    "foreground_heading": "#1e1b18"
+  },
+  "settings": {
+    "level1": "PERROS",
+    "level2": "ROPA",
+    "current": "ALBORNOZ PEGGY"
+  },
+  "blockTypes": [
+    "link"
+  ],
+  "multiScheme": false,
+  "notes": "Bespoke breadcrumbs section. Horizontal trail: level1 > level2 > current, separated by an arrow-right icon (Atom Icon/arrow-right, node 23:73). Non-current crumbs use Grey/700 (#5a5550); the current/active crumb uses Essential/Foreground Heading (#1e1b18). Text is DM Sans Medium 11px, uppercase, letter-spacing 1.32px (Label/Caption style). Container is a horizontal flex row, gap spacing-8 (8px), vertically centered. Desktop padding pl-160 pr-120 py-7 at 1680px width. Crumb count is variable (3 shown). No carousel/sticky/marquee behavior. Only Desktop node read; no mobile variant captured."
+}

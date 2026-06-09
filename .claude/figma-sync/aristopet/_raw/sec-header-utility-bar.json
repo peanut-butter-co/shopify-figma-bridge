@@ -1,0 +1,18 @@
+{
+  "bg": "#1e1b18",
+  "fg": "#faf7f2",
+  "schemeRoles": {
+    "background": "#1e1b18",
+    "foreground": "#faf7f2",
+    "border": "#faf7f21a"
+  },
+  "settings": {
+    "help_label": "¿Necesitas ayuda?",
+    "phone": "900 920 450",
+    "email": "hello@aristopet.com",
+    "country_label": "España"
+  },
+  "blockTypes": [],
+  "multiScheme": false,
+  "notes": "Top utility/announcement bar (Desktop variant; node name 'Section / Header Utility Bar / Desktop'). Layout: full-width container (page-width 1440) with two groups justified between - LEFT group has help text, phone number, a thin 14px vertical divider (Essential/Border #faf7f21a), and email; RIGHT group has a country/language selector: Spanish flag icon (Icon/flag-es, colors #aa151b / #f1bf00), 'España' label, and a chevron-down icon (Atom Icon/chevron-down). Dark scheme: Essential/Background #1e1b18, Essential/Foreground #faf7f2. All text DM Sans Regular 12px (Text/Small style). Spacing tokens spacing-8 (vertical py / inner gaps) and spacing-16 (gap between left/right groups). Bespoke section built from atom icons + text, not a library section instance. Single color mode (not multi-scheme). Right group implies a country/locale switcher (likely a dropdown). Only the Desktop variant node was inspected; a Mobile variant likely exists separately."
+}

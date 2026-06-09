@@ -1,0 +1,21 @@
+{
+  "bg": "#faf7f2",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "background": "#faf7f2",
+    "foreground_heading": "#1e1b18",
+    "foreground": "#2a2620",
+    "border": "#ede8e1"
+  },
+  "settings": {
+    "tab_1_label": "Ver todo",
+    "tab_2_label": "Ropa",
+    "tab_3_label": "Accesorios",
+    "tab_4_label": "Camas",
+    "tab_5_label": "Juguetes",
+    "tab_6_label": "Alimentación"
+  },
+  "blockTypes": ["tab"],
+  "multiScheme": false,
+  "notes": "Horizontal sub-collection / filter navigation: a row of 6 'Tab' pills (8px gap, container padded pt-8 pb-24, 1440px desktop width). First tab 'Ver todo' is the active/selected state — filled with foreground-heading (#1e1b18) and inverted text in background color (#faf7f2). Remaining tabs are unselected: transparent fill, Essential/Border (#ede8e1) outline, foreground (#2a2620) text. Tab text is DM Sans Medium 11px, uppercase, 1.32px tracking, opsz 14. Labels are category sub-collections (likely sourced from collection links or a menu/linklist in Shopify). Only the Desktop variant was extracted (node named '...Desktop'); a mobile counterpart likely exists and may scroll/wrap horizontally. Single color scheme — no mode divergence detected. Bespoke section (tabs bound to Figma variables, not a hardcoded library instance)."
+}

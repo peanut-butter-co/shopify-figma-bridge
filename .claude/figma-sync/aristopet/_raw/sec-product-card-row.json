@@ -1,0 +1,37 @@
+{
+  "slug": "product-card-row",
+  "bg": "#fffefd",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "background": "#fffefd",
+    "foreground": "#2a2620",
+    "foreground_heading": "#1e1b18"
+  },
+  "settings": {
+    "card_1_eyebrow": "WALK ESSENTIALS",
+    "card_1_title": "Hoodie Studio",
+    "card_1_price": "129,00 €",
+    "card_1_badge_1": "NUEVO",
+    "card_1_badge_2": "POCAS UNIDADES",
+    "card_2_eyebrow": "BATH & GROOMING",
+    "card_2_title": "Maxbone Studio",
+    "card_2_price": "89,00 €",
+    "card_3_eyebrow": "EVERYDAY WEAR",
+    "card_3_title": "Capa Williams",
+    "card_3_price": "45,00 €",
+    "card_3_compare_at_price": "60,00 €",
+    "card_3_badge_1": "OFERTA",
+    "card_4_eyebrow": "HOME COMFORT",
+    "card_4_title": "Toalla Studio",
+    "card_4_price": "165,00 €",
+    "card_4_badge_1": "DESTACADO"
+  },
+  "blockTypes": [
+    "product-card",
+    "product-card",
+    "product-card",
+    "product-card"
+  ],
+  "multiScheme": false,
+  "notes": "Section / Product Card Row / Desktop (node 3437:2040). Horizontal row of 4 fixed-width (342px) product-card instances with gap-24, inside a 1440px page-width container (py-16). Each card = library Product Card component (img-wrap 428px tall + meta block) with: category eyebrow (Label/Caption, Essential/Foreground #2a2620), title (Heading/H5, Essential/Foreground Heading #1e1b18), price (Text/Large, #1e1b18), and an absolutely-positioned wishlist heart icon (40px, top-right). Cards differ by feature: card1 has NUEVO (badge/new) + POCAS UNIDADES (badge/low-stock) badges; card2 has NO badge but an outlined add-to-cart plus button (40px, translucent bg rgba(255,254,253,0.5), bordered) bottom-right and a 3-image hover stack (gallery hover); card3 is a sale card (OFERTA badge/sale #e5484d) with two-line price: sale price in status/red #e5484d + struck-through compare-at price; card4 has DESTACADO (badge/featured #af7d4f). Badge atoms carry their own role-pair color vars (new/low-stock/sale/featured bg+text) outside the Essential scheme — these are component-level, not section scheme. No carousel/marquee/sticky behavior evident — static grid row. Desktop variant only (no mobile node read). All product-card instances are library components (Atom badges and Icon/plus, Icon/heart documented as atoms). No mode/scheme divergence — every variable resolved to a single hex."
+}

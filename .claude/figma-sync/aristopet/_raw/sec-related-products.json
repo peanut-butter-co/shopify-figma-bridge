@@ -1,0 +1,26 @@
+{
+  "bg": "#fffefd",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "background": "#fffefd",
+    "foreground_heading": "#1e1b18"
+  },
+  "settings": {
+    "product_card_1_title": "Collar Wopsy",
+    "product_card_1_price": "32,95 €",
+    "product_card_2_title": "Arnés Rubí",
+    "product_card_2_price": "29,95 €",
+    "product_card_3_title": "Snood Marinero",
+    "product_card_3_price": "25,95 €",
+    "product_card_4_title": "Sudadera Nórdica",
+    "product_card_4_price": "15,95 €",
+    "product_card_5_title": "Chubasquero Sol",
+    "product_card_5_price": "23,95 €",
+    "product_card_6_title": "Bolso Noir",
+    "product_card_6_price": "25,95 €"
+  },
+  "blockTypes": ["product-card"],
+  "multiScheme": false,
+  "notes": "Section 'Related Products' (Desktop) — a horizontal product grid/carousel of 6 'Product Card / Minimal / Desktop' library instances inside a Container/Desktop (w=1440, py=spacing-40/40px) with a div.grid row (gap=16px). Each card = div.img (image, ~283px tall) + div.meta with title (Heading/H6, DM Sans SemiBold 16) and price (Text/Medium, DM Sans Regular 14), both bound to Essential/Foreground Heading #1e1b18. First card carries an 'AddToCart' atom (Icon/plus, 32px square, semi-transparent bg rgba(255,254,253,0.5) ~= Essential/Background @ 50% alpha, border = Essential/Foreground Heading #1e1b18) pinned bottom-right of the image; the other 5 cards omit it (hover/state-driven). No section-level heading, eyebrow, or button label text present — only per-card product names + prices. Likely a carousel of related/recommended products (product cards are repeating blocks). Single color mode observed (no multi-scheme divergence). Only Desktop variant inspected; a mobile counterpart likely exists.",
+  "slug": "related-products"
+}

@@ -1,0 +1,26 @@
+{
+  "slug": "split-banner",
+  "bg": "",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "foreground_heading": "#1e1b18",
+    "foreground": "#2a2620",
+    "secondary_button_text": "#1e1b18",
+    "secondary_button_background": "#00000000"
+  },
+  "settings": {
+    "left_counter": "N.º 01 — Aristoperros",
+    "left_eyebrow": "FW26 · Lanzamiento",
+    "left_title": "Aristoperros",
+    "left_description": "Trench, tweed y terciopelo. Para el caballero de cuatro patas.",
+    "left_button_label": "Comprar perros",
+    "right_counter": "N.º 02 — Aristogatos",
+    "right_eyebrow": "FW26 · Lanzamiento",
+    "right_title": "Aristogatos",
+    "right_description": "Perlas, foulards y la pereza más elegante del salón.",
+    "right_button_label": "Comprar gatos"
+  },
+  "blockTypes": ["hero-half"],
+  "multiScheme": true,
+  "notes": "Two-column split banner (div.hero-half Left + Right), each a repeated block with image background, counter overline (top-left), copy stack (eyebrow, Display H1 title, description, secondary outline button), bottom-anchored. Same Essential vars resolve to two schemes by half: left on light image uses dark text (Essential/Foreground Heading #1e1b18, Essential/Foreground #2a2620, Secondary button/Text #1e1b18); right on dark image uses light text (#fffefd / #faf7f2 / #faf7f2) -> multiScheme. Secondary button is transparent bg with 1px border in the text color, square corners (radius 0), 48px tall, px-32 py-16, uppercase Label/Overline Bold. Button is a library Atom instance (Button, node 21:10, variants Style Primary/Secondary x State Default/Hover). Desktop frame 1680x782. No mobile variant returned by this node. No carousel/marquee/sticky behavior."
+}

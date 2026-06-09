@@ -1,0 +1,19 @@
+{
+  "bg": "#fffefd",
+  "fg": "#1e1b18",
+  "schemeRoles": {
+    "background": "#fffefd",
+    "foreground_heading": "#1e1b18",
+    "foreground": "#5a5550",
+    "border": "#d4cec7"
+  },
+  "settings": {
+    "filter_label": "Filtros",
+    "product_count": "120 productos",
+    "sort_label": "Ordenar por:",
+    "sort_value": "Destacados"
+  },
+  "blockTypes": [],
+  "multiScheme": false,
+  "notes": "Slim filter/sort bar above a product grid: filter icon + 'Filtros' on the left, '120 productos' count centered, sort icon + 'Ordenar por: Destacados' + chevron-down (dropdown) on the right. Bespoke section (Section / Filter Bar / Desktop), not a library instance. Bordered top & bottom with Grey/300. Sort control is an interactive dropdown. Only a Desktop variant was read at this node; mobile likely collapses into icon-only / drawer triggers. Single color mode (no multi-scheme)."
+}
