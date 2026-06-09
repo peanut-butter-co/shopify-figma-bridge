@@ -74,6 +74,14 @@ The contract is filled by retroactive AI inference with uneven reliability. Deci
 
 **Asymmetric cost → bias to CODE.** A false `config` ships a silently-broken store; a false `code` only produces redundant scaffold work that is visible and cancelable. Therefore: **default to `code` whenever the deterministic check cannot *prove* `config`.** Never claim `config` without proof against the schema.
 
+### D4 — Desktop/Mobile: one theme artifact, two design frames
+
+In Figma each section is designed at **two viewports** (desktop + mobile), built either as a variant set (`Device=Desktop/Mobile`) or as separate components. But **a Shopify section is a single `sections/x.liquid` that renders responsively via CSS** — there is no "mobile section" artifact. So the split is a *design representation*, not two build targets, and it lands per artifact:
+
+- **`componentMap`:** two Figma nodes (desktop + mobile) → **one** theme file. Record both nodes + how they live in Figma (`representation`).
+- **`compositions`:** **one** `order` — `templates/*.json` has a single `order` array and Shopify does not reorder or hide sections by viewport via config. Each entry carries both frame node-ids; mobile-specific settings (`columns_mobile`, the `-1` padding sentinel, …) are just extra keys in the same blob. Modeling two orders would be a trap: it implies a config-achievability that does not exist.
+- **`reachability`:** mobile divergence at the **section level** is itself a config-vs-code signal. If mobile **reorders** sections, makes one **viewport-only**, or changes **behaviour** (not just a setting — e.g. desktop grid → mobile 1.5-card carousel), it is not expressible in a single JSON `order`/blob → it routes to CODE, exactly like an instance delta. The deterministic expressibility check runs over **both** frames' demands.
+
 ---
 
 ## 3. The three artifacts
@@ -85,8 +93,10 @@ One entry per component, keyed by slug (sections) or component name (atoms/block
 ```jsonc
 "hero": {
   "type": "section",                                   // section | block | atom
-  "figma":  { "name": "hero", "nodeId": "2120:2",
-              "page": "04 - Sections", "isInstance": true },
+  "figma":  { "name": "hero", "isInstance": true,
+              "representation": "variant-set",                 // variant-set | separate-components
+              "desktop": { "nodeId": "2120:2", "page": "04 - Sections" },
+              "mobile":  { "nodeId": "2122:5", "page": "04 - Sections" } },  // mobile null if no distinct frame
   "theme":  { "file": "sections/hero.liquid",
               "exists": true,                           // VERIFIED with Glob — not guessed ([DESIGN-RULES-TRUST])
               "kind": "section" },                      // section | theme-block | app-block | snippet
@@ -107,8 +117,10 @@ One entry per component, keyed by slug (sections) or component name (atoms/block
 
 "pdp-ugc-section": {
   "type": "section",
-  "figma":  { "name": "Section / UGC", "nodeId": "3484:2601",
-              "page": "04 - Sections", "isInstance": false },   // detached → bespoke signal
+  "figma":  { "name": "Section / UGC", "isInstance": false,    // detached → bespoke signal
+              "representation": "separate-components",
+              "desktop": { "nodeId": "…",         "page": "04 - Sections" },
+              "mobile":  { "nodeId": "3484:2601", "page": "04 - Sections" } },
   "theme":  { "file": null, "exists": false, "kind": "section" },
   "schema": null,
   "reachability": { "verdict": "code", "basis": "no-candidate",
@@ -116,7 +128,7 @@ One entry per component, keyed by slug (sections) or component name (atoms/block
 }
 ```
 
-**`basis` enum:** `instance-of-library` · `css-hardcoded` · `schema-expressible` · `no-candidate` · `block-type-unsupported` · `value-out-of-domain` · `max-blocks-exceeded` · `app-slot` · `liquid-only`.
+**`basis` enum:** `instance-of-library` · `css-hardcoded` · `schema-expressible` · `no-candidate` · `block-type-unsupported` · `value-out-of-domain` · `max-blocks-exceeded` · `mobile-divergence` · `app-slot` · `liquid-only`.
 
 ### 3.2 `manifest.compositions` — the layout
 
@@ -129,18 +141,24 @@ Order + values only; references `componentMap` by key. No provenance fields (D2)
   "figmaNodeIdMobile": "3520:3400",        // Mobile page frame
   "order": [
     { "component": "hero",                  // ← KEY into componentMap (the normalized indirection)
-      "instanceNodeId": "…",
+      "desktopNodeId": "…", "mobileNodeId": "…",        // both frames of this specific use
       "colorScheme": "scheme-1",
-      "settings": { "heading": "…", "layout": "split", "image": "<asset-ref>" },
-      "blocks":   [ { "type": "button", "order": 0, "settings": { "label": "Comprar" } } ] },
+      "settings": { "heading": "…", "layout": "split",
+                    "columns": 3, "columns_mobile": 1,    // mobile-specific keys = more keys, same blob
+                    "image": "<asset-ref>" },
+      "blocks":   [ { "type": "button", "order": 0, "settings": { "label": "Comprar" } } ],
+      "mobileDivergence": null },
 
-    { "component": "homepage-marquee-promo", "instanceNodeId": "…",
-      "colorScheme": "scheme-2", "settings": { }, "blocks": [ ] }
+    { "component": "homepage-marquee-promo",
+      "desktopNodeId": "…", "mobileNodeId": "…",
+      "colorScheme": "scheme-2", "settings": { }, "blocks": [ ],
+      "mobileDivergence": { "type": "behavior",           // null | reorder | viewport-only | behavior
+                            "note": "grid (desktop) → 1.5-card carousel (mobile) → CODE" } }
   ]
 }
 ```
 
-**Mobile divergence** (sections hidden/reordered on mobile) is an *optional* per-entry overlay `mobile: { hidden?: bool, order?: int }`. `order` is the canonical (Desktop) layout. Detail deferred until a real Aristopet template needs it — see Open Questions.
+Each entry carries **both** frame node-ids (`desktopNodeId` / `mobileNodeId`) and a `mobileDivergence`: `null` when desktop & mobile differ only in settings (handled by `_mobile` keys), or `{ type: "reorder" | "viewport-only" | "behavior", note }` when they diverge at the *section* level — which is **not** expressible in a single JSON `order`/settings blob and therefore routes that section (or its delta) to the work-order as `code-required` (see §4 and D4).
 
 ### 3.3 work-order — derived (not hand-maintained)
 
@@ -154,7 +172,10 @@ Computed from `componentMap` + `compositions`; the input to SP-3. Regenerable; n
       "usedIn": ["product"], "note": "new section: UGC carousel + image blocks" },
     // instance-level delta: component is config-achievable in general, but THIS usage exceeds the schema
     { "component": "slideshow", "basis": "max-blocks-exceeded",
-      "usedIn": ["index"], "delta": "index uses 6 slides; sections/slideshow.liquid max_blocks=5" }
+      "usedIn": ["index"], "delta": "index uses 6 slides; sections/slideshow.liquid max_blocks=5" },
+    // mobile divergence: desktop/mobile differ at the section level → not expressible in one JSON order/blob
+    { "component": "homepage-marquee-promo", "basis": "mobile-divergence",
+      "usedIn": ["index"], "delta": "grid (desktop) → 1.5-card carousel (mobile) needs responsive CSS/JS" }
   ],
   "appBlocks":    [ { "component": "reviews", "basis": "app-slot",
                       "usedIn": ["product"], "action": "merchant installs reviews app" } ],
@@ -162,7 +183,7 @@ Computed from `componentMap` + `compositions`; the input to SP-3. Regenerable; n
 }
 ```
 
-A `codeRequired` entry is either a **whole component** (no host target) or an **instance delta** (a config-achievable component whose specific composition exceeds the candidate's schema — carries `delta` + `usedIn`). Both kinds satisfy invariant 4 (§6).
+A `codeRequired` entry is one of three kinds: a **whole component** (no host target); an **instance delta** (a config-achievable component whose specific composition exceeds the candidate's schema — carries `delta` + `usedIn`); or a **mobile divergence** (desktop/mobile differ at the section level — `reorder` / `viewport-only` / `behavior`). All three satisfy invariant 4 (§6).
 
 ---
 
@@ -172,8 +193,9 @@ Two distinct levels, kept separate to keep SP-1 bounded and the contract normali
 
 - **Component-level (`componentMap.reachability`)** = the *baseline*: is there any host target for this component? (`config` / `code` / `app` / `out-of-scope`). Stored **once** per component.
 - **Instance-level expressibility** = do *this* composition's `settings`/`blocks` fit the candidate's schema? (e.g. `slideshow` is config in general, but an instance with 6 slides breaks `max_blocks: 5`.) **Computed deterministically by SP-2** against `componentMap.schema` at configure-time; failing instances are **lifted into the work-order** as a "code delta."
+- **Mobile divergence** = do desktop and mobile differ at the *section* level (order, viewport-only visibility, or behaviour)? Captured on the composition entry as `mobileDivergence`; a non-null value routes that section (or its delta) to `code-required` — Shopify config cannot express two section orders or per-viewport hiding. Settings-only differences (`_mobile` keys) are **not** a divergence. (See D4.)
 
-So SP-1 stores the baseline + the raw `settings`/`blocks`; the per-instance check is derived and deterministic.
+So SP-1 stores the baseline + the raw `settings`/`blocks`; the per-instance and mobile-divergence checks are derived, and the deterministic expressibility check runs over **both** the desktop and mobile frames' demands.
 
 ### The classifier (decision tree, not a single guess)
 
@@ -201,6 +223,7 @@ For each composed section S on a page:
 | `hero` (library instance) | resolves to `sections/hero.liquid`, exists | **CONFIG** (high) |
 | `homepage-marquee-promo` (instance of `marquee`) | `sections/marquee.liquid` exists; schema covers settings/blocks | **CONFIG** (medium) |
 | `slideshow` with 6 slides | instance, but schema `max_blocks: 5` | **CODE** delta — *deterministic failure* |
+| `homepage-marquee-promo` (grid desktop / carousel mobile) | `mobileDivergence: behavior` — not a setting | **CODE** (mobile divergence) |
 | `pdp-ugc-section` (detached) | no library component, no `sections/ugc.liquid`, carousel/masonry is not a setting | **CODE** (high) |
 
 ### Where it is genuinely hard (honest)
@@ -223,7 +246,7 @@ Risk concentrates in 3b/3c — bespoke detached sections where *maybe* a generic
 1. **Referential integrity:** every `compositions[*].order[*].component` ∈ keys(`componentMap`).
 2. **config ⇒ real:** `verdict === "config"` ⇒ `theme.exists === true` ∧ `candidate != null` ∧ `schema != null`.
 3. **nonexistent ⇒ non-config:** `exists === false` ⇒ `verdict ∈ {code, app, out-of-scope}`.
-4. **work-order = pure derivation:** ≡ components with `verdict ∈ {code, app, out-of-scope}` ∪ instances failing the deterministic expressibility check. No manual entries.
+4. **work-order = pure derivation:** ≡ components with `verdict ∈ {code, app, out-of-scope}` ∪ instances failing the deterministic expressibility check ∪ composition entries with a non-null section-level `mobileDivergence`. No manual entries.
 
 ---
 
@@ -235,12 +258,13 @@ Risk concentrates in 3b/3c — bespoke detached sections where *maybe* a generic
 | expressibility (settingValueIssue / block-type / maxBlocks) | `settings` / `blocks` values |
 | css-hardcoded (horizon.json) → CODE | order + colorScheme read from Figma frames |
 | invariants 1–4 | the fuzzy half of the verdict (biased to CODE) |
+| desktop↔mobile pairing when built as a variant set | desktop↔mobile pairing when separate components; `mobileDivergence` type |
 
 ---
 
 ## 8. Assumptions SP-1 must verify first
 
-The contract assumes that, per composed section, Figma exposes: whether it is an **instance** and its `mainComponent`; the **color scheme** (the frame's variable mode); and **setting/text overrides**; and that page frames live on "05 - Pages". SP-1's first task is to confirm these are readable as expected; if not, it reports back and we adjust the contract before locking it. (This is *why* SP-1 immediately follows SP-0a — it validates the contract shape against the real design.)
+The contract assumes that, per composed section, Figma exposes: whether it is an **instance** and its `mainComponent`; the **color scheme** (the frame's variable mode); and **setting/text overrides**; and that page frames live on "05 - Pages". It also assumes each **desktop section frame can be paired with its mobile counterpart** — a `Device=Mobile` variant or an adjacent node per `config.mobileNaming` ("Horizon / Mobile") / `config.mobilePlacement` ("adjacent"). SP-1's first task is to confirm these are readable as expected; if not, it reports back and we adjust the contract before locking it. (This is *why* SP-1 immediately follows SP-0a — it validates the contract shape against the real design.)
 
 ---
 
@@ -255,5 +279,4 @@ The contract assumes that, per composed section, Figma exposes: whether it is an
 ## 10. Open questions (minor — do not block the plan)
 
 1. **work-order home:** a regenerable derived file (`work-order.json`) vs `manifest.workOrder` vs computed on demand. Leaning: regenerable derived file, so it is never stale primary state.
-2. **Mobile overlay shape:** the `mobile:{hidden?,order?}` per-entry overlay is sketched, not finalized; finalize when a real Aristopet template needs mobile divergence.
-3. **`basis` enum:** the proposed set covers the known routes; may gain entries as SP-1 meets real cases.
+2. **`basis` enum:** the proposed set covers the known routes; may gain entries as SP-1 meets real cases.
