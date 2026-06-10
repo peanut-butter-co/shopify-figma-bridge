@@ -1141,5 +1141,11 @@
         }
       ]
     }
+  },
+  "buildStatus": {
+    "shopifyFoundations": "complete"
+  },
+  "buildMeta": {
+    "builtAt": "2026-06-10T14:03:23Z"
   }
 }
