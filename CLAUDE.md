@@ -40,7 +40,9 @@ inspects, proposes a plan explaining the gaps, you approve, it writes (backup + 
   as a single human-assisted step**: inspects the design intent + host candidate section + schema, proposes
   a plan (how far settings reach via `configPlan` + schema extensions, what needs code), you approve/correct,
   then it executes (config first via the safe-write substrate, then code) behind backup + diff + approval +
-  `shopify-validate`. Consumes the SP-1.1 work-order; gap-transparent; offers the next component after each.
+  `shopify-validate` + a **visual verify** against the live `shopify theme dev` preview (browser MCP screenshot
+  vs the Figma node, desktop + mobile). Consumes the SP-1.1 work-order; gap-transparent; offers the next
+  component after each.
 
 ## Manifest state contract
 

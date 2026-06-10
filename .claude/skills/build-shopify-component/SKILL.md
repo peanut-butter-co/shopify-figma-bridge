@@ -10,7 +10,7 @@ description: >
   Figma components — that is build-components. Not for foundations — that is build-shopify-foundations.
 user-invocable: true
 context: inline
-allowed-tools: [Read, Write, Edit, Bash, Grep]
+allowed-tools: [Read, Write, Edit, Bash, Grep, mcp__figma__get_screenshot, mcp__playwright__browser_navigate, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_resize, mcp__chrome-devtools__navigate_page, mcp__chrome-devtools__take_screenshot, mcp__chrome-devtools__resize_page]
 ---
 
 ```sh
@@ -51,6 +51,27 @@ If any check fails, **STOP**, tell the user the exact prerequisite, and do NOT i
 6. If `componentMap[key].reachability.verdict === "app"` → this is app-provided. Record the app-slot
    (`buildStatus.components[key] = "complete"`), tell the developer where the app block goes, and offer the
    next component. Do NOT write code.
+7. **Visual-validation tools (HARD STOP):** the render gate (Step 3d) needs `mcp__figma__get_screenshot` AND a
+   browser MCP (Playwright or chrome-devtools, e.g. `navigate_page`) to verify the build against the design.
+   If the **required MCP tools** are not connected / unavailable, **STOP** and ask the developer to connect
+   them — never skip the visual verify or declare a component done without one (project rule: never proceed
+   without required MCP tools). (`app` components return at gate 6 and render nothing — they never reach here.)
+
+---
+
+## Step 0: Dev-server handshake (start it now)
+
+Visual validation (Step 3d) renders the host theme in a browser, so the developer's **local preview must be
+running**. Remind the developer now:
+
+> Run `shopify theme dev` in the host theme (`<themeRoot>`) and tell me when it's up — paste the preview URL
+> (default `http://127.0.0.1:9292`). You can start it while I inspect and plan; it must be running before the
+> visual check.
+
+Capture the URL; do **not** assume the server is up — wait for the developer's confirmation. If they decline
+to start it, the config/code writes still happen behind backup+diff+approval, but you cannot close the loop
+without the visual check — say so explicitly rather than declaring the component done. (`app` components never
+reach here — they return at pre-flight gate 6.)
 
 ---
 
@@ -113,6 +134,17 @@ See `reference/execute.md` for the safe-write protocol. Order matters:
 **c. Validate**
 6. `node .claude/scripts/shopify-validate.js <themeRoot>` — must pass. If red, fix or restore + STOP.
 
+**d. Visual verify (against the live preview)**
+7. Confirm `shopify theme dev` is running (Step 0); if not, ask the developer to start it and wait. Open the
+   preview URL with the browser MCP confirmed at pre-flight gate 7 — Playwright (`browser_navigate`) or
+   chrome-devtools (`navigate_page`), whichever is connected. Navigate to the template that renders **{key}**,
+   then screenshot it at desktop **and** mobile widths (`resize` ~1440, then ~390).
+8. Fetch the design intent — `mcp__figma__get_screenshot` on the usage's `desktopNodeId` / `mobileNodeId` —
+   and compare. A thin sliver, a collapsed section, missing text, an unbound/raw color, or wrong type means the
+   layout is **broken**; never rationalize a visual anomaly (project rule — see gotchas). On divergence, fix
+   the code and re-run **b → c → d**, or surface the gap to the developer. Only a faithful render at both
+   breakpoints counts as done.
+
 ## Step 4: Record state
 
 Set `buildStatus.components["<key>"] = "complete"` and `buildMeta.builtAt` in the manifest; write it back.
@@ -124,6 +156,7 @@ Built {key} into {themeRoot}.
   Config:   {A} settings applied, {E} schema extensions
   Code:     {C} gaps authored ({slug}.liquid {+ N blocks})
   Gaps:     all listed + approved above
+  Visual:   verified vs Figma {nodeId} — desktop + mobile
 Backups:    .claude/figma-sync/backups/
 ```
 

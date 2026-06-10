@@ -3,7 +3,8 @@
 Mechanics live in `.claude/scripts/safe-shopify-write.js` + `.claude/scripts/shopify-validate.js` (tested).
 The interactive diff + approval live in the skill. This satisfies the hard rule *"all Shopify JSON writes
 require backup + diff preview + user approval"* and reuses SP-2's substrate
-(`build-shopify-foundations/reference/safe-write.md`). Execute **config first, then code**.
+(`build-shopify-foundations/reference/safe-write.md`). Execute **config first, then code — then verify visually
+against the live preview**.
 
 ## a. Config
 
@@ -39,8 +40,27 @@ require backup + diff preview + user approval"* and reuses SP-2's substrate
    resolution + block checks). If red → fix or restore from backup, then STOP. Never leave the host theme in
    a state validate-shopify rejects.
 
+## d. Visual verify (live preview)
+
+Static validation proves the JSON/schema are well-formed; it does NOT prove the component *renders*. Close the
+loop against the running `shopify theme dev` preview (SKILL Step 0 — the developer starts it and gives you the
+URL, default `http://127.0.0.1:9292`).
+
+8. **Render.** Open the preview with the browser MCP — Playwright (`browser_navigate` / `browser_resize` /
+   `browser_take_screenshot`) or chrome-devtools (`navigate_page` / `resize_page` / `take_screenshot`),
+   whichever is connected (availability is enforced at SKILL pre-flight gate 7 — a missing browser/Figma MCP
+   hard-STOPs the run). Navigate to the template that renders the component and screenshot it at desktop
+   (~1440) and mobile (~390).
+9. **Compare to intent.** `mcp__figma__get_screenshot` on the usage's `desktopNodeId` / `mobileNodeId`. Put the
+   two side by side. A thin sliver, a collapsed/absent section, missing text, a raw (unbound) color, or wrong
+   type = **broken** — never rationalize it (project memory: a visual anomaly is real, not a quirk). On
+   divergence, fix the code and re-run **b → c → d**, or surface the gap. Only a faithful render at both
+   breakpoints is "done".
+
 ## Order matters
 
 Config first means the host section + its schema exist before you write its template instance, and the
 schema extensions exist before any code references them. If config verify fails, you restore before
-touching code — the theme never ends a run half-written.
+touching code — the theme never ends a run half-written. And visual verify is **last**: nothing is "done"
+until the running preview matches the design intent at both breakpoints — `shopify-validate` green is
+necessary, not sufficient.

@@ -83,6 +83,23 @@ is exactly the user's "iremos corrigiendo."
 a component's step finishes, and `nextComponent` skips completed ones, enabling the continue-to-next loop and
 resumability. Gate: `buildStatus.shopifyFoundations === "complete"` (foundations must precede components).
 
+### D8 — Visual validation against the live `shopify theme dev` preview
+Static validation (`shopify-validate.js`) proves the JSON/schema are well-formed; it does not prove the
+component *renders*. So execution adds a final **visual** gate. **Precondition (handshake):** the developer
+runs `shopify theme dev` in the host theme and tells the skill when it's up (preview URL, default
+`http://127.0.0.1:9292`); the skill reminds them at Step 0 and waits — it never assumes the server is running
+or starts it itself. **Check:** after validate passes, the skill opens the preview in a browser MCP (Playwright
+**or** chrome-devtools, whichever is connected), screenshots the component at desktop and mobile widths, and
+compares it to the Figma node (`mcp__figma__get_screenshot` on the usage's `desktopNodeId`/`mobileNodeId`). A
+visual anomaly — a thin sliver, a collapsed section, missing text, an unbound color — is treated as a **broken
+layout**, never rationalized (project memory: "never rationalize visual anomalies; a thin sliver = broken
+layout"). On divergence the skill fixes the code and re-runs code→validate→visual, or surfaces the gap.
+`shopify-validate` green is necessary but not sufficient; a faithful render at both breakpoints is the real
+done. The browser + Figma-screenshot tools join `allowed-tools` for exactly this step, and the skill
+**hard-STOPs at pre-flight** (gate 7) if those MCP tools are unavailable — a resource-dependent skill never
+silently degrades (HIGH-C), so a build that cannot be verified is never started. This is a live,
+human-in-the-loop gate (not part of the `skills-tests.js` unit harness).
+
 ---
 
 ## 3. Architecture
@@ -166,6 +183,9 @@ For a component `key` (named arg, or `nextComponent` when none):
    `shopify-validate`.
    b. **Code:** author/edit `sections/<slug>.liquid` (+ blocks) for the codeGaps, bound to foundations
    variables → backup → diff → approval → `shopify-validate`.
+   c. **Visual verify:** with `shopify theme dev` running (handshake at Step 0), screenshot the component in
+   the live preview (browser MCP, desktop + mobile) and compare to the Figma node; never rationalize a visual
+   anomaly. On divergence, fix code and re-run b→validate→visual. (D8)
 5. **Record:** `buildStatus.components[key] = "complete"`, `buildMeta.builtAt`.
 6. **Continue:** offer the next un-built component (`nextComponent`).
 
@@ -192,6 +212,8 @@ Gate read by SP-3: `buildStatus.shopifyFoundations === "complete"` (HARD STOP ot
   `extractSchema`).
 - **Skill evals** (`evals/evals.json`, ≥4 cases): triggers on "build the X component into the host theme";
   routes to `/build-shopify-foundations` when foundations aren't built; no-trigger on Figma-side build.
+- **Visual gate (live, not unit-tested):** the render check (D8) runs against `shopify theme dev` via a
+  browser MCP + Figma screenshot; it is a human-in-the-loop step, not part of `skills-tests.js`.
 - **Harness lints:** `## After Completion` + `gotchas.md` (P11/B7); `EVAL_SKILLS` + `SELF_LEARN` entries;
   CLAUDE.md mentions the skill dir (C7/F067); allowed-tools/context (C8/C9).
 
@@ -220,7 +242,8 @@ Gate read by SP-3: `buildStatus.shopifyFoundations === "complete"` (HARD STOP ot
 ## 8. Open questions / risks
 
 1. **Liquid authoring fidelity (D6)** — the highest-uncertainty surface; v1 is guided + validated, refined by
-   testing. A misbuild is caught by `shopify-validate` + the human diff, never silently shipped.
+   testing. A misbuild is caught by `shopify-validate` + the **visual verify against the live preview** (D8) +
+   the human diff, never silently shipped.
 2. **Instancing target** — whether a section lands in `templates/<t>.json` vs a `*-group.json` (header/footer
    chrome) is per-component; the skill inspects the host's existing placement and proposes accordingly.
 3. **Schema-extension overlap with SP-2** — `configPlan`/`injectSchemaSettings` echo SP-2's foundations-map
