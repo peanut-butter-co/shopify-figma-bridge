@@ -18,9 +18,10 @@ alpha colors store directly. `normalizeColor` round-trips each value to Horizon'
 | `foreground_chip` | — (orphan → `orphan-role` gap, dropped) |
 
 - **Schemes:** populate `scheme-1..4` (the ids `compositions[*].order[*].colorScheme` references). Host
-  surplus schemes not in foundations → `pruneSchemes`. `applyPlan` MERGES mapped roles over the existing
-  scheme settings, preserving Horizon-only roles (`primary_hover`, `shadow`, `*_hover_*`, `variant_*`,
-  `selected_variant_*`).
+  schemes not in foundations → `surplusSchemes` (surfaced as a `surplus-scheme` gap, **never
+  auto-deleted** — a host scheme may still be referenced by host sections/templates; cleanup belongs to
+  spec #3). `applyPlan` MERGES mapped roles over the existing scheme settings, preserving Horizon-only
+  roles (`primary_hover`, `shadow`, `*_hover_*`, `variant_*`, `selected_variant_*`).
 
 ## Typography — `mapTypography`
 
@@ -42,6 +43,7 @@ alpha colors store directly. `normalizeColor` round-trips each value to Horizon'
 
 ## Gap kinds (surface ALL of these in the proposal)
 
-`orphan-role` · `size-ladder-extension` · `approx-line-height` · `approx-letter-spacing` ·
-`verify-font-availability` · `accent-left-default` · `component-level-preset`. Plus `pruneSchemes` (the
-host schemes to remove). Nothing is applied silently — the developer sees every gap and decides.
+`orphan-role` · `size-ladder-extension` · `missing-setting` · `approx-line-height` ·
+`approx-letter-spacing` · `verify-font-availability` · `accent-left-default` · `component-level-preset` ·
+`surplus-scheme`. Plus `surplusSchemes` (the host schemes left in place). Nothing is applied silently —
+the developer sees every gap and decides.

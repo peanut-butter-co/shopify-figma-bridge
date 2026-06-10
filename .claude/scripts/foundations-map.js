@@ -24,7 +24,12 @@ const PRESET_LEVEL = { h1: 'h1', h2: 'h2', h3: 'h3', paragraph: 'paragraph' };
 /** Normalize an Aristopet color string to Horizon's convention (rgba(0,0,0,0) for transparent, #rrggbb[aa] otherwise). */
 function normalizeColor(c) { return rgbaToShopifyHex(shopifyHexToRGBA(c)); }
 
-/** foundations + liveData -> { schemeWrites, pruneSchemes, gaps }. schemeWrites carry only mapped roles (partial, merged later). */
+/**
+ * foundations + liveData -> { schemeWrites, surplusSchemes, gaps }.
+ * schemeWrites carry only mapped roles (partial, merged later). surplusSchemes = host schemes NOT in
+ * foundations: they are SURFACED as gaps but never auto-deleted (a host scheme may still be referenced
+ * by host sections/templates — deleting it silently breaks them; cleanup belongs to spec #3).
+ */
 function mapSchemes(foundations, liveData) {
   const schemes = ((foundations || {}).colors || {}).schemes || {};
   const liveSchemes = (((liveData || {}).current || {}).color_schemes) || {};
@@ -39,11 +44,14 @@ function mapSchemes(foundations, liveData) {
     }
     schemeWrites[id] = { settings };
   }
-  const pruneSchemes = Object.keys(liveSchemes).filter((k) => !(k in schemes));
-  return { schemeWrites, pruneSchemes, gaps };
+  const surplusSchemes = Object.keys(liveSchemes).filter((k) => !(k in schemes));
+  for (const id of surplusSchemes) {
+    gaps.push({ kind: 'surplus-scheme', detail: `host scheme "${id}" is not in the Aristopet foundations — left in place (it may be referenced by host sections; remove only when those are replaced)` });
+  }
+  return { schemeWrites, surplusSchemes, gaps };
 }
 
-/** Find a setting by id anywhere in the live schema; return its option value array (or null). */
+/** Find a setting by id anywhere in the live schema; return its option value array (or null if absent). */
 function optionValues(liveSchema, id) {
   for (const grp of liveSchema || []) {
     for (const s of (grp.settings || [])) {
@@ -58,6 +66,23 @@ function nearestToken(bucket, options) {
 }
 function lineHeightBucket(pct) { return pct < 100 ? 'tight' : pct <= 125 ? 'normal' : 'loose'; }
 function letterSpacingBucket(v) { return v < 0 ? 'tight' : v === 0 ? 'normal' : 'loose'; }
+
+/**
+ * Write a type size for any level (heading or paragraph) consistently: always record the value, but
+ * surface the two failure modes — value off the host ladder (-> schemaExtensions + gap) and host
+ * setting absent (-> missing-setting gap). Keeps heading/paragraph handling symmetric.
+ */
+function writeSize(level, size, liveSchema, typeWrites, schemaExtensions, gaps) {
+  const sizeStr = String(size);
+  typeWrites['type_size_' + level] = sizeStr;
+  const opts = optionValues(liveSchema, 'type_size_' + level);
+  if (opts === null) {
+    gaps.push({ kind: 'missing-setting', detail: `host has no type_size_${level} setting — wrote ${sizeStr} but it may be ignored` });
+  } else if (!opts.includes(sizeStr)) {
+    schemaExtensions.push({ setting: 'type_size_' + level, addOption: { value: sizeStr, label: sizeStr + 'px' } });
+    gaps.push({ kind: 'size-ladder-extension', detail: `${level} size ${sizeStr}px is not on the host ladder — proposing to add it` });
+  }
+}
 
 /** foundations + liveSchema -> { fontWrites, typeWrites, schemaExtensions, gaps }. */
 function mapTypography(foundations, liveSchema) {
@@ -80,19 +105,13 @@ function mapTypography(foundations, liveSchema) {
     const level = PRESET_LEVEL[presetKey];
     if (!level) { gaps.push({ kind: 'component-level-preset', detail: `${presetKey} is a component-level text style — not a theme heading level (handled in spec #3)` }); continue; }
     if (level === 'paragraph') {
-      typeWrites.type_size_paragraph = String(preset.size);
+      writeSize('paragraph', preset.size, liveSchema, typeWrites, schemaExtensions, gaps);
       const lh = nearestToken(lineHeightBucket(preset.lineHeight), optionValues(liveSchema, 'type_line_height_paragraph'));
       if (lh) { typeWrites.type_line_height_paragraph = lh; gaps.push({ kind: 'approx-line-height', detail: `paragraph line-height ${preset.lineHeight}% -> token ${lh}` }); }
       continue;
     }
     typeWrites['type_font_' + level] = preset.fontRole === 'accent' ? 'accent' : 'heading';
-    const sizeStr = String(preset.size);
-    typeWrites['type_size_' + level] = sizeStr;
-    const sizeOpts = optionValues(liveSchema, 'type_size_' + level);
-    if (sizeOpts && !sizeOpts.includes(sizeStr)) {
-      schemaExtensions.push({ setting: 'type_size_' + level, addOption: { value: sizeStr, label: sizeStr + 'px' } });
-      gaps.push({ kind: 'size-ladder-extension', detail: `${level} size ${sizeStr}px is not on the host ladder — proposing to add it` });
-    }
+    writeSize(level, preset.size, liveSchema, typeWrites, schemaExtensions, gaps);
     const lh = nearestToken(lineHeightBucket(preset.lineHeight), optionValues(liveSchema, 'type_line_height_' + level));
     if (lh) { typeWrites['type_line_height_' + level] = lh; gaps.push({ kind: 'approx-line-height', detail: `${level} line-height ${preset.lineHeight}% -> token ${lh}` }); }
     const ls = nearestToken(letterSpacingBucket(preset.letterSpacing), optionValues(liveSchema, 'type_letter_spacing_' + level));
@@ -102,13 +121,13 @@ function mapTypography(foundations, liveSchema) {
   return { fontWrites, typeWrites, schemaExtensions, gaps };
 }
 
-/** Full plan: foundations + live schema/data -> { schemeWrites, typeWrites, fontWrites, schemaExtensions, gaps, pruneSchemes }. */
+/** Full plan: foundations + live schema/data -> { schemeWrites, typeWrites, fontWrites, schemaExtensions, gaps, surplusSchemes }. */
 function foundationsMap(foundations, liveSchema, liveData) {
   const c = mapSchemes(foundations, liveData);
   const t = mapTypography(foundations, liveSchema);
   return {
     schemeWrites: c.schemeWrites,
-    pruneSchemes: c.pruneSchemes,
+    surplusSchemes: c.surplusSchemes,
     typeWrites: t.typeWrites,
     fontWrites: t.fontWrites,
     schemaExtensions: t.schemaExtensions,
@@ -127,7 +146,8 @@ function applyPlan(plan, liveSchema, liveData) {
     const slot = data.current.color_schemes[id] || (data.current.color_schemes[id] = { settings: {} });
     slot.settings = Object.assign({}, slot.settings, write.settings);
   }
-  for (const id of (plan.pruneSchemes || [])) delete data.current.color_schemes[id];
+  // surplus host schemes are intentionally NOT deleted here — they may be referenced by host
+  // sections/templates; cleanup happens when those are replaced (spec #3).
   Object.assign(data.current, plan.fontWrites || {}, plan.typeWrites || {});
   // schema: append missing select options
   for (const ext of (plan.schemaExtensions || [])) {

@@ -47,13 +47,13 @@ console.log(JSON.stringify(fm.foundationsMap(root.foundations, schema, data),nul
 '
 ```
 
-Read the resulting plan: `schemeWrites` (4 schemes), `fontWrites`, `typeWrites`, `schemaExtensions`, `pruneSchemes`, `gaps`.
+Read the resulting plan: `schemeWrites` (4 schemes), `fontWrites`, `typeWrites`, `schemaExtensions`, `surplusSchemes`, `gaps`.
 
 ## Step 2: Propose the plan to the developer (gap-transparent)
 
 Present, in plain language:
 - **Color schemes:** the 4 schemes and their role values being written (note alpha is preserved natively).
-- **Typography:** fonts + type scale; **list every `schemaExtension`** ("add 80px to `type_size_h1`") and **every gap** (`orphan-role` `foreground_chip` dropped; `approx-line-height`/`approx-letter-spacing` token choices with the source value; `verify-font-availability` for Instrument Sans; `component-level-preset` overline/caption skipped; `pruneSchemes` to remove).
+- **Typography:** fonts + type scale; **list every `schemaExtension`** ("add 80px to `type_size_h1`") and **every gap** (`orphan-role` `foreground_chip` dropped; `approx-line-height`/`approx-letter-spacing` token choices with the source value; `verify-font-availability` for Instrument Sans; `component-level-preset` overline/caption skipped; `surplusSchemes` — host extras left in place, NOT auto-deleted, since host sections may still reference them).
 - Ask the developer to approve or correct (e.g. "use 72 not 80", "keep scheme-5", "Instrument Sans isn't available → add a custom font source"). Apply any corrections to the plan object before executing.
 
 See `reference/mapping.md` for the full mapping reference; `reference/safe-write.md` for the write protocol.
@@ -76,7 +76,7 @@ Set `buildStatus.shopifyFoundations = "complete"` and `buildMeta.builtAt` in the
 
 ```
 Shopify foundations written to {themeRoot}.
-  Color schemes:  {N} populated (alpha native), {M} pruned
+  Color schemes:  {N} populated (alpha native), {M} surplus left in place
   Fonts:          body / subheading / heading set
   Type scale:     {K} levels set, {E} schema extensions (e.g. type_size_h1 += 80px)
   Gaps surfaced:  {G} (approximations + skips, all listed above)

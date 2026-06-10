@@ -8,9 +8,9 @@ const fs = require('fs');
 const path = require('path');
 
 // settings_data.json is JSONC: a leading block-comment header then JSON. Strip the header, then JSON.parse.
-function stripJsoncHeader(text) { return String(text).replace(/^﻿?\s*\/\*[\s\S]*?\*\/\s*/, ''); }
+function stripJsoncHeader(text) { return String(text).replace(/^﻿/, '').replace(/^\s*\/\*[\s\S]*?\*\/\s*/, ''); }
 function parseSettingsData(text) { return JSON.parse(stripJsoncHeader(text)); }
-// Extract the leading header comment (so a write can re-prepend it); '' if none.
+// Extract the leading header (optional BOM + block comment, so a write can re-prepend it); '' if none.
 function settingsDataHeader(text) { const m = String(text).match(/^﻿?\s*\/\*[\s\S]*?\*\/\s*/); return m ? m[0] : ''; }
 
 // Copy srcPath to destDir/<basename-without-ext>.<stamp>.json; mkdir -p destDir; return the backup path.

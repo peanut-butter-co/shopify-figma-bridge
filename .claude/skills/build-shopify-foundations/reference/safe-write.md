@@ -12,7 +12,7 @@ For BOTH `config/settings_schema.json` and `config/settings_data.json`:
    `.claude/figma-sync/backups/<base>.<stamp>.json`. The `stamp` is `YYYYMMDD-HHMMSS`. Mandatory: the
    theme editor can overwrite `settings_data.json`.
 3. **Build "after"** — `applyPlan(plan, schema, data) → { schema, data }` (pure; merges scheme roles,
-   prunes surplus schemes, sets `type_*`/font keys, appends missing select options).
+   sets `type_*`/font keys, appends missing select options; surplus host schemes are surfaced but NOT deleted).
 4. **Diff-preview + approval** — show the before→after at key level; block until the developer approves.
 5. **Write** — serialize the approved objects. Re-prepend the JSONC header to `settings_data.json`.
 6. **Verify** — `verifyOnlyChanged(before, after, approvedPrefixes)`. `approvedPrefixes` =

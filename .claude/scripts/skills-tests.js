@@ -1179,11 +1179,12 @@ if (fm && fm.mapSchemes) {
       input_text_color: '#1e1b18', input_border_color: '#c9a88280', input_hover_background: '#faf7f2' });
     ok(r.gaps.some((g) => g.kind === 'orphan-role' && /foreground_chip/.test(g.detail)), 'foreground_chip -> orphan gap');
   });
-  check('SP-2 mapSchemes: host schemes not in foundations -> pruneSchemes', () => {
+  check('SP-2 mapSchemes: host schemes not in foundations -> surplusSchemes (surfaced, NOT deleted)', () => {
     const fnd = { colors: { schemes: { 'scheme-1': { colors: { background: '#ffffff' } } } } };
     const liveData = { current: { color_schemes: { 'scheme-1': { settings: {} }, 'scheme-5': { settings: {} }, 'scheme-x': { settings: {} } } } };
     const r = fm.mapSchemes(fnd, liveData);
-    eq([...r.pruneSchemes].sort(), ['scheme-5', 'scheme-x']);
+    eq([...r.surplusSchemes].sort(), ['scheme-5', 'scheme-x']);
+    ok(r.gaps.some((g) => g.kind === 'surplus-scheme' && /scheme-5/.test(g.detail)), 'surplus scheme surfaced as a gap');
   });
   check('SP-2 mapTypography: fonts + sizes + h1-80 schema extension + nearest tokens + skips', () => {
     const fnd = { typography: {
@@ -1223,8 +1224,17 @@ if (fm && fm.mapSchemes) {
     const p = fm.foundationsMap(fnd, [], { current: { color_schemes: { 'scheme-1': { settings: {} }, 'scheme-9': { settings: {} } } } });
     eq(p.schemeWrites['scheme-1'].settings.background, '#fffefd');
     eq(p.fontWrites.type_heading_font, 'instrument_sans_n7');
-    eq(p.pruneSchemes, ['scheme-9']);
+    eq(p.surplusSchemes, ['scheme-9']);
     ok(Array.isArray(p.gaps) && Array.isArray(p.schemaExtensions), 'plan carries gaps[] + schemaExtensions[]');
+  });
+  check('SP-2 writeSize symmetry: paragraph off-ladder extends; absent type_size setting -> missing-setting gap', () => {
+    const fnd = { typography: { fontRoles: {}, presets: {
+      paragraph: { fontRole: 'body', size: 15, lineHeight: 160, letterSpacing: 0, case: 'none' },
+      h1: { fontRole: 'heading', size: 80, lineHeight: 94, letterSpacing: -2, case: 'none' } } } };
+    const liveSchema = [ { settings: [ { id: 'type_size_paragraph', options: [{ value: '14' }, { value: '16' }] } ] } ];
+    const r = fm.mapTypography(fnd, liveSchema);
+    ok(r.schemaExtensions.some((e) => e.setting === 'type_size_paragraph' && e.addOption.value === '15'), 'paragraph 15 not on ladder -> extension');
+    ok(r.gaps.some((g) => g.kind === 'missing-setting' && /type_size_h1/.test(g.detail)), 'absent type_size_h1 -> missing-setting gap');
   });
 }
 const sw = tryRequire('./safe-shopify-write.js');
@@ -1262,11 +1272,11 @@ if (fm && fm.applyPlan && sw && sw.parseSettingsData && ariFND) {
     const plan = fm.foundationsMap(ariFND, liveSchema, liveData);
     ok(Object.keys(plan.schemeWrites).length === 4, 'maps Aristopet 4 schemes: ' + Object.keys(plan.schemeWrites));
     ok(plan.schemaExtensions.some((e) => e.setting === 'type_size_h1' && e.addOption.value === '80'), 'proposes adding 80px to type_size_h1');
-    ok(plan.pruneSchemes.length >= 1, 'prunes host surplus schemes: ' + plan.pruneSchemes);
+    ok(plan.surplusSchemes.length >= 1, 'surfaces host surplus schemes: ' + plan.surplusSchemes);
     const out = fm.applyPlan(plan, liveSchema, liveData);
     eq(out.data.current.color_schemes['scheme-1'].settings.background, '#fffefd');
     eq(out.data.current.type_size_h1, '80');
-    ok(!(plan.pruneSchemes[0] in out.data.current.color_schemes), 'pruned scheme removed from data');
+    ok(plan.surplusSchemes[0] in out.data.current.color_schemes, 'surplus scheme RETAINED (applyPlan must not auto-delete host-referenced schemes)');
     const h1 = out.schema.flatMap((g) => g.settings || []).find((s) => s.id === 'type_size_h1');
     ok(h1.options.some((o) => o.value === '80'), 'schema ladder now includes 80');
   });
