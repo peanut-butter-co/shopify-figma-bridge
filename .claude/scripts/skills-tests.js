@@ -317,7 +317,7 @@ check('F015-F019: previously-thin descriptions are now enriched (> 120 chars)', 
 // A9 — every eval-worthy skill ships a well-formed evals/evals.json (F025-F031)
 // ---------------------------------------------------------------------------
 group('A9: skill evals exist and are well-formed');
-const EVAL_SKILLS = ['analyze-theme', 'build-foundations', 'propose-components', 'build-components', 'learnings', 'sync-colors', 'validate-shopify'];
+const EVAL_SKILLS = ['analyze-theme', 'build-foundations', 'build-shopify-foundations', 'propose-components', 'build-components', 'learnings', 'sync-colors', 'validate-shopify'];
 const allSkillNames = fs.readdirSync(skillsDir).filter((n) => fs.existsSync(path.join(skillsDir, n, 'SKILL.md')));
 for (const name of EVAL_SKILLS) {
   check('A9: ' + name + ' has a well-formed evals/evals.json (>= 4 cases)', () => {
@@ -407,7 +407,7 @@ check('F069: setup warns the storefront password is stored in plaintext', () => 
 // B7/P11 — self-learning "After Completion" step (F036-F041, F077-F079)
 // ---------------------------------------------------------------------------
 group('B7/P11: self-learning After-Completion step');
-const SELF_LEARN = ['analyze-theme', 'build-foundations', 'propose-components', 'build-components',
+const SELF_LEARN = ['analyze-theme', 'build-foundations', 'build-shopify-foundations', 'propose-components', 'build-components',
   'build-design-rules', 'setup', 'sync-colors', 'refresh-figma-practices', 'validate-shopify'];
 for (const name of SELF_LEARN) {
   check('P11: ' + name + ' has an After-Completion gotchas-append step', () => {
