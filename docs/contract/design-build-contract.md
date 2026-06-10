@@ -85,4 +85,8 @@ here so later instances model them the same way:
   component/slug, not the node type.
 - **Bare-host reality:** against a near-empty host theme almost every section routes to `code`
   (`no-candidate`); a large `work-order` is the correct, honest outcome (see §10.4 of the SP-0 spec),
-  not a bug.
+  not a bug. **Conversely**, against a rich host (crunchy-horizon) most sections find a candidate and earn
+  a `config` baseline — but an off-process design authored in its own setting vocabulary still re-authors
+  per-instance to the host schema, so those usages route to code via `value-out-of-domain` deltas. The
+  `config` verdict means "there is a host section to build ON", not "drop the JSON in" (SP-1.1 recompute,
+  `.claude/scripts/recompute-aristopet.js`).

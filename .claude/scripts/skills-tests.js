@@ -822,6 +822,7 @@ const GROUP_STRENGTH = {
   'SP-0a: reachability (deterministic expressibility + host resolution)': 'contract',
   'SP-0a: design-build contract invariants': 'contract',
   'SP-1: Aristopet inference artifact set (real contract instance)': 'contract',
+  'SP-1.1: Aristopet recompute (crunchy-horizon)': 'contract',
   'SP-2: shopify-foundations build': 'contract',
   'HR-3: every group is classified by assertion strength (lint vs contract)': 'contract',
   // lint — checks whose only assertions are case-insensitive natural-language substrings (no
@@ -1141,6 +1142,101 @@ if (ct && ariCM && ariComp) {
     eq(norm(ct.deriveWorkOrder(ariCM, ariComp)), norm(ariWO));
   });
   check('SP-1 inv-5: every colorScheme is a foundations scheme', () => eq(ct.colorSchemeIntegrityIssues(ariComp, ariMan.foundations), []));
+}
+// ---------------------------------------------------------------------------
+// SP-1.1 — recompute Aristopet's reachability/work-order against crunchy-horizon (the rich real host),
+//   replacing SP-1's bare-Skeleton verdicts. Pure logic (buildComponentMap / loadBearingSchema) is unit-
+//   tested against the committed fixtures/theme; the committed Aristopet output is re-validated by the
+//   "SP-1" invariant group above (deriveWorkOrder, inv 1-5). Generator: recompute-aristopet.js.
+// ---------------------------------------------------------------------------
+group('SP-1.1: Aristopet recompute (crunchy-horizon)');
+const rcp = tryRequire('./recompute-aristopet.js');
+check('recompute-aristopet.js exists with buildComponentMap + loadBearingSchema + CANDIDATE_MAP', () => {
+  ok(rcp && typeof rcp.buildComponentMap === 'function' && typeof rcp.loadBearingSchema === 'function'
+     && rcp.CANDIDATE_MAP && typeof rcp.CANDIDATE_MAP === 'object',
+    'create .claude/scripts/recompute-aristopet.js exporting buildComponentMap, loadBearingSchema, CANDIDATE_MAP');
+});
+if (rcp && rcp.CANDIDATE_MAP && ariCM) {
+  check('SP-1.1: CANDIDATE_MAP covers exactly the committed componentMap keys (no drift either way)', () => {
+    eq(Object.keys(rcp.CANDIDATE_MAP).sort(), Object.keys(ariCM).sort(),
+      'every componentMap key needs a CANDIDATE_MAP entry and vice-versa');
+  });
+}
+if (rcp && rcp.buildComponentMap) {
+  // Host-independent: resolve against the committed fixtures/theme (it has sections/hero.liquid).
+  const oldCM = {
+    'my-hero':    { type: 'section', figma: { name: 'Hero', isInstance: true, representation: 'variant-set', desktop: { nodeId: '1:1' }, mobile: null }, theme: { file: null, exists: false, kind: 'section' }, schema: null, reachability: {} },
+    'my-bespoke': { type: 'section', figma: { name: 'Bespoke', isInstance: false, representation: 'separate-components', desktop: { nodeId: '2:2' }, mobile: null }, theme: { file: null, exists: false, kind: 'section' }, schema: null, reachability: {} },
+  };
+  const cand = {
+    'my-hero':    { host: 'hero', verdict: 'config', basis: 'schema-expressible', confidence: 'high' },
+    'my-bespoke': { host: null,   verdict: 'code',   basis: 'no-candidate',       confidence: 'high' },
+  };
+  check('SP-1.1: a config candidate gets exists/schema/candidate from the host; figma carried over host-independently', () => {
+    const out = rcp.buildComponentMap(oldCM, cand, THEME_FIX);
+    eq(out['my-hero'].theme.exists, true);
+    eq(out['my-hero'].theme.file, 'sections/hero.liquid');
+    eq(out['my-hero'].reachability.candidate, 'sections/hero.liquid');
+    eq(out['my-hero'].reachability.verdict, 'config');
+    ok(out['my-hero'].schema && Array.isArray(out['my-hero'].schema.settings), 'config entry must carry a (load-bearing) schema');
+    eq(out['my-hero'].figma.name, 'Hero');
+  });
+  check('SP-1.1: a null-host candidate is code/no-candidate (exists:false, schema:null, candidate:null)', () => {
+    const out = rcp.buildComponentMap(oldCM, cand, THEME_FIX);
+    eq(out['my-bespoke'].theme.exists, false);
+    eq(out['my-bespoke'].theme.file, null);
+    eq(out['my-bespoke'].schema, null);
+    eq(out['my-bespoke'].reachability.candidate, null);
+    eq(out['my-bespoke'].reachability.verdict, 'code');
+  });
+  check('SP-1.1: a config candidate at a MISSING host section throws (never ships an inv-2 violation)', () => {
+    const bad = { x: oldCM['my-hero'] };
+    const badCand = { x: { host: 'ghost-section', verdict: 'config', basis: 'schema-expressible', confidence: 'low' } };
+    let threw = false;
+    try { rcp.buildComponentMap(bad, badCand, THEME_FIX); } catch (e) { threw = true; }
+    ok(threw, 'config verdict whose candidate file does not resolve must throw, not emit exists:false+verdict:config');
+  });
+}
+if (rcp && rcp.loadBearingSchema && rc && rc.expressibilityIssues) {
+  const full = { name: 't:x', class: 'foo', enabled_on: {}, presets: [{ name: 'p', settings: {} }],
+    settings: [
+      { type: 'select', id: 'size', label: 't:size', info: 't:i', options: [{ value: 's', label: 't:s' }, { value: 'l', label: 't:l' }] },
+      { type: 'range', id: 'pad', label: 't:pad', min: 0, max: 100, step: 4, default: 20 },
+    ], blocks: ['text', { type: 'icon' }], max_blocks: 5 };
+  check('SP-1.1: loadBearingSchema keeps id/type/options.value/min/max/step + block types + max_blocks, drops cosmetics', () => {
+    const slim = rcp.loadBearingSchema(full);
+    eq(slim.settings[0], { id: 'size', type: 'select', options: [{ value: 's' }, { value: 'l' }] });
+    eq(slim.settings[1], { id: 'pad', type: 'range', min: 0, max: 100, step: 4 });
+    eq(slim.blocks, ['text', 'icon']);
+    eq(slim.max_blocks, 5);
+    ok(!('class' in slim) && !('presets' in slim) && !('enabled_on' in slim), 'non-load-bearing schema keys are dropped');
+  });
+  check('SP-1.1: loadBearingSchema is behaviour-equivalent — expressibilityIssues identical over projection vs full', () => {
+    const slim = rcp.loadBearingSchema(full);
+    // (a) out-of-domain settings + an unsupported block type
+    const inst = { settings: { size: 'huge', pad: 22 }, blocks: [{ type: 'video' }] };
+    eq(rc.expressibilityIssues(slim, inst), rc.expressibilityIssues(full, inst));
+    // (b) ACCEPTED blocks OVER max_blocks — guards that the projection keeps BOTH `blocks` and
+    //     `max_blocks`: dropping `blocks` would flip the accepted `text` to unsupported; dropping
+    //     `max_blocks` would lose the max-blocks-exceeded issue. The single-block (a) case catches neither.
+    const over = { settings: {}, blocks: Array.from({ length: 6 }, () => ({ type: 'text' })) };
+    eq(rc.expressibilityIssues(slim, over), rc.expressibilityIssues(full, over));
+    ok(rc.expressibilityIssues(slim, over).some((i) => i.kind === 'max-blocks-exceeded'),
+      'the over-limit instance must actually trip max_blocks, else it guards nothing');
+  });
+}
+if (ariCM) {
+  check('SP-1.1 committed: Horizon is a rich host — >=10 sections flipped to config (vs the bare Skeleton\'s 1)', () => {
+    const cfg = Object.values(ariCM).filter((e) => e.reachability && e.reachability.verdict === 'config').length;
+    ok(cfg >= 10, `expected >=10 config verdicts against crunchy-horizon, got ${cfg}`);
+  });
+  check('SP-1.1 committed: the exact-slug matches (footer/marquee/breadcrumbs/product-information) are config with a host candidate', () => {
+    for (const k of ['footer', 'marquee', 'breadcrumbs', 'product-information']) {
+      const e = ariCM[k];
+      ok(e && e.reachability.verdict === 'config' && /^sections\/.+\.liquid$/.test((e.reachability.candidate) || ''),
+        `${k} must be config with a sections/*.liquid candidate`);
+    }
+  });
 }
 // ---------------------------------------------------------------------------
 // SP-2 — foundations build: pure mapping (foundations + live Horizon schema/data ->
