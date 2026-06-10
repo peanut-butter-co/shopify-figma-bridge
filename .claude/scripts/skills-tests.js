@@ -822,6 +822,7 @@ const GROUP_STRENGTH = {
   'SP-0a: reachability (deterministic expressibility + host resolution)': 'contract',
   'SP-0a: design-build contract invariants': 'contract',
   'SP-1: Aristopet inference artifact set (real contract instance)': 'contract',
+  'SP-2: shopify-foundations build': 'contract',
   'HR-3: every group is classified by assertion strength (lint vs contract)': 'contract',
   // lint — checks whose only assertions are case-insensitive natural-language substrings (no
   // structural/identifier/file anchor). They guard "did the idea get deleted"; a behavior-
@@ -1140,6 +1141,91 @@ if (ct && ariCM && ariComp) {
     eq(norm(ct.deriveWorkOrder(ariCM, ariComp)), norm(ariWO));
   });
   check('SP-1 inv-5: every colorScheme is a foundations scheme', () => eq(ct.colorSchemeIntegrityIssues(ariComp, ariMan.foundations), []));
+}
+// ---------------------------------------------------------------------------
+// SP-2 — foundations build: pure mapping (foundations + live Horizon schema/data ->
+//   plan) and safe-write substrate. Validated against a committed crunchy-horizon
+//   config snapshot under fixtures/shopify-foundations/. Reuses color-utils.js.
+// ---------------------------------------------------------------------------
+group('SP-2: shopify-foundations build');
+const fm = tryRequire('./foundations-map.js');
+const ariFND = (() => { try { return readJSON('.claude/figma-sync/aristopet/manifest.json').foundations; } catch (e) { return null; } })();
+
+check('foundations-map.js exists with the pure mapping helpers', () => {
+  ok(fm && typeof fm.foundationsMap === 'function' && typeof fm.mapSchemes === 'function'
+     && typeof fm.normalizeColor === 'function' && fm.ROLE_MAP && typeof fm.ROLE_MAP === 'object',
+    'create .claude/scripts/foundations-map.js exporting foundationsMap, mapSchemes, normalizeColor, ROLE_MAP');
+});
+if (fm && fm.mapSchemes) {
+  check('SP-2 normalizeColor: transparent -> rgba(0,0,0,0); alpha hex preserved; opaque untouched', () => {
+    eq(fm.normalizeColor('#00000000'), 'rgba(0,0,0,0)');
+    eq(fm.normalizeColor('#1e1b1814'), '#1e1b1814');
+    eq(fm.normalizeColor('#fffefd'), '#fffefd');
+  });
+  check('SP-2 mapSchemes: scheme-1 roles renamed to Horizon ids, colors normalized', () => {
+    const fnd = { colors: { schemes: { 'scheme-1': { name: 'White', colors: {
+      background: '#fffefd', foreground_heading: '#1e1b18', foreground: '#2a2620', border: '#ede8e1',
+      foreground_chip: '#1e1b1814', primary: '#af7d4f',
+      primary_button_background: '#1e1b18', primary_button_text: '#fffefd', primary_button_border: '#1e1b18',
+      secondary_button_background: '#00000000', secondary_button_text: '#1e1b18',
+      inputs_text: '#1e1b18', inputs_border: '#c9a88280', inputs_hover_background: '#faf7f2' } } } } };
+    const liveData = { current: { color_schemes: { 'scheme-1': { settings: {} } } } };
+    const r = fm.mapSchemes(fnd, liveData);
+    eq(r.schemeWrites['scheme-1'].settings, {
+      background: '#fffefd', foreground_heading: '#1e1b18', foreground: '#2a2620', border: '#ede8e1',
+      primary: '#af7d4f',
+      primary_button_background: '#1e1b18', primary_button_text: '#fffefd', primary_button_border: '#1e1b18',
+      secondary_button_background: 'rgba(0,0,0,0)', secondary_button_text: '#1e1b18',
+      input_text_color: '#1e1b18', input_border_color: '#c9a88280', input_hover_background: '#faf7f2' });
+    ok(r.gaps.some((g) => g.kind === 'orphan-role' && /foreground_chip/.test(g.detail)), 'foreground_chip -> orphan gap');
+  });
+  check('SP-2 mapSchemes: host schemes not in foundations -> pruneSchemes', () => {
+    const fnd = { colors: { schemes: { 'scheme-1': { colors: { background: '#ffffff' } } } } };
+    const liveData = { current: { color_schemes: { 'scheme-1': { settings: {} }, 'scheme-5': { settings: {} }, 'scheme-x': { settings: {} } } } };
+    const r = fm.mapSchemes(fnd, liveData);
+    eq([...r.pruneSchemes].sort(), ['scheme-5', 'scheme-x']);
+  });
+  check('SP-2 mapTypography: fonts + sizes + h1-80 schema extension + nearest tokens + skips', () => {
+    const fnd = { typography: {
+      fontRoles: { body: { raw: 'dm_sans_n4' }, label: { raw: 'dm_sans_n6' }, heading: { raw: 'instrument_sans_n7' } },
+      presets: {
+        h1: { fontRole: 'heading', size: 80, lineHeight: 94, letterSpacing: -2, case: 'none' },
+        h3: { fontRole: 'heading', size: 32, lineHeight: 110, letterSpacing: 0, case: 'none' },
+        paragraph: { fontRole: 'body', size: 14, lineHeight: 160, letterSpacing: 0, case: 'none' },
+        overline: { fontRole: 'label', size: 13, lineHeight: 160, letterSpacing: 1.3, case: 'uppercase' } } } };
+    const liveSchema = [ { name: 't:names.typography', settings: [
+      { type: 'select', id: 'type_size_h1', options: [{ value: '72' }, { value: '88' }] },
+      { type: 'select', id: 'type_line_height_h1', options: [{ value: 'display-tight' }, { value: 'display-normal' }, { value: 'display-loose' }] },
+      { type: 'select', id: 'type_letter_spacing_h1', options: [{ value: 'heading-tight' }, { value: 'heading-normal' }, { value: 'heading-loose' }] },
+      { type: 'select', id: 'type_size_h3', options: [{ value: '32' }] },
+      { type: 'select', id: 'type_line_height_h3', options: [{ value: 'display-tight' }, { value: 'display-normal' }, { value: 'display-loose' }] },
+      { type: 'select', id: 'type_letter_spacing_h3', options: [{ value: 'heading-tight' }, { value: 'heading-normal' }, { value: 'heading-loose' }] },
+      { type: 'select', id: 'type_size_paragraph', options: [{ value: '14' }] },
+      { type: 'select', id: 'type_line_height_paragraph', options: [{ value: 'body-tight' }, { value: 'body-normal' }, { value: 'body-loose' }] } ] } ];
+    const r = fm.mapTypography(fnd, liveSchema);
+    eq(r.fontWrites, { type_body_font: 'dm_sans_n4', type_subheading_font: 'dm_sans_n6', type_heading_font: 'instrument_sans_n7' });
+    eq(r.typeWrites.type_font_h1, 'heading');
+    eq(r.typeWrites.type_size_h1, '80');
+    eq(r.typeWrites.type_line_height_h1, 'display-tight');
+    eq(r.typeWrites.type_letter_spacing_h1, 'heading-tight');
+    eq(r.typeWrites.type_case_h1, 'none');
+    eq(r.typeWrites.type_line_height_h3, 'display-normal');
+    eq(r.typeWrites.type_letter_spacing_h3, 'heading-normal');
+    eq(r.typeWrites.type_line_height_paragraph, 'body-loose');
+    ok(r.schemaExtensions.some((e) => e.setting === 'type_size_h1' && e.addOption.value === '80'), 'h1 80 -> ladder extension');
+    ok(!r.schemaExtensions.some((e) => e.setting === 'type_size_h3'), 'h3 32 already on ladder -> no extension');
+    ok(r.gaps.some((g) => g.kind === 'component-level-preset' && /overline/.test(g.detail)), 'overline skipped -> gap');
+    ok(r.gaps.some((g) => g.kind === 'verify-font-availability'), 'heading font availability flagged');
+  });
+  check('SP-2 foundationsMap: aggregates schemes + typography into one plan', () => {
+    const fnd = { colors: { schemes: { 'scheme-1': { colors: { background: '#fffefd' } } } },
+      typography: { fontRoles: { body: { raw: 'dm_sans_n4' }, label: { raw: 'dm_sans_n6' }, heading: { raw: 'instrument_sans_n7' } }, presets: {} } };
+    const p = fm.foundationsMap(fnd, [], { current: { color_schemes: { 'scheme-1': { settings: {} }, 'scheme-9': { settings: {} } } } });
+    eq(p.schemeWrites['scheme-1'].settings.background, '#fffefd');
+    eq(p.fontWrites.type_heading_font, 'instrument_sans_n7');
+    eq(p.pruneSchemes, ['scheme-9']);
+    ok(Array.isArray(p.gaps) && Array.isArray(p.schemaExtensions), 'plan carries gaps[] + schemaExtensions[]');
+  });
 }
 // ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));

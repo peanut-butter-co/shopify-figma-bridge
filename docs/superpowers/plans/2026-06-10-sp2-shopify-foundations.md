@@ -104,7 +104,7 @@ if (fm && fm.mapSchemes) {
     ok(r.gaps.some((g) => g.kind === 'orphan-role' && /foreground_chip/.test(g.detail)), 'foreground_chip -> orphan gap');
   });
   check('SP-2 mapSchemes: host schemes not in foundations -> pruneSchemes', () => {
-    const fnd = { colors: { schemes: { 'scheme-1': { colors: { background: '#fff' } } } } };
+    const fnd = { colors: { schemes: { 'scheme-1': { colors: { background: '#ffffff' } } } } };
     const liveData = { current: { color_schemes: { 'scheme-1': { settings: {} }, 'scheme-5': { settings: {} }, 'scheme-x': { settings: {} } } } };
     const r = fm.mapSchemes(fnd, liveData);
     eq([...r.pruneSchemes].sort(), ['scheme-5', 'scheme-x']);
