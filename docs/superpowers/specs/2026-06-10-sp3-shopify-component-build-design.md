@@ -7,6 +7,14 @@
 
 ---
 
+> **Revised 2026-06-10 (lean-write pivot).** D4 below describes executing behind the SP-2 backup +
+> `verifyOnlyChanged` safe-write substrate; that mechanism was superseded after the first live run. We now
+> **edit the theme files directly** (surgical `Edit` / set-by-path) → validate (`shopify-validate` /
+> `theme push --strict`) → visual verify, with **no backups** (git is the net; dev theme only, never prod). The
+> tested spine (`nextComponent`/`inspectComponent`/`configPlan`/`injectSchemaSettings`), the gap-transparency
+> (D3, D5), and the visual gate (D8) are unchanged. Rationale + recovery copy:
+> `docs/superpowers/archive/2026-06-10-safe-write-substrate/README.md`.
+
 ## 1. Context
 
 SP-2 landed the **foundations** (color schemes + typography) into the host theme. The downstream build now

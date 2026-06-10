@@ -3,6 +3,13 @@
 > Part of the downstream-build reshape. Replaces the abandoned monolithic `/configure-store`
 > idea (see §1). This is the FIRST downstream build skill: **foundations only**.
 
+> **Revised 2026-06-10 (lean-write pivot).** The write *mechanism* described below (the backup + reserialize +
+> `verifyOnlyChanged` safe-write substrate) was superseded after the first live run: we now **edit directly**
+> (surgical `Edit` / programmatic set-by-path) → validate → spot-check the preview, with **no backups** (git is
+> the net; dev theme only, never prod). The discovery/mapping logic (`foundations-map.js`) and the gap
+> transparency are unchanged. Rationale + recovery copy:
+> `docs/superpowers/archive/2026-06-10-safe-write-substrate/README.md`.
+
 ## 1. Context
 
 The downstream tooling (Phases 7–8) was originally framed as two global lanes — `/configure-store`

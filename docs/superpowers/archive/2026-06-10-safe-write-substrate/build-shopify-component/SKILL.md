@@ -5,7 +5,7 @@ description: >
   human-assisted step) — after foundations are built (SP-2) and the SP-1.1 work-order exists. The skill
   inspects the design intent + the host candidate section + schema, proposes a plan explaining how far
   settings reach and what needs code, the developer approves or corrects, then it executes (config first
-  via direct edits + schema extensions, then code), validates, and visually verifies the render. One
+  via the safe-write substrate + schema extensions, then code) behind backup+diff+approval+validate. One
   component per cycle, then offers the next. Gap-transparent; never silently approximates. Not for building
   Figma components — that is build-components. Not for foundations — that is build-shopify-foundations.
 user-invocable: true
@@ -22,7 +22,7 @@ allowed-tools: [Read, Write, Edit, Bash, Grep, mcp__figma__get_screenshot, mcp__
 You are building **one** design component into the Shopify host theme — **config and code as a single
 human-assisted step** (the user's fixed model: "config y código son un único paso, pero human assisted").
 You INSPECT, you PROPOSE a plan and explain every gap, the developer APPROVES or corrects, then you
-EXECUTE (config first, then code) with direct edits, then validate + visually verify. You never approximate silently.
+EXECUTE (config first, then code) behind a backup+diff+approval safe write. You never approximate silently.
 
 **Manifest:** `.claude/figma-sync/aristopet/manifest.json` (the active design source).
 **Host theme:** `config.themeRoot` (currently `"."` — the repo root, crunchy-horizon). Sections live in
@@ -69,7 +69,7 @@ running**. Remind the developer now:
 > visual check.
 
 Capture the URL; do **not** assume the server is up — wait for the developer's confirmation. If they decline
-to start it, the config/code writes still happen (direct edits + validate), but you cannot close the loop
+to start it, the config/code writes still happen behind backup+diff+approval, but you cannot close the loop
 without the visual check — say so explicitly rather than declaring the component done. (`app` components never
 reach here — they return at pre-flight gate 6.)
 
@@ -113,33 +113,33 @@ See `reference/plan.md` for the full method. In plain language, present:
 
 ## Step 3: Execute — config first, then code (only after approval)
 
-See `reference/execute.md` for the lean write protocol. No backups (git is the net; dev theme via
-`shopify theme dev`, never prod), no per-write verify gate — edit directly, preserving formatting. Order matters:
+See `reference/execute.md` for the safe-write protocol. Order matters:
 
 **a. Config**
-1. **Schema** (the `schemaExtensions` + `schemaWidenings`): for a host section, add NEW settings to its
-   `{% schema %}` with `injectSchemaSettings(liquidSource, schemaExtensions)` (or a surgical `Edit` if the
-   block isn't 2-space/LF), and apply each `schemaWidening` with a surgical `Edit` (add the option / widen the
-   range in place). For a new section, write the `{% schema %}` directly.
-2. **Instance + settings:** write the section instance(s) into the relevant `templates/<t>.json` or
-   `sections/<group>.json` with the `applied` settings/blocks — edit the JSON directly (surgical `Edit`, or
-   set-by-path if it round-trips faithfully). Inspect the host's existing placement to choose the target
-   (chrome → `*-group.json`; page sections → `templates/<t>.json`).
+1. **Backup** each file you will touch (`safe-shopify-write.js` `backup(src, destDir, stamp)`,
+   `destDir=.claude/figma-sync/backups/`, `stamp=YYYYMMDD-HHMMSS`).
+2. **Schema extensions:** for a host section, `injectSchemaSettings(liquidSource, schemaExtensions)` adds the
+   new settings to its `{% schema %}` (the surrounding liquid stays byte-identical). For a new section, write
+   the `{% schema %}` directly.
+3. **Instance + settings:** write the section instance(s) into the relevant `templates/<t>.json` or
+   `sections/<group>.json` with the `applied` settings/blocks (JSON). Inspect the host's existing placement
+   to choose the target (chrome → `*-group.json`; page sections → `templates/<t>.json`).
+4. **Diff + approval**, then **verify**: `verifyOnlyChanged(beforeJSON, afterJSON, approvedPrefixes)` for the
+   JSON writes; a non-empty result → restore from backup and STOP.
 
 **b. Code** (the `codeGaps`)
-3. Author/edit `sections/<slug>.liquid` (+ blocks) for the gaps — markup bound to foundations variables,
-   following `.claude/figma-best-practices.md` conventions.
+5. Author/edit `sections/<slug>.liquid` (+ blocks) for the gaps — markup bound to foundations variables,
+   following `.claude/figma-best-practices.md` conventions. Behind **backup → diff → approval**.
 
 **c. Validate**
-4. `node .claude/scripts/shopify-validate.js <themeRoot>` — must pass. If red, fix forward and STOP.
+6. `node .claude/scripts/shopify-validate.js <themeRoot>` — must pass. If red, fix or restore + STOP.
 
 **d. Visual verify (against the live preview)**
-5. Confirm `shopify theme dev` is running (Step 0); if not, ask the developer to start it and wait. Open the
-   preview URL with the browser MCP confirmed at pre-flight gate 7 — chrome-devtools (`navigate_page`; attaches
-   to the running Chrome, fast — preferred) or Playwright (`browser_navigate`), whichever is connected.
-   Navigate to the template that renders **{key}**, then screenshot it at desktop **and** mobile widths
-   (`resize` ~1440, then ~390).
-6. Fetch the design intent — `mcp__figma__get_screenshot` on the usage's `desktopNodeId` / `mobileNodeId` —
+7. Confirm `shopify theme dev` is running (Step 0); if not, ask the developer to start it and wait. Open the
+   preview URL with the browser MCP confirmed at pre-flight gate 7 — Playwright (`browser_navigate`) or
+   chrome-devtools (`navigate_page`), whichever is connected. Navigate to the template that renders **{key}**,
+   then screenshot it at desktop **and** mobile widths (`resize` ~1440, then ~390).
+8. Fetch the design intent — `mcp__figma__get_screenshot` on the usage's `desktopNodeId` / `mobileNodeId` —
    and compare. A thin sliver, a collapsed section, missing text, an unbound/raw color, or wrong type means the
    layout is **broken**; never rationalize a visual anomaly (project rule — see gotchas). On divergence, fix
    the code and re-run **b → c → d**, or surface the gap to the developer. Only a faithful render at both
@@ -157,7 +157,7 @@ Built {key} into {themeRoot}.
   Code:     {C} gaps authored ({slug}.liquid {+ N blocks})
   Gaps:     all listed + approved above
   Visual:   verified vs Figma {nodeId} — desktop + mobile
-  Validated: shopify-validate 0/0
+Backups:    .claude/figma-sync/backups/
 ```
 
 Then run `nextComponent` again and offer the next un-built component (or report all components complete).
@@ -165,7 +165,7 @@ Then run `nextComponent` again and offer the next un-built component (or report 
 ## After Completion
 
 If the user corrected your approach during this run — a wrong intent→host mapping, a schema-extension choice,
-a placement (template vs group) gotcha, a liquid/binding convention, a write/format gotcha — append it as a
+a placement (template vs group) gotcha, a liquid/binding convention, a write/verify gotcha — append it as a
 short **dated bullet** to this skill's `gotchas.md` (`.claude/skills/build-shopify-component/gotchas.md`;
 create it if missing). That file is injected at the top of this skill on every invocation, so the next run
 starts with the lesson. This is the project's self-updating learning loop (P11/B7).

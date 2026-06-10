@@ -1335,30 +1335,28 @@ if (fm && fm.mapSchemes) {
   });
 }
 const sw = tryRequire('./safe-shopify-write.js');
-check('safe-shopify-write.js exists with backup + verifyOnlyChanged + parseSettingsData', () => {
-  ok(sw && typeof sw.backup === 'function' && typeof sw.verifyOnlyChanged === 'function'
-     && typeof sw.parseSettingsData === 'function',
-    'create .claude/scripts/safe-shopify-write.js exporting backup, verifyOnlyChanged, parseSettingsData');
+check('safe-shopify-write.js exports the lean theme-JSON helpers (no backup/verify substrate)', () => {
+  ok(sw && typeof sw.parseSettingsData === 'function' && typeof sw.settingsDataHeader === 'function'
+     && typeof sw.diffPaths === 'function' && typeof sw.injectSchemaSettings === 'function',
+    'safe-shopify-write.js must export parseSettingsData, settingsDataHeader, diffPaths, injectSchemaSettings');
+  ok(sw && sw.backup === undefined && sw.verifyOnlyChanged === undefined,
+    'the heavy substrate (backup, verifyOnlyChanged) was dropped in the lean-write pivot — see docs/superpowers/archive/2026-06-10-safe-write-substrate');
 });
-if (sw && sw.verifyOnlyChanged) {
+if (sw && sw.parseSettingsData) {
   check('SP-2 parseSettingsData: strips the JSONC header comment then parses', () => {
     const txt = '/*\n * auto-generated\n */\n{ "current": { "a": 1 } }';
     eq(sw.parseSettingsData(txt), { current: { a: 1 } });
   });
-  check('SP-2 verifyOnlyChanged: [] when only an approved path changes; violation when not', () => {
-    const before = { current: { color_schemes: { 'scheme-1': { settings: { background: '#000' } } }, x: 1 } };
-    const okAfter = { current: { color_schemes: { 'scheme-1': { settings: { background: '#fff' } } }, x: 1 } };
-    eq(sw.verifyOnlyChanged(before, okAfter, ['current.color_schemes']), []);
-    const badAfter = { current: { color_schemes: { 'scheme-1': { settings: { background: '#fff' } } }, x: 2 } };
-    const v = sw.verifyOnlyChanged(before, badAfter, ['current.color_schemes']);
-    ok(v.length === 1 && /current\.x/.test(v[0]), 'unapproved current.x change is a violation: ' + JSON.stringify(v));
+  check('lean write: settingsDataHeader + JSON.stringify round-trips a faithful settings_data byte-for-byte', () => {
+    const original = '/*\n * auto-generated\n */\n{\n  "current": {\n    "a": 1\n  }\n}\n';
+    const data = sw.parseSettingsData(original);
+    const recon = sw.settingsDataHeader(original) + JSON.stringify(data, null, 2) + '\n';
+    eq(recon, original);
   });
-  check('SP-2 backup: copies a file to destDir/<base>.<stamp>.json with identical content', () => {
-    const os = require('os'); const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sp2-'));
-    const src = path.join(tmp, 'settings_data.json'); fs.writeFileSync(src, '{"k":1}');
-    const out = sw.backup(src, tmp, '20260610-120000');
-    ok(out.endsWith('settings_data.20260610-120000.json'), 'backup path: ' + out);
-    eq(fs.readFileSync(out, 'utf8'), '{"k":1}');
+  check('SP-2 diffPaths: reports only the leaf dot-paths that changed (the change-summary helper)', () => {
+    const before = { current: { color_schemes: { 'scheme-1': { settings: { background: '#000' } } }, x: 1 } };
+    const after = { current: { color_schemes: { 'scheme-1': { settings: { background: '#fff' } } }, x: 1 } };
+    eq(sw.diffPaths(before, after, '', []), ['current.color_schemes.scheme-1.settings.background']);
   });
 }
 const FND_FIX = path.join(__dirname, 'fixtures', 'shopify-foundations');

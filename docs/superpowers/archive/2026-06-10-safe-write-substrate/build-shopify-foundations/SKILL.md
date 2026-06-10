@@ -1,7 +1,7 @@
 ---
 name: build-shopify-foundations
 description: >
-  Use when: WRITING the design foundations (color schemes + typography) into the Shopify host theme FROM the reconstructed foundations in the manifest (requires foundations populated — e.g. by SP-1/analyze-theme — and config.themeRoot pointing at the host theme). Human-assisted: it inspects, proposes a plan and explains the gaps, you approve or correct, then it writes directly (Edit / set-by-path) and validates. Use ONLY for foundations (colors + fonts); the per-component build is a separate skill. Not for building Figma variables — that is build-foundations.
+  Use when: WRITING the design foundations (color schemes + typography) into the Shopify host theme FROM the reconstructed foundations in the manifest (requires foundations populated — e.g. by SP-1/analyze-theme — and config.themeRoot pointing at the host theme). Human-assisted: it inspects, proposes a plan and explains the gaps, you approve or correct, then it writes behind a backup+diff. Use ONLY for foundations (colors + fonts); the per-component build is a separate skill. Not for building Figma variables — that is build-foundations.
 user-invocable: true
 context: inline
 allowed-tools: [Read, Write, Edit, Bash, Grep]
@@ -58,35 +58,15 @@ Present, in plain language:
 
 See `reference/mapping.md` for the full mapping reference; `reference/safe-write.md` for the write protocol.
 
-## Step 3: Execute — edit directly (after approval)
+## Step 3: Execute via the safe write
 
-No backups, no per-write verify substrate — git is the safety net and this is a dev theme served by
-`shopify theme dev`, never prod. Write the approved plan straight to the two files, choosing the edit that
-**preserves formatting**:
+Only after approval. For BOTH `config/settings_schema.json` and `config/settings_data.json`:
 
-- **`config/settings_data.json`** (theme-wide settings — schemes + type/font values): write programmatically
-  by *set-by-path*. `applyPlan(plan, schema, data)` (`foundations-map.js`) merges the approved
-  `schemeWrites`/`typeWrites`/`fontWrites` into the parsed object; write `data` back as
-  `settingsDataHeader(original) + JSON.stringify(data, null, 2) + "\n"` (re-prepend the JSONC header so the
-  auto-generated banner survives). This file round-trips faithfully (LF, standard indent), so reserializing
-  touches only the values you changed.
-- **`config/settings_schema.json`** (only the `schemaExtensions` — e.g. add an `80px` option to
-  `type_size_h1`): do a **surgical `Edit`** that inserts the new option in the exact sibling format. Do **NOT**
-  reserialize this file — it is CRLF + hand-mixed formatting, so a full rewrite reflows every line.
-
-**Fidelity guard (cheap, do it):** before writing a file programmatically, assert
-`serialize(parse(original)) === original`. False → that file won't round-trip; switch to a surgical `Edit`.
-(settings_data passes; settings_schema does not — hence the split above.)
-
-## Step 3b: Validate + spot-check
-
-1. `node .claude/scripts/shopify-validate.js <themeRoot>` — must pass (0 errors). The `theme dev` you're
-   running also pushes on save and surfaces an invalid value.
-2. Spot-check the live preview (`:9292`) if a browser MCP is connected — prefer **chrome-devtools** (attaches
-   to the running Chrome; fast). Confirm the palette/fonts landed: `getComputedStyle` on `:root`
-   `--color-background/foreground/primary` + `--font-*--family`, and `document.fonts.check('700 24px "<heading
-   font>"')` to confirm a font actually loaded vs fell back. A render anomaly = broken; never rationalize it
-   (project rule). Fast sanity check, not a hard gate.
+1. **Backup** each file to `.claude/figma-sync/backups/` (use `safe-shopify-write.js` `backup(src, destDir, stamp)`).
+2. **Apply** the approved plan with `foundations-map.js` `applyPlan(plan, schema, data)` → `{ schema, data }`.
+3. **Write** the results. For `settings_data.json`, re-prepend the original JSONC header (`safe-shopify-write.js` `settingsDataHeader`) so the auto-generated banner survives.
+4. **Verify** with `verifyOnlyChanged(beforeData, afterData, approvedPrefixes)` where `approvedPrefixes` covers exactly `current.color_schemes`, plus the written `type_*`/font keys. If it returns violations → **restore from backup** and STOP.
+5. **Validate:** `node .claude/scripts/shopify-validate.js <themeRoot>` — must pass.
 
 ## Step 4: Record state
 
@@ -100,10 +80,10 @@ Shopify foundations written to {themeRoot}.
   Fonts:          body / subheading / heading set
   Type scale:     {K} levels set, {E} schema extensions (e.g. type_size_h1 += 80px)
   Gaps surfaced:  {G} (approximations + skips, all listed above)
-  Validated:      shopify-validate 0/0 + preview spot-check
+Backups:          .claude/figma-sync/backups/
 Next: per-component build (spec #3).
 ```
 
 ## After Completion
 
-If the user corrected your approach during this run — a wrong mapping, a token choice, a font-source decision, a write/format gotcha — append it as a short **dated bullet** to this skill's `gotchas.md` (`.claude/skills/build-shopify-foundations/gotchas.md`; create it if missing). That file is injected at the top of this skill on every invocation, so the next run starts with the lesson. This is the project's self-updating learning loop (P11/B7).
+If the user corrected your approach during this run — a wrong mapping, a token choice, a font-source decision, a write/verify gotcha — append it as a short **dated bullet** to this skill's `gotchas.md` (`.claude/skills/build-shopify-foundations/gotchas.md`; create it if missing). That file is injected at the top of this skill on every invocation, so the next run starts with the lesson. This is the project's self-updating learning loop (P11/B7).

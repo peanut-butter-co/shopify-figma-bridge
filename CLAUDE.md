@@ -17,7 +17,7 @@ builds Figma design systems, and enables design-to-code workflows.
 - NEVER hardcode colors/sizes — always bind to Figma variables
 - NEVER skip a pipeline phase — each depends on the previous; every pre-flight gate is a HARD STOP, not advice (if an upstream key is missing, STOP and route the user to the prerequisite skill — never improvise or partially build)
 - EVERY text node must have a textStyleId AND a variable-bound fill
-- ALL Shopify JSON writes require backup + diff preview + user approval
+- Shopify theme writes: edit directly + validate (`shopify-validate` / `theme push --strict`) + spot-check the preview; get approval before large changes. Git is the safety net — we never run an agent against production (no backups)
 - Sync is bidirectional — Figma ↔ Shopify in both directions
 
 ## Pipeline
@@ -32,17 +32,17 @@ Or run everything: `/build-design-system [template]`
 
 Mirrors the Figma-side split but writes to the host theme (`config.themeRoot`): foundations first,
 then component-by-component (config as far as settings reach, then code). Human-assisted — each step
-inspects, proposes a plan explaining the gaps, you approve, it writes (backup + diff + approval).
+inspects, proposes a plan explaining the gaps, you approve, it writes directly (Edit / set-by-path), then
+validates + spot-checks the live preview. No backups — git is the net; this is a dev theme, never prod.
 
 - `/build-shopify-foundations` — writes the reconstructed color schemes + fonts into the host theme's
   native systems (Horizon `color_scheme_group` + `type_*`), proposing schema extensions for gaps.
 - `/build-shopify-component` — builds ONE design component into the host theme per cycle, **config and code
   as a single human-assisted step**: inspects the design intent + host candidate section + schema, proposes
   a plan (how far settings reach via `configPlan` + schema extensions, what needs code), you approve/correct,
-  then it executes (config first via the safe-write substrate, then code) behind backup + diff + approval +
-  `shopify-validate` + a **visual verify** against the live `shopify theme dev` preview (browser MCP screenshot
-  vs the Figma node, desktop + mobile). Consumes the SP-1.1 work-order; gap-transparent; offers the next
-  component after each.
+  then it executes (config first via direct edits, then code), validates (`shopify-validate`), and **visually
+  verifies** against the live `shopify theme dev` preview (browser MCP screenshot vs the Figma node, desktop +
+  mobile). Consumes the SP-1.1 work-order; gap-transparent; offers the next component after each.
 
 ## Manifest state contract
 
