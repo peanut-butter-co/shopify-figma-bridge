@@ -1254,6 +1254,23 @@ if (sw && sw.verifyOnlyChanged) {
     eq(fs.readFileSync(out, 'utf8'), '{"k":1}');
   });
 }
+const FND_FIX = path.join(__dirname, 'fixtures', 'shopify-foundations');
+if (fm && fm.applyPlan && sw && sw.parseSettingsData && ariFND) {
+  check('SP-2 integration: foundationsMap + applyPlan over the real crunchy-horizon snapshot', () => {
+    const liveSchema = JSON.parse(fs.readFileSync(path.join(FND_FIX, 'settings_schema.json'), 'utf8'));
+    const liveData = sw.parseSettingsData(fs.readFileSync(path.join(FND_FIX, 'settings_data.json'), 'utf8'));
+    const plan = fm.foundationsMap(ariFND, liveSchema, liveData);
+    ok(Object.keys(plan.schemeWrites).length === 4, 'maps Aristopet 4 schemes: ' + Object.keys(plan.schemeWrites));
+    ok(plan.schemaExtensions.some((e) => e.setting === 'type_size_h1' && e.addOption.value === '80'), 'proposes adding 80px to type_size_h1');
+    ok(plan.pruneSchemes.length >= 1, 'prunes host surplus schemes: ' + plan.pruneSchemes);
+    const out = fm.applyPlan(plan, liveSchema, liveData);
+    eq(out.data.current.color_schemes['scheme-1'].settings.background, '#fffefd');
+    eq(out.data.current.type_size_h1, '80');
+    ok(!(plan.pruneSchemes[0] in out.data.current.color_schemes), 'pruned scheme removed from data');
+    const h1 = out.schema.flatMap((g) => g.settings || []).find((s) => s.id === 'type_size_h1');
+    ok(h1.options.some((o) => o.value === '80'), 'schema ladder now includes 80');
+  });
+}
 // ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');

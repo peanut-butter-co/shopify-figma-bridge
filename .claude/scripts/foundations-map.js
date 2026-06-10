@@ -116,4 +116,27 @@ function foundationsMap(foundations, liveSchema, liveData) {
   };
 }
 
-module.exports = { ROLE_MAP, normalizeColor, mapSchemes, mapTypography, foundationsMap, optionValues };
+/** Apply a plan to deep clones of the live schema/data; return { schema, data } ready to serialize. */
+function applyPlan(plan, liveSchema, liveData) {
+  const schema = JSON.parse(JSON.stringify(liveSchema));
+  const data = JSON.parse(JSON.stringify(liveData));
+  data.current = data.current || {};
+  data.current.color_schemes = data.current.color_schemes || {};
+  // schemes: merge mapped roles into existing scheme settings (preserve host-only roles)
+  for (const [id, write] of Object.entries(plan.schemeWrites || {})) {
+    const slot = data.current.color_schemes[id] || (data.current.color_schemes[id] = { settings: {} });
+    slot.settings = Object.assign({}, slot.settings, write.settings);
+  }
+  for (const id of (plan.pruneSchemes || [])) delete data.current.color_schemes[id];
+  Object.assign(data.current, plan.fontWrites || {}, plan.typeWrites || {});
+  // schema: append missing select options
+  for (const ext of (plan.schemaExtensions || [])) {
+    for (const grp of schema) {
+      const s = (grp.settings || []).find((x) => x && x.id === ext.setting);
+      if (s && Array.isArray(s.options) && !s.options.some((o) => o.value === ext.addOption.value)) s.options.push(ext.addOption);
+    }
+  }
+  return { schema, data };
+}
+
+module.exports = { ROLE_MAP, normalizeColor, mapSchemes, mapTypography, foundationsMap, applyPlan, optionValues };
