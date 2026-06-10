@@ -1,0 +1,11 @@
+{
+  "skill": "build-shopify-foundations",
+  "about": "Triggering evals (A9). expect: 'trigger' = this skill should fire; 'route' = a sibling should fire instead (named in 'to'); 'no-trigger' = unrelated. build-shopify-foundations WRITES the reconstructed foundations (color schemes + fonts) into the Shopify host theme's native systems.",
+  "cases": [
+    { "prompt": "write the Aristopet color schemes and fonts into the Shopify theme", "expect": "trigger" },
+    { "prompt": "populate the host theme's color_scheme_group from the manifest foundations", "expect": "trigger" },
+    { "prompt": "apply the design foundations (colors + typography) to the crunchy-horizon theme settings", "expect": "trigger" },
+    { "prompt": "build the Figma variable collections and text styles from the analyzed tokens", "expect": "route", "to": "build-foundations" },
+    { "prompt": "what is the capital of France", "expect": "no-trigger" }
+  ]
+}

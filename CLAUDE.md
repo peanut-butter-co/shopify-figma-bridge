@@ -28,6 +28,16 @@ Optional, after `/build-components`: `/build-design-rules` — generates `design
 
 Or run everything: `/build-design-system [template]`
 
+## Downstream build (design → Shopify)
+
+Mirrors the Figma-side split but writes to the host theme (`config.themeRoot`): foundations first,
+then component-by-component (config as far as settings reach, then code). Human-assisted — each step
+inspects, proposes a plan explaining the gaps, you approve, it writes (backup + diff + approval).
+
+- `/build-shopify-foundations` — writes the reconstructed color schemes + fonts into the host theme's
+  native systems (Horizon `color_scheme_group` + `type_*`), proposing schema extensions for gaps. The
+  per-component build is a separate phase (spec #3).
+
 ## Manifest state contract
 
 `manifest.json` is the single source of truth. Each phase writes specific keys; the next phase gates on them. Producers and consumers must agree — keep this table and the skills in sync.
@@ -41,6 +51,7 @@ Or run everything: `/build-design-system [template]`
 | `/build-components` | `buildStatus.{atoms,blocks,"sections-desktop","sections-mobile"} = "complete"`, `buildMeta.{practicesVersion,builtAt}` | any flat `buildStatus.*` phase `=== "complete"` |
 | `/build-design-rules` (optional) | `design-rules.json`, `buildStatus.designRules = "complete"` | consumed opportunistically by `/compose-page`, `/sync-colors` |
 | `/compose-page` | `buildStatus["composition-{template}"] = "complete"` | — |
+| `/build-shopify-foundations` (downstream) | `buildStatus.shopifyFoundations = "complete"`, `buildMeta.builtAt` | per-component build (spec #3) |
 
 SP-0 hardens this seam with the **design→build contract**: `design-rules.json › componentMap`
 (now carrying `exists` + parsed `schema` + a `reachability` verdict), `manifest.compositions` (the
