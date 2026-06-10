@@ -112,16 +112,19 @@ resumability. Gate: `buildStatus.shopifyFoundations === "complete"` (foundations
   templates, of `{ template, desktopNodeId, mobileNodeId, colorScheme, settings, blocks, mobileDivergence }`.
   Throws if `key` is not in `componentMap`.
 
-- **`configPlan(mapping, hostSchema)` → `{ applied, schemaExtensions, codeGaps }`.**
+- **`configPlan(mapping, hostSchema)` → `{ applied, schemaExtensions, schemaWidenings, codeGaps }`.**
   `mapping` is the developer-confirmed proposal: an array of
   `{ intentKey, target, type, value }` where `target` is a host setting id (or `null` for pure code). For each:
   - `target == null` → `codeGaps.push({ intentKey, reason: "no host setting (code)" })`.
-  - `target` present and in `hostSchema.settings`: validate `value` via `settingValueIssue`. In-domain →
-    `applied.push({ id: target, value })`. Off-domain on a `select`/`range` → `schemaExtensions.push` a
-    widening (add option / widen min-max, à la SP-2); otherwise `codeGaps`.
   - `target` present but **not** in `hostSchema.settings` → a new setting →
-    `schemaExtensions.push({ id: target, type, value })`.
-  Pure (reuses `reachability`/`shopify-validate`), so the config reach is provable, not guessed.
+    `schemaExtensions.push({ id: target, type, value })` (a brand-new id, appended via `injectSchemaSettings`).
+  - `target` present and in `hostSchema.settings`: validate `value` via `settingValueIssue`. In-domain →
+    `applied.push({ id: target, value })`. Off-domain on a `select`/`range` → `schemaWidenings.push` (add
+    option / widen min-max, à la SP-2); off-domain on any other type → `codeGaps`.
+  **`schemaExtensions` (new ids) and `schemaWidenings` (existing ids) are separate buckets on purpose:** the
+  append path (`injectSchemaSettings`) dedups by id and would silently no-op a widening, so a widening must
+  edit its existing setting in place. Keeping them apart makes that mistake unrepresentable. Pure (reuses
+  `reachability`/`shopify-validate`), so the config reach is provable, not guessed.
 
 - **`sectionSchemaExtension(schemaText, extensions)` → new `{% schema %}` block text** (in
   `safe-shopify-write.js`, see §3.2) — injects the `schemaExtensions` settings into a section's parsed schema

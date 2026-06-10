@@ -71,15 +71,21 @@ function inspectComponent(key, componentMap, compositions) {
  * Validate a developer-confirmed mapping against the host schema and partition it. `mapping` is an array
  * of { intentKey, target, type, value } where `target` is a host setting id (or null for pure code):
  *   - target == null                          -> codeGaps        (no host setting -> liquid)
- *   - target NOT in the host schema           -> schemaExtensions (a new setting to add, à la SP-2)
+ *   - target NOT in the host schema           -> schemaExtensions (a NEW setting to add, à la SP-2)
  *   - target in schema, value in-domain       -> applied
  *   - target in schema, value off-domain:
- *       select/radio -> schemaExtensions (add the option) ; range -> schemaExtensions (widen the range) ;
+ *       select/radio -> schemaWidenings (add the option) ; range -> schemaWidenings (widen the range) ;
  *       anything else -> codeGaps (cannot widen a structural type safely -> author in code)
  * Pure: the value check is single-sourced through shopify-validate.settingValueIssue.
+ *
+ * `schemaExtensions` (new settings, brand-new ids) and `schemaWidenings` (existing ids whose DOMAIN must
+ * grow) are SEPARATE buckets on purpose: the two need different execution paths. New settings are appended
+ * with `injectSchemaSettings` (append-only, dedups by id); a widening reuses an EXISTING id, so it must edit
+ * that setting's options/min-max in place — feeding a widening to the append path would be a silent no-op.
+ * Keeping them apart makes that mistake unrepresentable.
  */
 function configPlan(mapping, hostSchema) {
-  const applied = [], schemaExtensions = [], codeGaps = [];
+  const applied = [], schemaExtensions = [], schemaWidenings = [], codeGaps = [];
   const byId = {};
   for (const s of ((hostSchema && Array.isArray(hostSchema.settings)) ? hostSchema.settings : [])) {
     if (s && s.id != null) byId[s.id] = s;
@@ -92,14 +98,14 @@ function configPlan(mapping, hostSchema) {
     const issue = settingValueIssue(def, value);
     if (!issue) { applied.push({ id: target, value }); continue; }
     if (def.type === 'select' || def.type === 'radio') {
-      schemaExtensions.push({ id: target, type: def.type, value, reason: 'add option', widen: 'option' });
+      schemaWidenings.push({ id: target, type: def.type, value, reason: 'add option', widen: 'option' });
     } else if (def.type === 'range') {
-      schemaExtensions.push({ id: target, type: 'range', value, reason: 'widen range', widen: 'range' });
+      schemaWidenings.push({ id: target, type: 'range', value, reason: 'widen range', widen: 'range' });
     } else {
       codeGaps.push({ intentKey, target, reason: issue });
     }
   }
-  return { applied, schemaExtensions, codeGaps };
+  return { applied, schemaExtensions, schemaWidenings, codeGaps };
 }
 
 module.exports = { nextComponent, inspectComponent, configPlan };

@@ -78,9 +78,11 @@ markup. For `code`/`no-candidate`, there is no host section — you will author 
 See `reference/plan.md` for the full method. In plain language, present:
 
 - **config baseline:** propose the **mapping** of each design-intent setting to a host setting (or "code"),
-  then run `configPlan(mapping, hostSchema)` and present its three buckets:
+  then run `configPlan(mapping, hostSchema)` and present its four buckets:
   - **applied** — design intent that maps to an existing host setting with an in-domain value (pure config).
-  - **schemaExtensions** — new settings to add, or a select/range to widen (à la SP-2). List every one.
+  - **schemaExtensions** — NEW settings to add (à la SP-2). List every one.
+  - **schemaWidenings** — existing select/range settings whose domain must grow (add an option / widen the
+    range). Separate from extensions because they edit an existing setting in place, not append. List each.
   - **codeGaps** — intent with no host setting, plus any block types the host schema does not accept, plus
     any `mobileDivergence` (routed to code). List every one.
 - **code / no-candidate:** propose a **new** `sections/<slug>.liquid` — its schema settings + a liquid

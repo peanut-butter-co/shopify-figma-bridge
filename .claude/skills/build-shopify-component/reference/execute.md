@@ -10,10 +10,12 @@ require backup + diff preview + user approval"* and reuses SP-2's substrate
 1. **Backup** every file you will touch — `backup(absPath, destDir, stamp)` →
    `.claude/figma-sync/backups/<base>.<stamp>.json` (`stamp` = `YYYYMMDD-HHMMSS`). The theme editor can
    overwrite these files; the backup is mandatory.
-2. **Schema extensions** (the `schemaExtensions` from `configPlan`):
-   - Existing host section → `injectSchemaSettings(liquidSource, schemaExtensions)` adds the new settings to
-     its `{% schema %}` (dedup by id; surrounding liquid stays byte-identical). For a select/range *widen*,
-     edit the option list / min-max in the parsed schema before re-injecting.
+2. **Schema edits** (from `configPlan`):
+   - **New settings** (`schemaExtensions`) → `injectSchemaSettings(liquidSource, schemaExtensions)` appends
+     them to the section `{% schema %}` (dedup by id; surrounding liquid byte-identical).
+   - **Widenings** (`schemaWidenings`) → edit the EXISTING setting's option list / min-max in the parsed
+     schema, then re-serialize. Do NOT pass these to `injectSchemaSettings` — it dedups by id, so a widening
+     of an existing id silently no-ops. (`configPlan` keeps the two buckets apart for exactly this reason.)
    - New section → write the `{% schema %}` block directly.
 3. **Instance + settings** — write the section instance(s) into the placement JSON with the `applied`
    settings/blocks:

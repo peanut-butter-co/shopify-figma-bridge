@@ -15,10 +15,13 @@ vocabulary (`brand_tagline`, `col_1_heading`, …) — which is NOT the host's. 
    or `null` (it is code — a block, a behavior, a layout the schema can't express).
 2. Build the mapping array: `[{ intentKey, target, type, value }]` (`type` = the host setting type for a
    new setting; `value` = the design value).
-3. Run `configPlan(mapping, hostSchema)` → `{ applied, schemaExtensions, codeGaps }`:
+3. Run `configPlan(mapping, hostSchema)` → `{ applied, schemaExtensions, schemaWidenings, codeGaps }`:
    - **applied** — `target` is an existing host setting and `value` is in-domain → pure config.
-   - **schemaExtensions** — a NEW setting (`target` not in the host schema), or an existing select/range
-     whose value is off-domain (add the option / widen the range, à la SP-2's foundations extensions).
+   - **schemaExtensions** — a NEW setting (`target` not in the host schema) → appended to the section
+     `{% schema %}` with `injectSchemaSettings` (à la SP-2's foundations extensions).
+   - **schemaWidenings** — an EXISTING select/range whose value is off-domain → add the option / widen the
+     range *in place*. Kept SEPARATE from extensions: the append path dedups by id, so a widening fed to it
+     would silently no-op.
    - **codeGaps** — `target: null`, or an existing setting whose type can't be widened safely.
 4. Add to **codeGaps**: every block type the host schema does not accept (cross-check `usage.blocks`
    against `hostSchema.blocks`), and any `usage.mobileDivergence` (a section-level desktop/mobile difference

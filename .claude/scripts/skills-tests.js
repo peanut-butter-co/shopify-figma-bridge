@@ -1425,19 +1425,22 @@ if (cb && cb.configPlan) {
     { id: 'size', type: 'select', options: [{ value: 's' }, { value: 'l' }] },
     { id: 'pad', type: 'range', min: 0, max: 100, step: 4 },
     { id: 'on', type: 'checkbox' },
+    { id: 'tint', type: 'color' },
   ] };
-  check('SP-3 configPlan: partitions a mapping into applied / schemaExtensions / codeGaps', () => {
+  check('SP-3 configPlan: partitions into applied / schemaExtensions (new) / schemaWidenings (existing) / codeGaps', () => {
     const plan = cb.configPlan([
       { intentKey: 'left_title', target: 'heading', type: 'text', value: 'X' },     // in-domain text -> applied
-      { intentKey: 'eyebrow',    target: 'eyebrow', type: 'text', value: 'E' },      // new setting -> extension
-      { intentKey: 'sz',         target: 'size',    type: 'select', value: 'xl' },   // off-domain select -> widen option
-      { intentKey: 'p',          target: 'pad',     type: 'range', value: 999 },     // off-range -> widen range
+      { intentKey: 'eyebrow',    target: 'eyebrow', type: 'text', value: 'E' },      // new id -> schemaExtensions
+      { intentKey: 'sz',         target: 'size',    type: 'select', value: 'xl' },   // off-domain select -> schemaWidenings
+      { intentKey: 'p',          target: 'pad',     type: 'range', value: 999 },     // off-range -> schemaWidenings
       { intentKey: 'flag',       target: 'on',      type: 'checkbox', value: 'yes' },// bad checkbox, not widenable -> code
+      { intentKey: 'c',          target: 'tint',    type: 'color', value: 'nope' },  // bad color, not widenable -> code
       { intentKey: 'badge',      target: null,      value: 'NUEVO' },                // pure code
     ], HS);
     eq(plan.applied, [{ id: 'heading', value: 'X' }]);
-    eq(plan.schemaExtensions.map((e) => e.id).sort(), ['eyebrow', 'pad', 'size']);
-    eq(plan.codeGaps.map((c) => c.intentKey).sort(), ['badge', 'flag']);
+    eq(plan.schemaExtensions.map((e) => e.id), ['eyebrow']);                          // ONLY new ids (safe for injectSchemaSettings)
+    eq(plan.schemaWidenings.map((e) => e.id).sort(), ['pad', 'size']);               // existing ids needing a wider domain
+    eq(plan.codeGaps.map((c) => c.intentKey).sort(), ['badge', 'c', 'flag']);        // null + non-widenable off-domain
   });
 }
 if (sw3 && sw3.injectSchemaSettings && sv3 && sv3.extractSchema) {
@@ -1447,6 +1450,10 @@ if (sw3 && sw3.injectSchemaSettings && sv3 && sv3.extractSchema) {
     eq(sv3.extractSchema(out).settings.map((s) => s.id), ['heading', 'eyebrow']);
     ok(out.startsWith('<div>{{ section.settings.heading }}</div>'), 'leading liquid byte-identical');
     ok(out.trimEnd().endsWith('{% endschema %}'), 'trailing liquid preserved');
+    // whitespace-control {%- schema -%} tags are captured, preserved, and round-trip via extractSchema
+    const wout = sw3.injectSchemaSettings('{%- schema -%}\n{ "name": "B", "settings": [] }\n{%- endschema -%}', [{ type: 'text', id: 'x' }]);
+    eq(sv3.extractSchema(wout).settings.map((s) => s.id), ['x']);
+    ok(wout.startsWith('{%- schema -%}') && wout.trimEnd().endsWith('{%- endschema -%}'), 'whitespace-control tags preserved');
   });
   check('SP-3 injectSchemaSettings: throws when the source has no {% schema %} block', () => {
     let threw = false; try { sw3.injectSchemaSettings('<div>no schema</div>', [{ id: 'x' }]); } catch (e) { threw = /no \{% schema/.test(e.message); }
