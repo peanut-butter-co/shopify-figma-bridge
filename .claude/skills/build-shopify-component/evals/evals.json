@@ -1,0 +1,13 @@
+{
+  "skill": "build-shopify-component",
+  "about": "Triggering evals (A9). expect: 'trigger' = this skill should fire; 'route' = a sibling should fire instead (named in 'to'); 'no-trigger' = unrelated. build-shopify-component BUILDS one design component into the Shopify host theme (config + code as one human-assisted step), after foundations are built.",
+  "cases": [
+    { "prompt": "build the footer component into the Shopify host theme", "expect": "trigger" },
+    { "prompt": "configure and code the product-card-row section in crunchy-horizon from the design", "expect": "trigger" },
+    { "prompt": "build the next component from the work-order into the theme", "expect": "trigger" },
+    { "prompt": "implement the trust-bar section in the host theme, config as far as it goes then code the rest", "expect": "trigger" },
+    { "prompt": "write the color schemes and fonts into the Shopify theme foundations", "expect": "route", "to": "build-shopify-foundations" },
+    { "prompt": "build the Figma section components and variants", "expect": "route", "to": "build-components" },
+    { "prompt": "what time is it in Tokyo", "expect": "no-trigger" }
+  ]
+}

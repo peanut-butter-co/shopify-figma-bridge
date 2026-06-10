@@ -317,7 +317,7 @@ check('F015-F019: previously-thin descriptions are now enriched (> 120 chars)', 
 // A9 — every eval-worthy skill ships a well-formed evals/evals.json (F025-F031)
 // ---------------------------------------------------------------------------
 group('A9: skill evals exist and are well-formed');
-const EVAL_SKILLS = ['analyze-theme', 'build-foundations', 'build-shopify-foundations', 'propose-components', 'build-components', 'learnings', 'sync-colors', 'validate-shopify'];
+const EVAL_SKILLS = ['analyze-theme', 'build-foundations', 'build-shopify-foundations', 'build-shopify-component', 'propose-components', 'build-components', 'learnings', 'sync-colors', 'validate-shopify'];
 const allSkillNames = fs.readdirSync(skillsDir).filter((n) => fs.existsSync(path.join(skillsDir, n, 'SKILL.md')));
 for (const name of EVAL_SKILLS) {
   check('A9: ' + name + ' has a well-formed evals/evals.json (>= 4 cases)', () => {
@@ -407,7 +407,7 @@ check('F069: setup warns the storefront password is stored in plaintext', () => 
 // B7/P11 — self-learning "After Completion" step (F036-F041, F077-F079)
 // ---------------------------------------------------------------------------
 group('B7/P11: self-learning After-Completion step');
-const SELF_LEARN = ['analyze-theme', 'build-foundations', 'build-shopify-foundations', 'propose-components', 'build-components',
+const SELF_LEARN = ['analyze-theme', 'build-foundations', 'build-shopify-foundations', 'build-shopify-component', 'propose-components', 'build-components',
   'build-design-rules', 'setup', 'sync-colors', 'refresh-figma-practices', 'validate-shopify'];
 for (const name of SELF_LEARN) {
   check('P11: ' + name + ' has an After-Completion gotchas-append step', () => {
@@ -824,6 +824,7 @@ const GROUP_STRENGTH = {
   'SP-1: Aristopet inference artifact set (real contract instance)': 'contract',
   'SP-1.1: Aristopet recompute (crunchy-horizon)': 'contract',
   'SP-2: shopify-foundations build': 'contract',
+  'SP-3: component build': 'contract',
   'HR-3: every group is classified by assertion strength (lint vs contract)': 'contract',
   // lint — checks whose only assertions are case-insensitive natural-language substrings (no
   // structural/identifier/file anchor). They guard "did the idea get deleted"; a behavior-
@@ -1375,6 +1376,81 @@ if (fm && fm.applyPlan && sw && sw.parseSettingsData && ariFND) {
     ok(plan.surplusSchemes[0] in out.data.current.color_schemes, 'surplus scheme RETAINED (applyPlan must not auto-delete host-referenced schemes)');
     const h1 = out.schema.flatMap((g) => g.settings || []).find((s) => s.id === 'type_size_h1');
     ok(h1.options.some((o) => o.value === '80'), 'schema ladder now includes 80');
+  });
+}
+// ---------------------------------------------------------------------------
+// SP-3 — per-component build: the deterministic spine (nextComponent / inspectComponent / configPlan) and
+//   the safe-write section-schema injection. The skill is the human-assisted orchestrator; this group
+//   unit-tests the provable parts. Reuses reachability.js + shopify-validate.js + safe-shopify-write.js.
+// ---------------------------------------------------------------------------
+group('SP-3: component build');
+const cb = tryRequire('./component-build.js');
+const sw3 = tryRequire('./safe-shopify-write.js');
+const sv3 = tryRequire('./shopify-validate.js');
+check('component-build.js exists with nextComponent + inspectComponent + configPlan', () => {
+  ok(cb && typeof cb.nextComponent === 'function' && typeof cb.inspectComponent === 'function' && typeof cb.configPlan === 'function',
+    'create .claude/scripts/component-build.js exporting nextComponent, inspectComponent, configPlan');
+});
+if (cb && cb.nextComponent) {
+  const CM = {
+    a: { type: 'section', theme: { kind: 'section' }, schema: { settings: [{ id: 'h', type: 'text' }] },
+         reachability: { verdict: 'config', basis: 'schema-expressible', candidate: 'sections/a.liquid' } },
+    b: { type: 'section', theme: { kind: 'section' }, schema: null,
+         reachability: { verdict: 'code', basis: 'no-candidate', candidate: null } },
+  };
+  const COMP = {
+    index:   { order: [{ component: 'a', desktopNodeId: 'd1', mobileNodeId: 'm1', colorScheme: 'scheme-1', settings: { h: 'Hi' }, blocks: [], mobileDivergence: null }] },
+    product: { order: [{ component: 'a', desktopNodeId: 'd2', mobileNodeId: 'm2', colorScheme: 'scheme-2', settings: { h: 'Yo' }, blocks: [{ type: 'x' }], mobileDivergence: { type: 'behavior', note: 'n' } }] },
+  };
+  check('SP-3 nextComponent: first un-built, skips completed, null when all done, carries reachability', () => {
+    eq(cb.nextComponent(CM, {}).key, 'a');
+    eq(cb.nextComponent(CM, { components: { a: 'complete' } }).key, 'b');
+    eq(cb.nextComponent(CM, { components: { a: 'complete', b: 'complete' } }), null);
+    eq(cb.nextComponent(CM, {}).candidate, 'sections/a.liquid');
+  });
+  check('SP-3 inspectComponent: gathers usages across templates, carries host schema + mobileDivergence; throws on unknown key', () => {
+    const ins = cb.inspectComponent('a', CM, COMP);
+    eq(ins.usages.length, 2);
+    eq(ins.usages[1].template, 'product');
+    eq(ins.usages[1].mobileDivergence.type, 'behavior');
+    eq(ins.hostSchema.settings[0].id, 'h');
+    eq(ins.verdict, 'config');
+    let threw = false; try { cb.inspectComponent('zz', CM, COMP); } catch (e) { threw = /not a componentMap key/.test(e.message); }
+    ok(threw, 'unknown key must throw');
+  });
+}
+if (cb && cb.configPlan) {
+  const HS = { settings: [
+    { id: 'heading', type: 'text' },
+    { id: 'size', type: 'select', options: [{ value: 's' }, { value: 'l' }] },
+    { id: 'pad', type: 'range', min: 0, max: 100, step: 4 },
+    { id: 'on', type: 'checkbox' },
+  ] };
+  check('SP-3 configPlan: partitions a mapping into applied / schemaExtensions / codeGaps', () => {
+    const plan = cb.configPlan([
+      { intentKey: 'left_title', target: 'heading', type: 'text', value: 'X' },     // in-domain text -> applied
+      { intentKey: 'eyebrow',    target: 'eyebrow', type: 'text', value: 'E' },      // new setting -> extension
+      { intentKey: 'sz',         target: 'size',    type: 'select', value: 'xl' },   // off-domain select -> widen option
+      { intentKey: 'p',          target: 'pad',     type: 'range', value: 999 },     // off-range -> widen range
+      { intentKey: 'flag',       target: 'on',      type: 'checkbox', value: 'yes' },// bad checkbox, not widenable -> code
+      { intentKey: 'badge',      target: null,      value: 'NUEVO' },                // pure code
+    ], HS);
+    eq(plan.applied, [{ id: 'heading', value: 'X' }]);
+    eq(plan.schemaExtensions.map((e) => e.id).sort(), ['eyebrow', 'pad', 'size']);
+    eq(plan.codeGaps.map((c) => c.intentKey).sort(), ['badge', 'flag']);
+  });
+}
+if (sw3 && sw3.injectSchemaSettings && sv3 && sv3.extractSchema) {
+  const LIQ = '<div>{{ section.settings.heading }}</div>\n{% schema %}\n{\n  "name": "Foo",\n  "settings": [{ "type": "text", "id": "heading" }]\n}\n{% endschema %}\n';
+  check('SP-3 injectSchemaSettings: appends + dedups by id, re-parses, leaves surrounding liquid intact', () => {
+    const out = sw3.injectSchemaSettings(LIQ, [{ type: 'text', id: 'eyebrow' }, { type: 'text', id: 'heading' }]);
+    eq(sv3.extractSchema(out).settings.map((s) => s.id), ['heading', 'eyebrow']);
+    ok(out.startsWith('<div>{{ section.settings.heading }}</div>'), 'leading liquid byte-identical');
+    ok(out.trimEnd().endsWith('{% endschema %}'), 'trailing liquid preserved');
+  });
+  check('SP-3 injectSchemaSettings: throws when the source has no {% schema %} block', () => {
+    let threw = false; try { sw3.injectSchemaSettings('<div>no schema</div>', [{ id: 'x' }]); } catch (e) { threw = /no \{% schema/.test(e.message); }
+    ok(threw, 'a source without a schema block must throw');
   });
 }
 // ---------------------------------------------------------------------------

@@ -35,8 +35,12 @@ then component-by-component (config as far as settings reach, then code). Human-
 inspects, proposes a plan explaining the gaps, you approve, it writes (backup + diff + approval).
 
 - `/build-shopify-foundations` — writes the reconstructed color schemes + fonts into the host theme's
-  native systems (Horizon `color_scheme_group` + `type_*`), proposing schema extensions for gaps. The
-  per-component build is a separate phase (spec #3).
+  native systems (Horizon `color_scheme_group` + `type_*`), proposing schema extensions for gaps.
+- `/build-shopify-component` — builds ONE design component into the host theme per cycle, **config and code
+  as a single human-assisted step**: inspects the design intent + host candidate section + schema, proposes
+  a plan (how far settings reach via `configPlan` + schema extensions, what needs code), you approve/correct,
+  then it executes (config first via the safe-write substrate, then code) behind backup + diff + approval +
+  `shopify-validate`. Consumes the SP-1.1 work-order; gap-transparent; offers the next component after each.
 
 ## Manifest state contract
 
@@ -51,7 +55,8 @@ inspects, proposes a plan explaining the gaps, you approve, it writes (backup + 
 | `/build-components` | `buildStatus.{atoms,blocks,"sections-desktop","sections-mobile"} = "complete"`, `buildMeta.{practicesVersion,builtAt}` | any flat `buildStatus.*` phase `=== "complete"` |
 | `/build-design-rules` (optional) | `design-rules.json`, `buildStatus.designRules = "complete"` | consumed opportunistically by `/compose-page`, `/sync-colors` |
 | `/compose-page` | `buildStatus["composition-{template}"] = "complete"` | — |
-| `/build-shopify-foundations` (downstream) | `buildStatus.shopifyFoundations = "complete"`, `buildMeta.builtAt` | per-component build (spec #3) |
+| `/build-shopify-foundations` (downstream) | `buildStatus.shopifyFoundations = "complete"`, `buildMeta.builtAt` | `buildStatus.shopifyFoundations === "complete"` |
+| `/build-shopify-component` (downstream) | `buildStatus.components.<key> = "complete"`, `buildMeta.builtAt` | per-component resumability via `nextComponent` |
 
 SP-0 hardens this seam with the **design→build contract**: `design-rules.json › componentMap`
 (now carrying `exists` + parsed `schema` + a `reachability` verdict), `manifest.compositions` (the
