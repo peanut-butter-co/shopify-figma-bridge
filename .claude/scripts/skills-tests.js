@@ -1227,6 +1227,33 @@ if (fm && fm.mapSchemes) {
     ok(Array.isArray(p.gaps) && Array.isArray(p.schemaExtensions), 'plan carries gaps[] + schemaExtensions[]');
   });
 }
+const sw = tryRequire('./safe-shopify-write.js');
+check('safe-shopify-write.js exists with backup + verifyOnlyChanged + parseSettingsData', () => {
+  ok(sw && typeof sw.backup === 'function' && typeof sw.verifyOnlyChanged === 'function'
+     && typeof sw.parseSettingsData === 'function',
+    'create .claude/scripts/safe-shopify-write.js exporting backup, verifyOnlyChanged, parseSettingsData');
+});
+if (sw && sw.verifyOnlyChanged) {
+  check('SP-2 parseSettingsData: strips the JSONC header comment then parses', () => {
+    const txt = '/*\n * auto-generated\n */\n{ "current": { "a": 1 } }';
+    eq(sw.parseSettingsData(txt), { current: { a: 1 } });
+  });
+  check('SP-2 verifyOnlyChanged: [] when only an approved path changes; violation when not', () => {
+    const before = { current: { color_schemes: { 'scheme-1': { settings: { background: '#000' } } }, x: 1 } };
+    const okAfter = { current: { color_schemes: { 'scheme-1': { settings: { background: '#fff' } } }, x: 1 } };
+    eq(sw.verifyOnlyChanged(before, okAfter, ['current.color_schemes']), []);
+    const badAfter = { current: { color_schemes: { 'scheme-1': { settings: { background: '#fff' } } }, x: 2 } };
+    const v = sw.verifyOnlyChanged(before, badAfter, ['current.color_schemes']);
+    ok(v.length === 1 && /current\.x/.test(v[0]), 'unapproved current.x change is a violation: ' + JSON.stringify(v));
+  });
+  check('SP-2 backup: copies a file to destDir/<base>.<stamp>.json with identical content', () => {
+    const os = require('os'); const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sp2-'));
+    const src = path.join(tmp, 'settings_data.json'); fs.writeFileSync(src, '{"k":1}');
+    const out = sw.backup(src, tmp, '20260610-120000');
+    ok(out.endsWith('settings_data.20260610-120000.json'), 'backup path: ' + out);
+    eq(fs.readFileSync(out, 'utf8'), '{"k":1}');
+  });
+}
 // ---------------------------------------------------------------------------
 console.log('\n' + '-'.repeat(60));
 console.log('RESULT: ' + pass + ' passed, ' + fail + ' failed');
