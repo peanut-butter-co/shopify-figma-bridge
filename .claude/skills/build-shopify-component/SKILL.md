@@ -101,6 +101,13 @@ settings to the shared `section.liquid` schema — that primitive backs many sec
 in the preset's `group`/`text`/`button` blocks. For `code`/`no-candidate`, there is no host section — you will
 author a new one.
 
+**Inspect desktop AND mobile as separate, first-class passes — never infer mobile from desktop.** Every usage
+carries a `desktopNodeId` AND a `mobileNodeId`: fetch `mcp__figma__get_design_context` for **both** and DIFF
+them. Any property that differs (type level, columns, alignment, visibility, order, gap, width fit/fill) maps to
+the breakpoint-specific host setting (`type_preset_mobile`, `mobile_columns`, `mobile_card_size`, `width_mobile`,
+mobile alignment, …), NOT the desktop one. `mobileDivergence` is a hint, not the whole story — read the mobile
+node yourself. The mobile pass is mandatory and equal to desktop at inspect, at plan, and at the render gate.
+
 ## Step 2: Propose the plan (gap-transparent)
 
 See `reference/plan.md` for the full method. In plain language, present:
@@ -115,6 +122,13 @@ See `reference/plan.md` for the full method. In plain language, present:
     any `mobileDivergence` (routed to code). List every one.
 - **code / no-candidate:** propose a **new** `sections/<slug>.liquid` — its schema settings + a liquid
   skeleton bound to **foundations variables** (scheme colors + type styles), plus any new theme blocks.
+- **SETTINGS AUDIT — every setting is a conscious, design-checked decision.** Before finalizing, produce a
+  table: one row per host setting of every block — `setting | design value (desktop / mobile) | host setting |
+  applied | source`, where **source ∈ {design-verified, host-default, gap}**. No setting ships "because it was
+  the host default" or "because `get_design_context`'s CSS said so" — that output is a *translation/hint*; verify
+  each layout setting (alignment, direction, gap, width fit/fill) and each sub-block's `type_preset` against the
+  design and the *rendered geometry*, not the emitted class. Present the table at the approval gate so every row
+  is reviewable.
 - Ask the developer to **approve or correct** (e.g. "map `left_title` → host `heading`", "add an `eyebrow`
   setting", "this is code", "use 72 not 80"). Apply corrections to the mapping/plan before executing.
 
@@ -151,6 +165,12 @@ See `reference/execute.md` for the lean write protocol. No backups (git is the n
    layout is **broken**; never rationalize a visual anomaly (project rule — see gotchas). On divergence, fix
    the code and re-run **b → c → d**, or surface the gap to the developer. Only a faithful render at both
    breakpoints counts as done.
+7. **Verify with measured evidence, not eyeballing — at BOTH breakpoints.** "It looks like a card" is not
+   verification; structure rendering ≠ correct settings. For each text/heading/price node, `getComputedStyle`
+   the rendered element (font-size, font-family, weight) and DIFF against the design's named type style — right
+   SIZE with the wrong FONT is still wrong. For layout rows, measure geometry (e.g. the far-right action's
+   x-position) against the design intent. A default-not-design value, a right-size/wrong-font, or an element
+   packed where the design pushes it apart is a fail — fix and re-run **b → c → d**.
 
 ## Step 4: Record state
 

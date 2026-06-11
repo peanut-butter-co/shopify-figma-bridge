@@ -109,7 +109,8 @@ No backups, no per-write verify substrate — git is the safety net and this is 
    (attaches to the running Chrome; fast). Confirm the palette/fonts landed: `getComputedStyle` on `:root`
    `--color-background/foreground/primary` + `--font-*--family`, and `document.fonts.check('700 24px "<heading
    font>"')` to confirm a font actually loaded vs fell back. A render anomaly = broken; never rationalize it
-   (project rule). Fast sanity check, not a hard gate.
+   (project rule — **measured evidence over a visual glance**, the shared verify norm with build-shopify-component).
+   Fast sanity check, not a hard gate.
 
 ## Step 4: Record state
 
