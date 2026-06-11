@@ -1,0 +1,251 @@
+{
+  "codeRequired": [
+    {
+      "component": "ugc-captions-below",
+      "basis": "no-candidate",
+      "usedIn": [
+        "index",
+        "product"
+      ]
+    },
+    {
+      "component": "collection-header",
+      "basis": "no-candidate",
+      "usedIn": [
+        "collection"
+      ]
+    },
+    {
+      "component": "filter-bar",
+      "basis": "no-candidate",
+      "usedIn": [
+        "collection"
+      ]
+    },
+    {
+      "component": "pagination",
+      "basis": "no-candidate",
+      "usedIn": [
+        "collection"
+      ]
+    },
+    {
+      "component": "header-utility-bar",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "index"
+      ],
+      "delta": "setting \"help_label\" is not in the host schema; setting \"phone\" is not in the host schema; setting \"email\" is not in the host schema; setting \"country_label\" is not in the host schema"
+    },
+    {
+      "component": "header-v2",
+      "basis": "mobile-divergence",
+      "usedIn": [
+        "index"
+      ],
+      "delta": "desktop Header v2 / mobile Header v1 — different section layout by viewport; also inexpressible: setting \"menu_item_1\" is not in the host schema; setting \"menu_item_2\" is not in the host schema; setting \"menu_item_3\" is not in the host schema; setting \"menu_item_4\" is not in the host schema; setting \"menu_item_5\" is not in the host schema; setting \"search_placeholder\" is not in the host schema; setting \"secondary_item_1\" is not in the host schema; setting \"secondary_item_2\" is not in the host schema; setting \"secondary_item_3\" is not in the host schema; setting \"secondary_item_4\" is not in the host schema; setting \"secondary_item_5\" is not in the host schema; setting \"secondary_item_6\" is not in the host schema; setting \"secondary_item_7\" is not in the host schema; block type \"menu-item\" is not accepted by the host schema; block type \"secondary-link\" is not accepted by the host schema"
+    },
+    {
+      "component": "split-banner",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "index"
+      ],
+      "delta": "setting \"left_counter\" is not in the host schema; setting \"left_eyebrow\" is not in the host schema; setting \"left_title\" is not in the host schema; setting \"left_description\" is not in the host schema; setting \"left_button_label\" is not in the host schema; setting \"right_counter\" is not in the host schema; setting \"right_eyebrow\" is not in the host schema; setting \"right_title\" is not in the host schema; setting \"right_description\" is not in the host schema; setting \"right_button_label\" is not in the host schema"
+    },
+    {
+      "component": "trust-bar",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "index"
+      ],
+      "delta": "setting \"item_1_heading\" is not in the host schema; setting \"item_1_text\" is not in the host schema; setting \"item_2_heading\" is not in the host schema; setting \"item_2_text\" is not in the host schema; setting \"item_3_heading\" is not in the host schema; setting \"item_3_text\" is not in the host schema; setting \"item_4_heading\" is not in the host schema; setting \"item_4_text\" is not in the host schema"
+    },
+    {
+      "component": "marquee",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "index"
+      ],
+      "delta": "setting \"text\" is not in the host schema"
+    },
+    {
+      "component": "product-card-row",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "index"
+      ],
+      "delta": "setting \"card_1_eyebrow\" is not in the host schema; setting \"card_1_title\" is not in the host schema; setting \"card_1_price\" is not in the host schema; setting \"card_1_badge_1\" is not in the host schema; setting \"card_1_badge_2\" is not in the host schema; setting \"card_2_eyebrow\" is not in the host schema; setting \"card_2_title\" is not in the host schema; setting \"card_2_price\" is not in the host schema; setting \"card_3_eyebrow\" is not in the host schema; setting \"card_3_title\" is not in the host schema; setting \"card_3_price\" is not in the host schema; setting \"card_3_compare_at_price\" is not in the host schema; setting \"card_3_badge_1\" is not in the host schema; setting \"card_4_eyebrow\" is not in the host schema; setting \"card_4_title\" is not in the host schema; setting \"card_4_price\" is not in the host schema; setting \"card_4_badge_1\" is not in the host schema"
+    },
+    {
+      "component": "image-with-text",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "index"
+      ],
+      "delta": "setting \"eyebrow\" is not in the host schema; setting \"heading\" is not in the host schema; setting \"text\" is not in the host schema; setting \"primary_button_label\" is not in the host schema; setting \"secondary_button_label\" is not in the host schema"
+    },
+    {
+      "component": "collection-list-grid",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "index"
+      ],
+      "delta": "setting \"card1_heading\" is not in the host schema; setting \"card1_caption\" is not in the host schema; setting \"card1_index\" is not in the host schema; setting \"card2_heading\" is not in the host schema; setting \"card2_caption\" is not in the host schema; setting \"card2_index\" is not in the host schema; setting \"card3_heading\" is not in the host schema; setting \"card3_caption\" is not in the host schema; setting \"card3_index\" is not in the host schema; setting \"card4_heading\" is not in the host schema; setting \"card4_caption\" is not in the host schema; setting \"card4_index\" is not in the host schema"
+    },
+    {
+      "component": "promo-banner",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "index"
+      ],
+      "delta": "setting \"discount_label\" is not in the host schema; setting \"discount_code\" is not in the host schema; setting \"eyebrow\" is not in the host schema; setting \"heading\" is not in the host schema; setting \"disclaimer\" is not in the host schema; setting \"primary_button_label\" is not in the host schema; setting \"secondary_button_label\" is not in the host schema"
+    },
+    {
+      "component": "product-card-row",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "index"
+      ],
+      "delta": "setting \"card_1_eyebrow\" is not in the host schema; setting \"card_1_title\" is not in the host schema; setting \"card_1_price\" is not in the host schema; setting \"card_1_badge_1\" is not in the host schema; setting \"card_1_badge_2\" is not in the host schema; setting \"card_2_eyebrow\" is not in the host schema; setting \"card_2_title\" is not in the host schema; setting \"card_2_price\" is not in the host schema; setting \"card_3_eyebrow\" is not in the host schema; setting \"card_3_title\" is not in the host schema; setting \"card_3_price\" is not in the host schema; setting \"card_3_compare_at_price\" is not in the host schema; setting \"card_3_badge_1\" is not in the host schema; setting \"card_4_eyebrow\" is not in the host schema; setting \"card_4_title\" is not in the host schema; setting \"card_4_price\" is not in the host schema; setting \"card_4_badge_1\" is not in the host schema"
+    },
+    {
+      "component": "brand-logos",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "index"
+      ],
+      "delta": "setting \"eyebrow\" is not in the host schema; setting \"heading\" is not in the host schema; setting \"link_label\" is not in the host schema; setting \"counter\" is not in the host schema"
+    },
+    {
+      "component": "newsletter-signup",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "index"
+      ],
+      "delta": "setting \"eyebrow\" is not in the host schema; setting \"heading\" is not in the host schema; setting \"subheading\" is not in the host schema; setting \"body\" is not in the host schema; setting \"input_placeholder\" is not in the host schema; setting \"button_label\" is not in the host schema; setting \"terms_label\" is not in the host schema"
+    },
+    {
+      "component": "footer",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "index"
+      ],
+      "delta": "setting \"brand_tagline\" is not in the host schema; setting \"copyright\" is not in the host schema; setting \"legal_links\" is not in the host schema; setting \"col_1_heading\" is not in the host schema; setting \"col_1_links\" is not in the host schema; setting \"col_2_heading\" is not in the host schema; setting \"col_2_links\" is not in the host schema; setting \"col_3_heading\" is not in the host schema; setting \"col_3_links\" is not in the host schema; setting \"social\" is not in the host schema"
+    },
+    {
+      "component": "header-utility-bar",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "collection"
+      ],
+      "delta": "setting \"help_label\" is not in the host schema; setting \"phone\" is not in the host schema; setting \"email\" is not in the host schema; setting \"country_label\" is not in the host schema"
+    },
+    {
+      "component": "header-v2",
+      "basis": "mobile-divergence",
+      "usedIn": [
+        "collection"
+      ],
+      "delta": "desktop Header v2 / mobile Header v1 — different section layout by viewport; also inexpressible: setting \"menu_item_1\" is not in the host schema; setting \"menu_item_2\" is not in the host schema; setting \"menu_item_3\" is not in the host schema; setting \"menu_item_4\" is not in the host schema; setting \"menu_item_5\" is not in the host schema; setting \"search_placeholder\" is not in the host schema; setting \"secondary_item_1\" is not in the host schema; setting \"secondary_item_2\" is not in the host schema; setting \"secondary_item_3\" is not in the host schema; setting \"secondary_item_4\" is not in the host schema; setting \"secondary_item_5\" is not in the host schema; setting \"secondary_item_6\" is not in the host schema; setting \"secondary_item_7\" is not in the host schema; block type \"menu-item\" is not accepted by the host schema; block type \"secondary-link\" is not accepted by the host schema"
+    },
+    {
+      "component": "sub-collection-navigation",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "collection"
+      ],
+      "delta": "setting \"tab_1_label\" is not in the host schema; setting \"tab_2_label\" is not in the host schema; setting \"tab_3_label\" is not in the host schema; setting \"tab_4_label\" is not in the host schema; setting \"tab_5_label\" is not in the host schema; setting \"tab_6_label\" is not in the host schema; block type \"tab\" is not accepted by the host schema"
+    },
+    {
+      "component": "product-card-row",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "collection"
+      ],
+      "delta": "setting \"card_1_eyebrow\" is not in the host schema; setting \"card_1_title\" is not in the host schema; setting \"card_1_price\" is not in the host schema; setting \"card_1_badge_1\" is not in the host schema; setting \"card_1_badge_2\" is not in the host schema; setting \"card_2_eyebrow\" is not in the host schema; setting \"card_2_title\" is not in the host schema; setting \"card_2_price\" is not in the host schema; setting \"card_3_eyebrow\" is not in the host schema; setting \"card_3_title\" is not in the host schema; setting \"card_3_price\" is not in the host schema; setting \"card_3_compare_at_price\" is not in the host schema; setting \"card_3_badge_1\" is not in the host schema; setting \"card_4_eyebrow\" is not in the host schema; setting \"card_4_title\" is not in the host schema; setting \"card_4_price\" is not in the host schema; setting \"card_4_badge_1\" is not in the host schema"
+    },
+    {
+      "component": "newsletter-signup",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "collection"
+      ],
+      "delta": "setting \"eyebrow\" is not in the host schema; setting \"heading\" is not in the host schema; setting \"subheading\" is not in the host schema; setting \"body\" is not in the host schema; setting \"input_placeholder\" is not in the host schema; setting \"button_label\" is not in the host schema; setting \"terms_label\" is not in the host schema"
+    },
+    {
+      "component": "footer",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "collection"
+      ],
+      "delta": "setting \"brand_tagline\" is not in the host schema; setting \"copyright\" is not in the host schema; setting \"legal_links\" is not in the host schema; setting \"col_1_heading\" is not in the host schema; setting \"col_1_links\" is not in the host schema; setting \"col_2_heading\" is not in the host schema; setting \"col_2_links\" is not in the host schema; setting \"col_3_heading\" is not in the host schema; setting \"col_3_links\" is not in the host schema; setting \"social\" is not in the host schema"
+    },
+    {
+      "component": "header-utility-bar",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "product"
+      ],
+      "delta": "setting \"help_label\" is not in the host schema; setting \"phone\" is not in the host schema; setting \"email\" is not in the host schema; setting \"country_label\" is not in the host schema"
+    },
+    {
+      "component": "header-v1",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "product"
+      ],
+      "delta": "setting \"main_menu_item_1\" is not in the host schema; setting \"main_menu_item_2\" is not in the host schema; setting \"main_menu_item_3\" is not in the host schema; setting \"main_menu_item_4\" is not in the host schema; setting \"main_menu_item_5\" is not in the host schema; setting \"secondary_menu_item_1\" is not in the host schema; setting \"secondary_menu_item_2\" is not in the host schema; setting \"secondary_menu_item_3\" is not in the host schema; setting \"secondary_menu_item_4\" is not in the host schema; setting \"secondary_menu_item_5\" is not in the host schema; setting \"secondary_menu_item_6\" is not in the host schema; setting \"secondary_menu_item_7\" is not in the host schema; block type \"link\" is not accepted by the host schema"
+    },
+    {
+      "component": "breadcrumbs",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "product"
+      ],
+      "delta": "setting \"level1\" is not in the host schema; setting \"level2\" is not in the host schema; setting \"current\" is not in the host schema; block type \"link\" is not accepted by the host schema"
+    },
+    {
+      "component": "product-information",
+      "basis": "mobile-divergence",
+      "usedIn": [
+        "product"
+      ],
+      "delta": "desktop two-column gallery / mobile swipe carousel — behaviour differs; also inexpressible: setting \"vendor\" is not in the host schema; setting \"rating\" is not in the host schema; setting \"reviews_label\" is not in the host schema; setting \"product_name\" is not in the host schema; setting \"price\" is not in the host schema; setting \"compare_at_price\" is not in the host schema; setting \"sale_badge\" is not in the host schema; setting \"short_description\" is not in the host schema; setting \"badge_new\" is not in the host schema; setting \"badge_featured\" is not in the host schema; setting \"color_label\" is not in the host schema; setting \"color_options\" is not in the host schema; setting \"size_label\" is not in the host schema; setting \"size_guide_link\" is not in the host schema; setting \"size_options\" is not in the host schema; setting \"stock_label\" is not in the host schema; setting \"wishlist_label\" is not in the host schema; setting \"quantity_default\" is not in the host schema; setting \"add_to_cart_label\" is not in the host schema; setting \"trust_item_1\" is not in the host schema; setting \"trust_item_2\" is not in the host schema; setting \"trust_item_3\" is not in the host schema; setting \"accordion_1\" is not in the host schema; setting \"accordion_2\" is not in the host schema; setting \"accordion_3\" is not in the host schema; setting \"accordion_4\" is not in the host schema; setting \"gallery_caption\" is not in the host schema"
+    },
+    {
+      "component": "related-products",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "product"
+      ],
+      "delta": "setting \"product_card_1_title\" is not in the host schema; setting \"product_card_1_price\" is not in the host schema; setting \"product_card_2_title\" is not in the host schema; setting \"product_card_2_price\" is not in the host schema; setting \"product_card_3_title\" is not in the host schema; setting \"product_card_3_price\" is not in the host schema; setting \"product_card_4_title\" is not in the host schema; setting \"product_card_4_price\" is not in the host schema; setting \"product_card_5_title\" is not in the host schema; setting \"product_card_5_price\" is not in the host schema; setting \"product_card_6_title\" is not in the host schema; setting \"product_card_6_price\" is not in the host schema"
+    },
+    {
+      "component": "newsletter-signup",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "product"
+      ],
+      "delta": "setting \"eyebrow\" is not in the host schema; setting \"heading\" is not in the host schema; setting \"subheading\" is not in the host schema; setting \"body\" is not in the host schema; setting \"input_placeholder\" is not in the host schema; setting \"button_label\" is not in the host schema; setting \"terms_label\" is not in the host schema"
+    },
+    {
+      "component": "footer",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "product"
+      ],
+      "delta": "setting \"brand_tagline\" is not in the host schema; setting \"copyright\" is not in the host schema; setting \"legal_links\" is not in the host schema; setting \"col_1_heading\" is not in the host schema; setting \"col_1_links\" is not in the host schema; setting \"col_2_heading\" is not in the host schema; setting \"col_2_links\" is not in the host schema; setting \"col_3_heading\" is not in the host schema; setting \"col_3_links\" is not in the host schema; setting \"social\" is not in the host schema"
+    }
+  ],
+  "appBlocks": [
+    {
+      "component": "product-reviews",
+      "basis": "app-slot",
+      "usedIn": [
+        "product"
+      ]
+    }
+  ],
+  "outOfScope": []
+}
