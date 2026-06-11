@@ -51,7 +51,7 @@ const CANDIDATE_MAP = {
   'footer':                    { host: 'footer',                  verdict: 'config', basis: 'schema-expressible', confidence: 'high' },   // exact slug; rich block-based host footer
   'newsletter-signup':         { host: null,                      verdict: 'code',   basis: 'no-candidate',       confidence: 'high' },   // no host newsletter SECTION (email-signup is a block)
   // --- homepage ---
-  'split-banner':              { host: 'hero',                    verdict: 'config', basis: 'schema-expressible', confidence: 'medium' }, // dual-media banner ~ hero (media_type_1/2 + overlay)
+  'split-banner':              { host: 'section', preset: 'split_showcase', verdict: 'config', basis: 'schema-expressible', confidence: 'high' }, // Horizon "Split showcase": a PRESET of the generic `section` (content_direction:row + two background_media `group`s, each spacer+text+button). buildComponentMap validates the preset exists and carries it to reachability.preset so the skill instantiates it instead of authoring code.
   'trust-bar':                 { host: null,                      verdict: 'code',   basis: 'no-candidate',       confidence: 'high' },   // static icon+text row; no host peer
   'marquee':                   { host: 'marquee',                 verdict: 'config', basis: 'schema-expressible', confidence: 'high' },   // exact slug
   'product-card-row':          { host: 'product-list',            verdict: 'config', basis: 'schema-expressible', confidence: 'high' },   // configurable product card grid/carousel
@@ -110,11 +110,20 @@ function buildComponentMap(oldComponentMap, candidateMap, themeRoot) {
     const cm = candidateMap[key];
     if (!cm) throw new Error(`CANDIDATE_MAP is missing an entry for componentMap key "${key}"`);
     const kind = cm.kind || (prev.theme && prev.theme.kind) || 'section';
-    let theme, schema, candidate;
+    let theme, schema, candidate, preset = null;
     if (cm.host) {
       const r = resolveHostSection(themeRoot, cm.host);
       if (cm.verdict === 'config' && (!r.exists || !r.schema)) {
         throw new Error(`"${key}": config candidate "${r.file}" did not resolve (exists=${r.exists}, schema=${!!r.schema}) under themeRoot "${themeRoot}"`);
+      }
+      // Preset-based candidate (Horizon "power section": the generic section.liquid + named presets). The
+      // resolver is file-only, so `candidate` stays the FILE; `preset` names which preset to instantiate.
+      // Validate against the live presets so a bad name fails loudly (mirrors the bad-slug guard above).
+      if (cm.preset) {
+        const presets = (r.schema && Array.isArray(r.schema.presets)) ? r.schema.presets : [];
+        const hit = presets.some((p) => p && typeof p.name === 'string' && p.name.replace(/^t:names\./, '') === cm.preset);
+        if (!hit) throw new Error(`"${key}": config candidate "${r.file}" has no preset named "${cm.preset}" (checked ${presets.length} presets)`);
+        preset = cm.preset;
       }
       theme = { file: r.file, exists: r.exists, kind };
       schema = loadBearingSchema(r.schema);
@@ -129,7 +138,7 @@ function buildComponentMap(oldComponentMap, candidateMap, themeRoot) {
       figma: prev.figma,
       theme,
       schema,
-      reachability: { verdict: cm.verdict, basis: cm.basis, confidence: cm.confidence, candidate },
+      reachability: { verdict: cm.verdict, basis: cm.basis, confidence: cm.confidence, candidate, ...(preset ? { preset } : {}) },
     };
   }
   return out;

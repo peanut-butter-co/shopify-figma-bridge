@@ -168,15 +168,36 @@
         },
         "h2": {
           "fontRole": "heading",
-          "size": 48,
-          "lineHeight": 100,
+          "size": 52,
+          "lineHeight": 115,
           "letterSpacing": -1,
           "case": "none"
         },
         "h3": {
           "fontRole": "heading",
-          "size": 32,
-          "lineHeight": 110,
+          "size": 36,
+          "lineHeight": 115,
+          "letterSpacing": 0,
+          "case": "none"
+        },
+        "h4": {
+          "fontRole": "heading",
+          "size": 28,
+          "lineHeight": 115,
+          "letterSpacing": 0,
+          "case": "none"
+        },
+        "h5": {
+          "fontRole": "heading",
+          "size": 20,
+          "lineHeight": 130,
+          "letterSpacing": 0,
+          "case": "none"
+        },
+        "h6": {
+          "fontRole": "heading",
+          "size": 16,
+          "lineHeight": 140,
           "letterSpacing": 0,
           "case": "none"
         },
@@ -190,6 +211,20 @@
         "paragraph": {
           "fontRole": "body",
           "size": 14,
+          "lineHeight": 160,
+          "letterSpacing": 0,
+          "case": "none"
+        },
+        "text_large": {
+          "fontRole": "body",
+          "size": 16,
+          "lineHeight": 160,
+          "letterSpacing": 0,
+          "case": "none"
+        },
+        "text_small": {
+          "fontRole": "body",
+          "size": 12,
           "lineHeight": 160,
           "letterSpacing": 0,
           "case": "none"
@@ -1143,9 +1178,15 @@
     }
   },
   "buildStatus": {
-    "shopifyFoundations": "complete"
+    "shopifyFoundations": "complete",
+    "components": {
+      "split-banner": "complete",
+      "trust-bar": "complete",
+      "marquee": "complete",
+      "product-card-row": "complete"
+    }
   },
   "buildMeta": {
-    "builtAt": "2026-06-10T14:03:23Z"
+    "builtAt": "2026-06-11T14:12:14.572Z"
   }
 }

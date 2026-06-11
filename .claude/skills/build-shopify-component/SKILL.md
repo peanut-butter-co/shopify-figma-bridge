@@ -89,10 +89,17 @@ console.log(JSON.stringify({pick:key, inspect: cb.inspectComponent(key, cm, root
 ' "<KEY>"
 ```
 
-Read: `verdict`, `candidate` (the host section to build ON, or null), `hostSchema` (its load-bearing
-settings/blocks), and `usages` (one per template — the design intent `settings`/`blocks`/`colorScheme` and
-any `mobileDivergence`). For a `config` baseline, open the candidate `.liquid` to see the full host schema +
-markup. For `code`/`no-candidate`, there is no host section — you will author a new one.
+Read: `verdict`, `candidate` (the host section to build ON, or null), `preset` (a NAMED preset of that
+section file, or null), `hostSchema` (its load-bearing settings/blocks), and `usages` (one per template —
+the design intent `settings`/`blocks`/`colorScheme` and any `mobileDivergence`). For a `config` baseline,
+open the candidate `.liquid` to see the full host schema + markup. **If `preset` is non-null**, the candidate
+is that named preset of a Horizon "power section" — the generic `section.liquid` exposes presets like
+`split_showcase`, `icons_with_text`, `email_signup`. Find the entry in the file's `{% schema %}` `presets[]`
+whose `name` is `t:names.<preset>` and **instantiate that preset's block tree as the baseline** (write it into
+the template, then re-author each block's settings to the design intent). Do NOT add `left_*`/`right_*` content
+settings to the shared `section.liquid` schema — that primitive backs many sections; the per-half content lives
+in the preset's `group`/`text`/`button` blocks. For `code`/`no-candidate`, there is no host section — you will
+author a new one.
 
 ## Step 2: Propose the plan (gap-transparent)
 

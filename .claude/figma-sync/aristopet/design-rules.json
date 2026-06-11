@@ -829,109 +829,13 @@
         }
       },
       "theme": {
-        "file": "sections/hero.liquid",
+        "file": "sections/section.liquid",
         "exists": true,
         "kind": "section"
       },
       "schema": {
-        "name": "t:names.hero",
+        "name": "t:names.section",
         "settings": [
-          {
-            "id": "media_type_1",
-            "type": "select",
-            "options": [
-              {
-                "value": "image"
-              },
-              {
-                "value": "video"
-              }
-            ]
-          },
-          {
-            "id": "image_1",
-            "type": "image_picker"
-          },
-          {
-            "id": "video_1",
-            "type": "video"
-          },
-          {
-            "id": "media_type_2",
-            "type": "select",
-            "options": [
-              {
-                "value": "image"
-              },
-              {
-                "value": "video"
-              }
-            ]
-          },
-          {
-            "id": "image_2",
-            "type": "image_picker"
-          },
-          {
-            "id": "video_2",
-            "type": "video"
-          },
-          {
-            "id": "stack_media_on_mobile",
-            "type": "checkbox"
-          },
-          {
-            "id": "custom_mobile_media",
-            "type": "checkbox"
-          },
-          {
-            "id": "media_type_1_mobile",
-            "type": "select",
-            "options": [
-              {
-                "value": "image"
-              },
-              {
-                "value": "video"
-              }
-            ]
-          },
-          {
-            "id": "image_1_mobile",
-            "type": "image_picker"
-          },
-          {
-            "id": "video_1_mobile",
-            "type": "video"
-          },
-          {
-            "id": "media_type_2_mobile",
-            "type": "select",
-            "options": [
-              {
-                "value": "image"
-              },
-              {
-                "value": "video"
-              }
-            ]
-          },
-          {
-            "id": "image_2_mobile",
-            "type": "image_picker"
-          },
-          {
-            "id": "video_2_mobile",
-            "type": "video"
-          },
-          {
-            "id": "link",
-            "type": "url"
-          },
-          {
-            "id": "open_in_new_tab",
-            "type": "checkbox"
-          },
           {
             "id": "content_direction",
             "type": "select",
@@ -1042,7 +946,7 @@
             "type": "select",
             "options": [
               {
-                "value": "auto"
+                "value": ""
               },
               {
                 "value": "small"
@@ -1071,6 +975,86 @@
           {
             "id": "color_scheme",
             "type": "color_scheme"
+          },
+          {
+            "id": "background_media",
+            "type": "select",
+            "options": [
+              {
+                "value": "none"
+              },
+              {
+                "value": "image"
+              },
+              {
+                "value": "video"
+              }
+            ]
+          },
+          {
+            "id": "video",
+            "type": "video"
+          },
+          {
+            "id": "video_position",
+            "type": "select",
+            "options": [
+              {
+                "value": "cover"
+              },
+              {
+                "value": "contain"
+              }
+            ]
+          },
+          {
+            "id": "background_image",
+            "type": "image_picker"
+          },
+          {
+            "id": "background_image_position",
+            "type": "select",
+            "options": [
+              {
+                "value": "cover"
+              },
+              {
+                "value": "fit"
+              }
+            ]
+          },
+          {
+            "id": "border",
+            "type": "select",
+            "options": [
+              {
+                "value": "none"
+              },
+              {
+                "value": "solid"
+              }
+            ]
+          },
+          {
+            "id": "border_width",
+            "type": "range",
+            "min": 0,
+            "max": 10,
+            "step": 0.5
+          },
+          {
+            "id": "border_opacity",
+            "type": "range",
+            "min": 0,
+            "max": 100,
+            "step": 1
+          },
+          {
+            "id": "border_radius",
+            "type": "range",
+            "min": 0,
+            "max": 100,
+            "step": 1
           },
           {
             "id": "toggle_overlay",
@@ -1105,17 +1089,6 @@
             ]
           },
           {
-            "id": "blurred_reflection",
-            "type": "checkbox"
-          },
-          {
-            "id": "reflection_opacity",
-            "type": "range",
-            "min": 0,
-            "max": 100,
-            "step": 1
-          },
-          {
             "id": "padding-block-start",
             "type": "range",
             "min": 0,
@@ -1132,20 +1105,16 @@
         ],
         "blocks": [
           "@theme",
-          "text",
-          "button",
-          "logo",
-          "jumbo-text",
-          "spacer",
-          "group",
-          "_marquee"
+          "@app",
+          "_divider"
         ]
       },
       "reachability": {
         "verdict": "config",
         "basis": "schema-expressible",
-        "confidence": "medium",
-        "candidate": "sections/hero.liquid"
+        "confidence": "high",
+        "candidate": "sections/section.liquid",
+        "preset": "split_showcase"
       }
     },
     "trust-bar": {

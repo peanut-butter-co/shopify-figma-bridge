@@ -26,3 +26,34 @@ developer corrects your approach (see SKILL.md "After Completion").
   A thin sliver, a collapsed section, missing text, or a raw/unbound color is a BROKEN layout — never
   rationalize a visual anomaly (project rule). "validate green" + "MCP says the page loaded" ≠ "it renders
   correctly". Eyes on the screenshot, both breakpoints, before you call it done.
+- 2026-06-11 — **Present the FULL nested block tree in the plan; never compress it.** Horizon power-section
+  presets nest two group levels per item — e.g. `icons_with_text` is `group → [icon, group → [heading, text]]`.
+  Collapsing that to one line in the plan ("item → icon + heading + subtext") hides a nesting level the
+  developer must see to approve the structure at the gate. Draw every `group` boundary explicitly. (Surfaced
+  on trust-bar: the inner text-group wrapping title+description was left implicit; the dev had to spell it out.)
+- 2026-06-11 — **A `code`/`no-candidate` verdict is NOT proof there's no host — verify against the preset
+  catalog first.** trust-bar inspected as `code` (hostSchema null) yet `icons_with_text` (a `section.liquid`
+  preset) was an exact host. Before authoring any new `.liquid`, grep `section.liquid`'s `presets[]` for a
+  structural match (row of icon+text columns → `icons_with_text`; two media halves → `split_showcase`).
+  Building config on a verified preset beats authoring redundant code. This is the F13/F14 matcher blind spot —
+  assume it, don't trust a `code` verdict blindly.
+- 2026-06-11 — **Give every group/container instance a meaningful `name` (it's editor-only, free).** Bare
+  `group` blocks render in the theme-editor sidebar as a useless stack of "Group / Group / Group". Set
+  `"name"` (right after `"type"`) from the block's CONTENT or ROLE — the trust item "Envíos Gratuitos", the
+  banner half "Aristoperros", the text wrapper "Texto"/"Contenido". A literal string is fine (no `t:` key
+  needed). It's pure editor metadata — the storefront render is byte-identical, so no re-verify needed — but
+  it makes the section navigable for the merchant. Do this for EVERY group/icon/text container as you author
+  the instance, not as a cleanup pass. (Surfaced when the dev saw the trust-bar sidebar as anonymous "Group"s.)
+- 2026-06-11 — **Decompose separator-delimited / multi-part content into INDEPENDENT blocks — never cram it
+  into one text block.** On marquee I dumped the whole `"FRASE 1   |   FRASE 2   |"` string into a single
+  `text` block with literal pipes. Wrong: the host marquee's block vocabulary is `text` / `icon` / `logo` /
+  `_divider`, so the faithful build is `text("FRASE 1")` + `_divider` + `text("FRASE 2")` + `_divider` — each
+  phrase independently editable, and the separator a real themed `_divider`, not a typed `|` glyph baked into
+  copy. **The skill must be smart enough to SEE this, not wait to be told:** when the design intent flattens
+  repeated/separated content into one string — a `|` / `•` / `—` / `·` separator, a "X | Y" pattern, a list —
+  AND the host section accepts the matching block types (esp. `_divider`), split it into independent blocks.
+  The flattened intent string is a *serialization* of a multi-block structure, not the structure itself; read
+  the host's block vocabulary and reconstruct the real blocks. And for a *repeating/looping* section (marquee),
+  the separator must also TRAIL the last content block — `text · divider · text · divider` — or the loop seam
+  (last item → first item of the next repeat) silently drops the separator rhythm. (Surfaced on marquee; dev
+  had to point out both the decomposition AND the missing trailing divider.)

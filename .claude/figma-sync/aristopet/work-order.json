@@ -67,7 +67,7 @@
       "usedIn": [
         "index"
       ],
-      "delta": "setting \"left_counter\" is not in the host schema; setting \"left_eyebrow\" is not in the host schema; setting \"left_title\" is not in the host schema; setting \"left_description\" is not in the host schema; setting \"left_button_label\" is not in the host schema; setting \"right_counter\" is not in the host schema; setting \"right_eyebrow\" is not in the host schema; setting \"right_title\" is not in the host schema; setting \"right_description\" is not in the host schema; setting \"right_button_label\" is not in the host schema; block type \"hero-half\" is not accepted by the host schema"
+      "delta": "setting \"left_counter\" is not in the host schema; setting \"left_eyebrow\" is not in the host schema; setting \"left_title\" is not in the host schema; setting \"left_description\" is not in the host schema; setting \"left_button_label\" is not in the host schema; setting \"right_counter\" is not in the host schema; setting \"right_eyebrow\" is not in the host schema; setting \"right_title\" is not in the host schema; setting \"right_description\" is not in the host schema; setting \"right_button_label\" is not in the host schema"
     },
     {
       "component": "marquee",
