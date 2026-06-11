@@ -57,45 +57,16 @@ developer corrects your approach (see SKILL.md "After Completion").
   the separator must also TRAIL the last content block — `text · divider · text · divider` — or the loop seam
   (last item → first item of the next repeat) silently drops the separator rhythm. (Surfaced on marquee; dev
   had to point out both the decomposition AND the missing trailing divider.)
-- 2026-06-11 — **Audit EVERY sub-block's `type_preset` against the design's type spec, and VERIFY with computed
-  styles — structure rendering ≠ correct.** Repurposing the product-list I kept Horizon's default card presets
-  (`title: paragraph`/14px, `price: h6`/Instrument Sans) and only checked that cards *appeared* — missing that
-  the title is H5/20px and the price is DM Sans/16px. A screenshot glance is not verification. For each
-  text/heading/price sub-block: map it to the design's named type style, set the preset, then
-  `getComputedStyle` the rendered node (font-size, font-family, weight) and diff against the design. The dev
-  caught this and asked "did you actually verify?" — the honest answer was no. The render gate MUST include a
-  per-text-node type audit with computed-style evidence, not just "it looks like a card."
-- 2026-06-11 — **The theme's heading presets are single-font; the design's heading scale may not be.** The
-  design uses Instrument Sans for display H1–H3 but **DM Sans SemiBold for H4–H6 / product titles**; SP-2
-  reconstructed all of `type_font_h1..h6` as the one heading font (Instrument Sans). So `type_preset: h5`
-  gives the right SIZE (20px) but the wrong FONT (Instrument Sans vs the design's DM Sans). Flag this as a
-  foundations gap — don't assume `hN` matches the design's `HN` font; check `get_design_context`'s reported
-  font family per heading level.
-- 2026-06-11 — **⚠️ IMPORTANT — inspect DESKTOP and MOBILE separately and apply the breakpoint-specific
-  settings; never infer mobile from desktop.** Horizon sections/blocks carry many distinct mobile settings:
-  `type_preset_mobile`, `mobile_columns`, `mobile_card_size`, `mobile_quick_add`, `width_mobile`,
-  `custom_width_mobile`, `carousel_on_mobile`, `vertical_on_mobile`, mobile alignment, etc. Every design usage
-  has BOTH a `desktopNodeId` AND a `mobileNodeId` — **fetch `get_design_context` for each and DIFF them**;
-  anything that differs (type level, columns, alignment, visibility, order) maps to the `*_mobile` setting, not
-  the desktop one. Then verify at BOTH widths with `getComputedStyle`. Miss that prompted this: the section
-  header title is H2 on desktop but **H3 on the mobile frame** — only the desktop node was inspected, so
-  `type_preset_mobile` was left empty (inherits desktop) and mobile shipped 52px instead of 36px. "Responsive
-  scaling will handle it" is NOT a substitute for reading the mobile node. Treat the mobile pass as mandatory,
-  equal to desktop — at inspect, at plan, and at the render gate.
-- 2026-06-11 — **⚠️ IMPORTANT — audit EVERY setting of EVERY block against the design; don't blind-map
-  `get_design_context`'s CSS, and don't leave host defaults unexamined.** The header's h2-row got
-  `horizontal_alignment: space-between` because the auto-generated context said `justify-between` — a *hint*,
-  not the design's auto-layout intent (which is left-aligned with the title set to fill). Pure `flex-start`
-  then packs the title + "Ver más" together (verified: title ends x627, "Ver más" at x651) instead of pushing
-  "Ver más" to the far right (~x1300). Lessons: (a) `get_design_context` output is a translation — verify each
-  LAYOUT setting (alignment, direction, gap, width fit/fill) against the design and the *rendered position*,
-  not the emitted class; (b) in Horizon a 2-item "content left / action far-right" row is `space-between`, OR
-  `flex-start` + first child `width: fill` — plain `flex-start` is neither. **Process to force per-config
-  attention (the fix for "why didn't you look at each setting"): before finalizing any block, write a SETTINGS
-  AUDIT — one row per setting: `setting | design value (desktop / mobile) | host setting | applied | source
-  (design-verified / host-default / gap)`. Present it in the plan so each row is reviewable, and re-check the
-  visual rows with `getComputedStyle` + measured geometry at the render gate. No setting ships "because it was
-  the default" or "because the auto-context said so" — every one is a conscious, design-checked decision.**
+- 2026-06-11 — **Per-sub-block `type_preset` audit + computed-style verification** → promoted to SKILL.md Step 2
+  (audit each text/heading/price sub-block's type vs the design) + Step 3d (`getComputedStyle` evidence). Origin:
+  the product-list kept Horizon's default card presets (title 14px paragraph, price Instrument Sans) — right
+  structure, wrong type; "it looks like a card" is not verification.
+- 2026-06-11 — **Inspect desktop & mobile as separate passes** → promoted to SKILL.md Step 1 (fetch
+  `get_design_context` for both nodes, DIFF, map differences to `*_mobile` settings). Origin: header title was
+  H2 desktop / H3 mobile, so mobile shipped 52px instead of 36px because only the desktop node was read.
+- 2026-06-11 — **Per-setting SETTINGS AUDIT; `get_design_context`'s CSS is a lossy hint, not the intent** →
+  promoted to SKILL.md Step 2 (audit table: every setting design-verified / host-default / gap). Origin: the
+  header row got `space-between` from a `justify-between` hint instead of the design's left-align + title-fill.
 - 2026-06-11 — **⚠️ When the developer corrects the SAME detail twice, YOUR model is wrong, not theirs — STOP,
   re-open the actual design (or ask for their reference screenshot); do not keep defending your reading.** I
   read the header's Figma frame + the auto-context's `justify-between` as "Ver más on the far right" and built
