@@ -259,6 +259,16 @@
   },
 
   "recommendations": {
+    "elements": {
+      "button_primary_radius":   { "source": "spacing.radii.button_primary",          "host": ["button_border_radius_primary"] },
+      "button_secondary_radius": { "source": "spacing.radii.button_secondary",        "host": ["button_border_radius_secondary"] },
+      "input_radius":            { "source": "spacing.radii.input",                   "host": ["inputs_border_radius"] },
+      "card_radius":             { "source": "spacing.radii.card",                    "host": ["card_corner_radius", "product_corner_radius"] },
+      "secondary_button_border": { "source": "spacing.borderWidths.button_secondary", "host": ["secondary_button_border_width"] },
+      "input_border":            { "source": "spacing.borderWidths.input",            "host": ["input_border_width"] },
+      "button_case":             { "source": "typography.preset:overline.case", "transform": "case",     "host": ["button_text_case_primary", "button_text_case_secondary"] },
+      "button_font":             { "source": "typography.role:body",            "transform": "fontRole", "host": ["type_font_button_primary", "type_font_button_secondary"] }
+    },
     "components": {
       "mandatoryAtoms": [
         "Button", "Input Field", "Checkbox", "Text Link", "Tab", "Arrow Button",

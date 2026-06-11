@@ -17,7 +17,7 @@ You are landing the reconstructed design foundations — **color schemes + typog
 
 **Manifest:** `.claude/figma-sync/aristopet/manifest.json` (the active foundations source).
 **Host theme:** `config.themeRoot` (currently `"."` — the repo root). Files: `config/settings_schema.json`, `config/settings_data.json`.
-**Logic (single-sourced, tested):** `.claude/scripts/foundations-map.js`, `.claude/scripts/safe-shopify-write.js`.
+**Logic (single-sourced, tested):** `.claude/scripts/foundations-map.js`, `.claude/scripts/elements-map.js`, `.claude/scripts/safe-shopify-write.js`.
 
 ---
 
@@ -49,12 +49,32 @@ console.log(JSON.stringify(fm.foundationsMap(root.foundations, schema, data),nul
 
 Read the resulting plan: `schemeWrites` (4 schemes), `fontWrites`, `typeWrites`, `schemaExtensions`, `surplusSchemes`, `gaps`.
 
+Also compute the **element-foundations** plan (buttons/inputs/badges/popovers/swatches/variant-pickers
+radii, borders, text-case, font, page width):
+
+```bash
+node -e '
+const em=require("./.claude/scripts/elements-map.js"), sw=require("./.claude/scripts/safe-shopify-write.js"), fs=require("fs");
+const root=require("./.claude/figma-sync/aristopet/manifest.json");
+const profile=require("./.claude/figma-sync/theme-profiles/horizon.json"); // resolve by manifest.theme; null -> generic fallback
+const tr=root.config.themeRoot;
+const schema=JSON.parse(fs.readFileSync(tr+"/config/settings_schema.json","utf8"));
+// flatten the grouped schema to { settings:[...] } the mapper expects:
+const flat={settings:[].concat(...schema.map(g=>g&&g.settings||[]))};
+const data=sw.parseSettingsData(fs.readFileSync(tr+"/config/settings_data.json","utf8"));
+const elements=(profile.recommendations&&profile.recommendations.elements)||null;
+console.log(JSON.stringify(em.elementsMap(root.foundations, elements, flat, data),null,2));
+'
+```
+
 ## Step 2: Propose the plan to the developer (gap-transparent)
 
 Present, in plain language:
 - **Color schemes:** the 4 schemes and their role values being written (note alpha is preserved natively).
 - **Typography:** fonts + type scale; **list every `schemaExtension`** ("add 80px to `type_size_h1`") and **every gap** (`orphan-role` `foreground_chip` dropped; `approx-line-height`/`approx-letter-spacing` token choices with the source value; `verify-font-availability` for Instrument Sans; `component-level-preset` overline/caption skipped; `surplusSchemes` — host extras left in place, NOT auto-deleted, since host sections may still reference them).
-- Ask the developer to approve or correct (e.g. "use 72 not 80", "keep scheme-5", "Instrument Sans isn't available → add a custom font source"). Apply any corrections to the plan object before executing.
+- **Element foundations:** present every `applied` element setting (`old → new`, e.g. `button_border_radius_primary 14 → 0`), and every gap (`no-design-token` left at host default; `generic-needs-confirm` for un-profiled themes; `value-out-of-domain`/`source-missing`). Fold these into the **same explicit approval gate** as colors/typography.
+- **Explicit approval gate (HARD STOP).** Present the concrete change set being approved: the exact settings that will change (each scheme role and each `type_*`/font field, old → new) and every `settings_schema.json` modification (each ladder/option extension). Get explicit approval of *this diff* — do NOT fold the approval into an unrelated sub-question (e.g. a single-scheme detail), and do NOT proceed to Step 3 until the developer approves. Apply any corrections to the plan first; if the change set moved, re-present it.
+- Also surface, per Step 1's gaps: `host-capacity` (design defines more than the host can express — e.g. multiple body sizes vs Horizon's single `type_size_paragraph`), `partial-scheme-coverage` + `scheme-contrast-risk` (sparse schemes inheriting host roles), and `type-level-not-in-foundations` (host heading levels left at default). Note corrections like "use 72 not 80", "keep scheme-5", "Instrument Sans isn't available → add a custom font source".
 
 See `reference/mapping.md` for the full mapping reference; `reference/safe-write.md` for the write protocol.
 
@@ -73,17 +93,20 @@ No backups, no per-write verify substrate — git is the safety net and this is 
 - **`config/settings_schema.json`** (only the `schemaExtensions` — e.g. add an `80px` option to
   `type_size_h1`): do a **surgical `Edit`** that inserts the new option in the exact sibling format. Do **NOT**
   reserialize this file — it is CRLF + hand-mixed formatting, so a full rewrite reflows every line.
+- **Element foundations:** write the approved element `applied` with `applyElementPlan(plan, data)` from `elements-map.js` (merges into `data.current`, same `settings_data.json` write path as typography — re-prepend the JSONC header). Apply `schemaWidenings`/`schemaExtensions` as surgical edits to `settings_schema.json` (CRLF-safe), exactly as for the type-scale ladder.
 
 **Fidelity guard (cheap, do it):** before writing a file programmatically, assert
 `serialize(parse(original)) === original`. False → that file won't round-trip; switch to a surgical `Edit`.
 (settings_data passes; settings_schema does not — hence the split above.)
 
-## Step 3b: Validate + spot-check
+## Step 3b: Validate + ask who spot-checks
 
 1. `node .claude/scripts/shopify-validate.js <themeRoot>` — must pass (0 errors). The `theme dev` you're
    running also pushes on save and surfaces an invalid value.
-2. Spot-check the live preview (`:9292`) if a browser MCP is connected — prefer **chrome-devtools** (attaches
-   to the running Chrome; fast). Confirm the palette/fonts landed: `getComputedStyle` on `:root`
+2. **Ask the developer (AskUserQuestion) who validates the render:** (a) the developer validates it themselves
+   (against the live preview / Figma), or (b) you validate via MCP. Only run the agent spot-check below if they pick (b).
+3. **Agent spot-check (only if the developer chose it):** the live preview (`:9292`) — prefer **chrome-devtools**
+   (attaches to the running Chrome; fast). Confirm the palette/fonts landed: `getComputedStyle` on `:root`
    `--color-background/foreground/primary` + `--font-*--family`, and `document.fonts.check('700 24px "<heading
    font>"')` to confirm a font actually loaded vs fell back. A render anomaly = broken; never rationalize it
    (project rule). Fast sanity check, not a hard gate.
@@ -99,6 +122,7 @@ Shopify foundations written to {themeRoot}.
   Color schemes:  {N} populated (alpha native), {M} surplus left in place
   Fonts:          body / subheading / heading set
   Type scale:     {K} levels set, {E} schema extensions (e.g. type_size_h1 += 80px)
+  Elements:       {A} settings applied (e.g. button radius → 0), {G} gaps
   Gaps surfaced:  {G} (approximations + skips, all listed above)
   Validated:      shopify-validate 0/0 + preview spot-check
 Next: per-component build (spec #3).
