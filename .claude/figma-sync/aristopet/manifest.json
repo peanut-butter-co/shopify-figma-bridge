@@ -1178,15 +1178,16 @@
     }
   },
   "buildStatus": {
-    "shopifyFoundations": "complete",
     "components": {
+      "header-utility-bar": "complete",
+      "header-v2": "complete",
       "split-banner": "complete",
       "trust-bar": "complete",
-      "marquee": "complete",
-      "product-card-row": "complete"
-    }
+      "marquee": "complete"
+    },
+    "shopifyFoundations": "complete"
   },
   "buildMeta": {
-    "builtAt": "2026-06-11T14:12:14.572Z"
+    "builtAt": "2026-06-12"
   }
 }
