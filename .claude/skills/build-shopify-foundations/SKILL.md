@@ -85,11 +85,16 @@ No backups, no per-write verify substrate — git is the safety net and this is 
 **preserves formatting**:
 
 - **`config/settings_data.json`** (theme-wide settings — schemes + type/font values): write programmatically
-  by *set-by-path*. `applyPlan(plan, schema, data)` (`foundations-map.js`) merges the approved
-  `schemeWrites`/`typeWrites`/`fontWrites` into the parsed object; write `data` back as
-  `settingsDataHeader(original) + JSON.stringify(data, null, 2) + "\n"` (re-prepend the JSONC header so the
-  auto-generated banner survives). This file round-trips faithfully (LF, standard indent), so reserializing
-  touches only the values you changed.
+  by *set-by-path*. `applyPlan(plan, schema, data)` (`foundations-map.js`) returns **`{ schema, data }`** —
+  deep clones with the approved `schemeWrites`/`typeWrites`/`fontWrites` merged into `data.current`.
+  **Destructure it** — `const { data: merged } = applyPlan(plan, schema, data)` — then chain the element
+  writes onto that same object (`merged = applyElementPlan(eplan, merged)`) and write **`merged`** back as
+  `settingsDataHeader(original) + JSON.stringify(merged, null, 2) + "\n"` (re-prepend the JSONC header so the
+  auto-generated banner survives). Do **NOT** serialize the return value itself — `JSON.stringify(applyPlan(...))`
+  writes the `{schema,data}` wrapper and corrupts the file. This file round-trips faithfully (LF, standard
+  indent), so reserializing touches only the values you changed. (The returned **`.schema`** is only an
+  in-memory reference for the surgical option-adds below — never write it verbatim; it is reserialized to LF
+  and would reflow the CRLF schema.)
 - **`config/settings_schema.json`** (only the `schemaExtensions` — e.g. add an `80px` option to
   `type_size_h1`): do a **surgical `Edit`** that inserts the new option in the exact sibling format. Do **NOT**
   reserialize this file — it is CRLF + hand-mixed formatting, so a full rewrite reflows every line.

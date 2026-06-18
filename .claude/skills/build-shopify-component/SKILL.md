@@ -108,6 +108,12 @@ the breakpoint-specific host setting (`type_preset_mobile`, `mobile_columns`, `m
 mobile alignment, …), NOT the desktop one. `mobileDivergence` is a hint, not the whole story — read the mobile
 node yourself. The mobile pass is mandatory and equal to desktop at inspect, at plan, and at the render gate.
 
+**Reason about the component's RUNTIME BEHAVIOR — the Figma inputs are STATIC snapshots.** `get_screenshot` / `get_design_context` / `get_variable_defs` capture ONE frame; a dynamic component's defining behavior is absent from them. From the component type/name, classify it — **static · looping (marquee/ticker) · rotating (carousel/slideshow) · expand-collapse (accordion) · hover/focus · sticky/scroll-reactive** — and for anything non-static, reason out what the static frame CANNOT show instead of transcribing the visible frame:
+- **Looping / repeating (marquee):** the loop SEAM (end rejoins start) never appears in a static frame — so the separator/spacing can't be read off the design, it must be reasoned. Reconstruct the repeating **UNIT so it tiles seamlessly**: the separator sits at the unit *boundary* (e.g. a trailing separator), not only between the visible items. A separator that is a colored TEXT glyph (one type style) → keep it as text + a trailing copy; a structural rule → a `_divider` (which renders vertical between row children, horizontal between column children).
+- **Rotating / expand-collapse / hover / sticky:** the frame shows ONE slide/state; map the others (slide count + autoplay, collapsed *and* expanded, rest *and* hover, top *and* stuck) from the host settings — never assume the visible state is the whole component.
+- **Priority rule (HARD):** when the runtime behavior — or a `gotchas.md` lesson — contradicts the literal Figma data, **behavior / gotcha WINS** (Figma is a hint, not intention; doubly so for anything runtime). Never override a gotcha with a "but the data says…" argument.
+- **Anti-rationalization (HARD):** a defect that nonetheless "matches the static asset" (a loop seam with no separator, a state that can't be reached, an element that overflows) is a STOP — flag it, never ship it as "faithful." Matching the frame is *transcription*-fidelity; the bar is *behavior*-fidelity.
+
 ## Step 2: Propose the plan (gap-transparent)
 
 See `reference/plan.md` for the full method. In plain language, present:
