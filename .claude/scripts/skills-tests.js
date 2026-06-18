@@ -824,6 +824,7 @@ const GROUP_STRENGTH = {
   'SP-1: Aristopet inference artifact set (real contract instance)': 'contract',
   'SP-1.1: Aristopet recompute (crunchy-horizon)': 'contract',
   'SP-2: shopify-foundations build': 'contract',
+  'SP-2b: element foundations (elements-map.js)': 'contract',
   'SP-3: component build': 'contract',
   'HR-3: every group is classified by assertion strength (lint vs contract)': 'contract',
   // lint — checks whose only assertions are case-insensitive natural-language substrings (no
@@ -1283,6 +1284,25 @@ if (fm && fm.mapSchemes) {
     eq([...r.surplusSchemes].sort(), ['scheme-5', 'scheme-x']);
     ok(r.gaps.some((g) => g.kind === 'surplus-scheme' && /scheme-5/.test(g.detail)), 'surplus scheme surfaced as a gap');
   });
+  check('SP-2 mapSchemes: sparse coverage surfaced; dark bg inheriting dark inks -> contrast-risk (transparent skipped)', () => {
+    const fnd = { colors: { schemes: { 'scheme-4': { name: 'Espresso', colors: {
+      background: '#1e1b18', foreground_heading: '#fffefd', foreground: '#faf7f2', border: '#faf7f21a', primary: '#af7d4f' } } } } };
+    const liveData = { current: { color_schemes: { 'scheme-4': { settings: {
+      background: '#e1edf5', foreground: '#000000cf', primary_button_background: '#000000',
+      secondary_button_text: '#000000', input_text_color: '#000000cf', secondary_button_background: 'rgba(0,0,0,0)' } } } } };
+    const r = fm.mapSchemes(fnd, liveData);
+    ok(r.gaps.some((g) => g.kind === 'partial-scheme-coverage' && /scheme-4/.test(g.detail)), 'partial coverage surfaced');
+    const risk = r.gaps.find((g) => g.kind === 'scheme-contrast-risk');
+    ok(risk && /secondary_button_text/.test(risk.detail) && /primary_button_background/.test(risk.detail), 'dark bg + inherited dark inks flagged');
+    ok(!/secondary_button_background/.test((risk || {}).detail || ''), 'transparent inherited role NOT flagged as a contrast risk');
+  });
+  check('SP-2 mapSchemes: light bg inheriting dark inks -> NO contrast-risk (good contrast)', () => {
+    const fnd = { colors: { schemes: { 'scheme-1': { name: 'White', colors: { background: '#fffefd', foreground: '#2a2620' } } } } };
+    const liveData = { current: { color_schemes: { 'scheme-1': { settings: {
+      background: '#ffffff', primary_button_background: '#000000', secondary_button_text: '#000000' } } } } };
+    const r = fm.mapSchemes(fnd, liveData);
+    ok(!r.gaps.some((g) => g.kind === 'scheme-contrast-risk'), 'dark inks on a light bg are fine — no false positive');
+  });
   check('SP-2 mapTypography: fonts + sizes + h1-80 schema extension + nearest tokens + skips', () => {
     const fnd = { typography: {
       fontRoles: { body: { raw: 'dm_sans_n4' }, label: { raw: 'dm_sans_n6' }, heading: { raw: 'instrument_sans_n7' } },
@@ -1333,32 +1353,57 @@ if (fm && fm.mapSchemes) {
     ok(r.schemaExtensions.some((e) => e.setting === 'type_size_paragraph' && e.addOption.value === '15'), 'paragraph 15 not on ladder -> extension');
     ok(r.gaps.some((g) => g.kind === 'missing-setting' && /type_size_h1/.test(g.detail)), 'absent type_size_h1 -> missing-setting gap');
   });
+  check('SP-2 mapTypography: maps h4/h5/h6 heading levels; surfaces host levels missing from foundations', () => {
+    const fnd = { typography: { fontRoles: { heading: { raw: 'instrument_sans_n7' } }, presets: {
+      h4: { fontRole: 'heading', size: 28, lineHeight: 115, letterSpacing: 0, case: 'none' },
+      h5: { fontRole: 'heading', size: 20, lineHeight: 130, letterSpacing: 0, case: 'none' } } } };
+    const liveSchema = [ { settings: [
+      { id: 'type_size_h4', options: [{ value: '24' }, { value: '28' }] },
+      { id: 'type_line_height_h4', options: [{ value: 'heading-tight' }, { value: 'heading-normal' }, { value: 'heading-loose' }] },
+      { id: 'type_size_h5', options: [{ value: '20' }] },
+      { id: 'type_size_h6', options: [{ value: '16' }] } ] } ];
+    const r = fm.mapTypography(fnd, liveSchema);
+    eq(r.typeWrites.type_size_h4, '28');
+    eq(r.typeWrites.type_size_h5, '20');
+    eq(r.typeWrites.type_line_height_h4, 'heading-normal');
+    ok(r.gaps.some((g) => g.kind === 'type-level-not-in-foundations' && /h6/.test(g.detail)), 'host h6 with no preset -> surfaced');
+  });
+  check('SP-2 mapTypography: extra body sizes beyond paragraph -> host-capacity gap; decorative stays component-level', () => {
+    const fnd = { typography: { fontRoles: { body: { raw: 'dm_sans_n4' } }, presets: {
+      paragraph: { fontRole: 'body', size: 14, lineHeight: 160, letterSpacing: 0, case: 'none' },
+      text_small: { fontRole: 'body', size: 12, lineHeight: 160, letterSpacing: 0, case: 'none' },
+      text_large: { fontRole: 'body', size: 16, lineHeight: 160, letterSpacing: 0, case: 'none' },
+      caption: { fontRole: 'body', size: 11, lineHeight: 140, letterSpacing: 1.3, case: 'uppercase' } } } };
+    const liveSchema = [ { settings: [ { id: 'type_size_paragraph', options: [{ value: '14' }] } ] } ];
+    const r = fm.mapTypography(fnd, liveSchema);
+    const hc = r.gaps.filter((g) => g.kind === 'host-capacity').map((g) => g.detail.split(' ')[0]).sort();
+    eq(hc, ['text_large', 'text_small']); // the two extras flagged; the primary paragraph maps and is NOT flagged
+    ok(r.gaps.some((g) => g.kind === 'component-level-preset' && /caption/.test(g.detail)), 'uppercase caption stays component-level, not host-capacity');
+  });
 }
 const sw = tryRequire('./safe-shopify-write.js');
-check('safe-shopify-write.js exists with backup + verifyOnlyChanged + parseSettingsData', () => {
-  ok(sw && typeof sw.backup === 'function' && typeof sw.verifyOnlyChanged === 'function'
-     && typeof sw.parseSettingsData === 'function',
-    'create .claude/scripts/safe-shopify-write.js exporting backup, verifyOnlyChanged, parseSettingsData');
+check('safe-shopify-write.js exports the lean theme-JSON helpers (no backup/verify substrate)', () => {
+  ok(sw && typeof sw.parseSettingsData === 'function' && typeof sw.settingsDataHeader === 'function'
+     && typeof sw.diffPaths === 'function' && typeof sw.injectSchemaSettings === 'function',
+    'safe-shopify-write.js must export parseSettingsData, settingsDataHeader, diffPaths, injectSchemaSettings');
+  ok(sw && sw.backup === undefined && sw.verifyOnlyChanged === undefined,
+    'the heavy substrate (backup, verifyOnlyChanged) was dropped in the lean-write pivot — see docs/superpowers/archive/2026-06-10-safe-write-substrate');
 });
-if (sw && sw.verifyOnlyChanged) {
+if (sw && sw.parseSettingsData) {
   check('SP-2 parseSettingsData: strips the JSONC header comment then parses', () => {
     const txt = '/*\n * auto-generated\n */\n{ "current": { "a": 1 } }';
     eq(sw.parseSettingsData(txt), { current: { a: 1 } });
   });
-  check('SP-2 verifyOnlyChanged: [] when only an approved path changes; violation when not', () => {
-    const before = { current: { color_schemes: { 'scheme-1': { settings: { background: '#000' } } }, x: 1 } };
-    const okAfter = { current: { color_schemes: { 'scheme-1': { settings: { background: '#fff' } } }, x: 1 } };
-    eq(sw.verifyOnlyChanged(before, okAfter, ['current.color_schemes']), []);
-    const badAfter = { current: { color_schemes: { 'scheme-1': { settings: { background: '#fff' } } }, x: 2 } };
-    const v = sw.verifyOnlyChanged(before, badAfter, ['current.color_schemes']);
-    ok(v.length === 1 && /current\.x/.test(v[0]), 'unapproved current.x change is a violation: ' + JSON.stringify(v));
+  check('lean write: settingsDataHeader + JSON.stringify round-trips a faithful settings_data byte-for-byte', () => {
+    const original = '/*\n * auto-generated\n */\n{\n  "current": {\n    "a": 1\n  }\n}\n';
+    const data = sw.parseSettingsData(original);
+    const recon = sw.settingsDataHeader(original) + JSON.stringify(data, null, 2) + '\n';
+    eq(recon, original);
   });
-  check('SP-2 backup: copies a file to destDir/<base>.<stamp>.json with identical content', () => {
-    const os = require('os'); const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sp2-'));
-    const src = path.join(tmp, 'settings_data.json'); fs.writeFileSync(src, '{"k":1}');
-    const out = sw.backup(src, tmp, '20260610-120000');
-    ok(out.endsWith('settings_data.20260610-120000.json'), 'backup path: ' + out);
-    eq(fs.readFileSync(out, 'utf8'), '{"k":1}');
+  check('SP-2 diffPaths: reports only the leaf dot-paths that changed (the change-summary helper)', () => {
+    const before = { current: { color_schemes: { 'scheme-1': { settings: { background: '#000' } } }, x: 1 } };
+    const after = { current: { color_schemes: { 'scheme-1': { settings: { background: '#fff' } } }, x: 1 } };
+    eq(sw.diffPaths(before, after, '', []), ['current.color_schemes.scheme-1.settings.background']);
   });
 }
 const FND_FIX = path.join(__dirname, 'fixtures', 'shopify-foundations');
@@ -1378,6 +1423,128 @@ if (fm && fm.applyPlan && sw && sw.parseSettingsData && ariFND) {
     ok(h1.options.some((o) => o.value === '80'), 'schema ladder now includes 80');
   });
 }
+// ---------------------------------------------------------------------------
+// SP-2b — element foundations (elements-map.js): button/input/badge/... primitives.
+// Pure mapper: (foundations, profileElements, liveSchema, liveData) -> write plan.
+// ---------------------------------------------------------------------------
+group('SP-2b: element foundations (elements-map.js)');
+const em = tryRequire('./elements-map.js');
+
+check('elements-map.js exists with elementsMap + applyElementPlan + resolveSource', () => {
+  ok(em && typeof em.elementsMap === 'function' && typeof em.applyElementPlan === 'function'
+    && typeof em.resolveSource === 'function',
+    'create .claude/scripts/elements-map.js exporting elementsMap, applyElementPlan, resolveSource');
+});
+
+if (em && em.elementsMap) {
+  const emFoundations = {
+    spacing: {
+      radii: { button_primary: 0, button_secondary: 0, input: 0, card: 0 },
+      borderWidths: { button_secondary: 1, input: 1 },
+    },
+    typography: { presets: { overline: { case: 'uppercase' }, paragraph: { case: 'none' } } },
+  };
+  const emProfile = {
+    button_primary_radius:   { source: 'spacing.radii.button_primary',   host: ['button_border_radius_primary'] },
+    button_secondary_radius: { source: 'spacing.radii.button_secondary', host: ['button_border_radius_secondary'] },
+    input_radius:            { source: 'spacing.radii.input',            host: ['inputs_border_radius'] },
+    card_radius:             { source: 'spacing.radii.card',             host: ['card_corner_radius', 'product_corner_radius'] },
+    secondary_button_border: { source: 'spacing.borderWidths.button_secondary', host: ['secondary_button_border_width'] },
+    button_case:             { source: 'typography.preset:overline.case', transform: 'case', host: ['button_text_case_primary'] },
+    button_font:             { source: 'typography.role:body', transform: 'fontRole', host: ['type_font_button_primary'] },
+  };
+  const emSchema = { settings: [
+    { id: 'button_border_radius_primary', type: 'range', min: 0, max: 100, step: 1 },
+    { id: 'button_border_radius_secondary', type: 'range', min: 0, max: 100, step: 1 },
+    { id: 'inputs_border_radius', type: 'range', min: 0, max: 50, step: 1 },
+    { id: 'card_corner_radius', type: 'range', min: 0, max: 50, step: 1 },
+    { id: 'product_corner_radius', type: 'range', min: 0, max: 50, step: 1 },
+    { id: 'secondary_button_border_width', type: 'range', min: 0, max: 4, step: 1 },
+    { id: 'button_text_case_primary', type: 'select', options: [{ value: 'default' }, { value: 'uppercase' }] },
+    { id: 'type_font_button_primary', type: 'select', options: [{ value: 'body' }, { value: 'accent' }] },
+    { id: 'badge_corner_radius', type: 'range', min: 0, max: 100, step: 1 }, // in scope, no rule -> no-design-token
+  ] };
+  const emData = { current: { button_border_radius_primary: 14, button_border_radius_secondary: 14, inputs_border_radius: 4, card_corner_radius: 4 } };
+
+  check('SP-2b Horizon path: radii map to 0 with old value captured (the rounded-button fix)', () => {
+    const r = em.elementsMap(emFoundations, emProfile, emSchema, emData);
+    const prim = r.applied.find((a) => a.id === 'button_border_radius_primary');
+    eq(prim, { id: 'button_border_radius_primary', value: 0, old: 14 });
+    const card = r.applied.find((a) => a.id === 'card_corner_radius');
+    eq(card.value, 0); eq(card.old, 4);
+    const prod = r.applied.find((a) => a.id === 'product_corner_radius');
+    eq(prod, { id: 'product_corner_radius', value: 0, old: null }); // not in current -> old null
+  });
+
+  check('SP-2b transforms: case -> uppercase, fontRole -> body', () => {
+    const r = em.elementsMap(emFoundations, emProfile, emSchema, emData);
+    eq(r.applied.find((a) => a.id === 'button_text_case_primary').value, 'uppercase');
+    eq(r.applied.find((a) => a.id === 'type_font_button_primary').value, 'body');
+  });
+
+  check('SP-2b no-design-token gap for an in-scope host setting with no rule', () => {
+    const r = em.elementsMap(emFoundations, emProfile, emSchema, emData);
+    const nd = r.gaps.filter((g) => g.kind === 'no-design-token').map((g) => g.detail.split(' ')[0]).sort();
+    eq(nd, ['badge_corner_radius']);
+  });
+
+  check('SP-2b source-missing gap when a rule points at an absent token', () => {
+    const r = em.elementsMap(emFoundations, { x: { source: 'spacing.radii.nope', host: ['button_border_radius_primary'] } }, emSchema, emData);
+    ok(r.gaps.some((g) => g.kind === 'source-missing'), 'absent source must emit source-missing');
+    ok(!r.applied.some((a) => a.id === 'button_border_radius_primary'), 'nothing applied for a missing source');
+  });
+
+  check('SP-2b off-domain -> widening (range) / option (select); absent id -> schemaExtension', () => {
+    const f2 = { spacing: { radii: { big: 999 } }, typography: { presets: {} } };
+    const sch = { settings: [
+      { id: 'r', type: 'range', min: 0, max: 10, step: 1 },
+      { id: 's', type: 'select', options: [{ value: 'a' }] },
+    ] };
+    const prof = {
+      rrad: { source: 'spacing.radii.big', host: ['r'] },        // 999 out of [0-10] -> widen range
+      ssel: { source: 'spacing.radii.big', host: ['s'] },        // 999 not an option -> widen option
+      newx: { source: 'spacing.radii.big', host: ['brand_new'] },// absent id -> schemaExtension
+    };
+    const r = em.elementsMap(f2, prof, sch, { current: {} });
+    ok(r.schemaWidenings.some((w) => w.id === 'r' && w.widen === 'range'), 'range over max -> widen range');
+    ok(r.schemaWidenings.some((w) => w.id === 's' && w.widen === 'option'), 'select miss -> widen option');
+    ok(r.schemaExtensions.some((e) => e.id === 'brand_new'), 'absent id -> schemaExtension');
+  });
+
+  check('SP-2b generic fallback (no profile): nothing applied, every proposal needs-confirm', () => {
+    const r = em.elementsMap(emFoundations, null, emSchema, emData);
+    eq(r.applied, []);
+    ok(r.gaps.length > 0 && r.gaps.every((g) => g.kind === 'generic-needs-confirm'),
+      'fallback proposes only generic-needs-confirm gaps');
+    ok(r.gaps.some((g) => /button_border_radius_primary/.test(g.detail)), 'fallback notices radius settings');
+  });
+
+  check('SP-2b applyElementPlan: merges applied into data.current, non-destructive + clones', () => {
+    const data = { current: { button_border_radius_primary: 14, keep_me: 'x' } };
+    const out = em.applyElementPlan({ applied: [{ id: 'button_border_radius_primary', value: 0 }] }, data);
+    eq(out.current.button_border_radius_primary, 0);
+    eq(out.current.keep_me, 'x', 'host-only settings preserved');
+    eq(data.current.button_border_radius_primary, 14, 'original input not mutated (cloned)');
+  });
+  check('SP-2b horizon.json recommendations.elements resolves against the real Aristopet foundations', () => {
+    const profile = readJSON('.claude/figma-sync/theme-profiles/horizon.json');
+    const manifest = readJSON('.claude/figma-sync/aristopet/manifest.json');
+    const elements = profile && profile.recommendations && profile.recommendations.elements;
+    ok(elements && typeof elements === 'object' && Object.keys(elements).length > 0,
+      'horizon.json must define recommendations.elements');
+    for (const [concept, rule] of Object.entries(elements)) {
+      ok(Array.isArray(rule.host) && rule.host.length > 0 && rule.host.every((h) => typeof h === 'string'),
+        `${concept}.host must be a non-empty string[]`);
+      ok(em.resolveSource(manifest.foundations, rule.source) !== undefined,
+        `${concept}.source "${rule.source}" must resolve against the real foundations (no source-missing)`);
+    }
+  });
+}
+check('SP-2b build-shopify-foundations SKILL.md wires the element-foundations step', () => {
+  const md = read('.claude/skills/build-shopify-foundations/SKILL.md');
+  ok(/elements-map\.js/.test(md), 'SKILL.md must reference elements-map.js');
+  ok(/element foundations|element-foundations|element primitives/i.test(md), 'SKILL.md must describe the element step');
+});
 // ---------------------------------------------------------------------------
 // SP-3 — per-component build: the deterministic spine (nextComponent / inspectComponent / configPlan) and
 //   the safe-write section-schema injection. The skill is the human-assisted orchestrator; this group

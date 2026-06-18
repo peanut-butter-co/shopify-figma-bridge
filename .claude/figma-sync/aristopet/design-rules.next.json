@@ -1133,16 +1133,292 @@
         }
       },
       "theme": {
-        "file": null,
-        "exists": false,
+        "file": "sections/section.liquid",
+        "exists": true,
         "kind": "section"
       },
-      "schema": null,
+      "schema": {
+        "name": "t:names.section",
+        "settings": [
+          {
+            "id": "content_direction",
+            "type": "select",
+            "options": [
+              {
+                "value": "column"
+              },
+              {
+                "value": "row"
+              }
+            ]
+          },
+          {
+            "id": "vertical_on_mobile",
+            "type": "checkbox"
+          },
+          {
+            "id": "horizontal_alignment",
+            "type": "select",
+            "options": [
+              {
+                "value": "flex-start"
+              },
+              {
+                "value": "center"
+              },
+              {
+                "value": "flex-end"
+              },
+              {
+                "value": "space-between"
+              }
+            ]
+          },
+          {
+            "id": "vertical_alignment",
+            "type": "select",
+            "options": [
+              {
+                "value": "flex-start"
+              },
+              {
+                "value": "center"
+              },
+              {
+                "value": "flex-end"
+              }
+            ]
+          },
+          {
+            "id": "align_baseline",
+            "type": "checkbox"
+          },
+          {
+            "id": "horizontal_alignment_flex_direction_column",
+            "type": "select",
+            "options": [
+              {
+                "value": "flex-start"
+              },
+              {
+                "value": "center"
+              },
+              {
+                "value": "flex-end"
+              }
+            ]
+          },
+          {
+            "id": "vertical_alignment_flex_direction_column",
+            "type": "select",
+            "options": [
+              {
+                "value": "flex-start"
+              },
+              {
+                "value": "center"
+              },
+              {
+                "value": "flex-end"
+              },
+              {
+                "value": "space-between"
+              }
+            ]
+          },
+          {
+            "id": "gap",
+            "type": "range",
+            "min": 0,
+            "max": 100,
+            "step": 1
+          },
+          {
+            "id": "section_width",
+            "type": "select",
+            "options": [
+              {
+                "value": "page-width"
+              },
+              {
+                "value": "full-width"
+              }
+            ]
+          },
+          {
+            "id": "section_height",
+            "type": "select",
+            "options": [
+              {
+                "value": ""
+              },
+              {
+                "value": "small"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "large"
+              },
+              {
+                "value": "full-screen"
+              },
+              {
+                "value": "custom"
+              }
+            ]
+          },
+          {
+            "id": "section_height_custom",
+            "type": "range",
+            "min": 0,
+            "max": 100,
+            "step": 1
+          },
+          {
+            "id": "color_scheme",
+            "type": "color_scheme"
+          },
+          {
+            "id": "background_media",
+            "type": "select",
+            "options": [
+              {
+                "value": "none"
+              },
+              {
+                "value": "image"
+              },
+              {
+                "value": "video"
+              }
+            ]
+          },
+          {
+            "id": "video",
+            "type": "video"
+          },
+          {
+            "id": "video_position",
+            "type": "select",
+            "options": [
+              {
+                "value": "cover"
+              },
+              {
+                "value": "contain"
+              }
+            ]
+          },
+          {
+            "id": "background_image",
+            "type": "image_picker"
+          },
+          {
+            "id": "background_image_position",
+            "type": "select",
+            "options": [
+              {
+                "value": "cover"
+              },
+              {
+                "value": "fit"
+              }
+            ]
+          },
+          {
+            "id": "border",
+            "type": "select",
+            "options": [
+              {
+                "value": "none"
+              },
+              {
+                "value": "solid"
+              }
+            ]
+          },
+          {
+            "id": "border_width",
+            "type": "range",
+            "min": 0,
+            "max": 10,
+            "step": 0.5
+          },
+          {
+            "id": "border_opacity",
+            "type": "range",
+            "min": 0,
+            "max": 100,
+            "step": 1
+          },
+          {
+            "id": "border_radius",
+            "type": "range",
+            "min": 0,
+            "max": 100,
+            "step": 1
+          },
+          {
+            "id": "toggle_overlay",
+            "type": "checkbox"
+          },
+          {
+            "id": "overlay_color",
+            "type": "color"
+          },
+          {
+            "id": "overlay_style",
+            "type": "select",
+            "options": [
+              {
+                "value": "solid"
+              },
+              {
+                "value": "gradient"
+              }
+            ]
+          },
+          {
+            "id": "gradient_direction",
+            "type": "select",
+            "options": [
+              {
+                "value": "to top"
+              },
+              {
+                "value": "to bottom"
+              }
+            ]
+          },
+          {
+            "id": "padding-block-start",
+            "type": "range",
+            "min": 0,
+            "max": 100,
+            "step": 1
+          },
+          {
+            "id": "padding-block-end",
+            "type": "range",
+            "min": 0,
+            "max": 100,
+            "step": 1
+          }
+        ],
+        "blocks": [
+          "@theme",
+          "@app",
+          "_divider"
+        ]
+      },
       "reachability": {
-        "verdict": "code",
-        "basis": "no-candidate",
+        "verdict": "config",
+        "basis": "schema-expressible",
         "confidence": "high",
-        "candidate": null
+        "candidate": "sections/section.liquid",
+        "preset": "icons_with_text"
       }
     },
     "marquee": {
@@ -1734,7 +2010,8 @@
         "verdict": "config",
         "basis": "schema-expressible",
         "confidence": "high",
-        "candidate": "sections/collection-list.liquid"
+        "candidate": "sections/collection-list.liquid",
+        "preset": "collections_grid"
       }
     },
     "promo-banner": {
@@ -2191,16 +2468,292 @@
         }
       },
       "theme": {
-        "file": null,
-        "exists": false,
+        "file": "sections/section.liquid",
+        "exists": true,
         "kind": "section"
       },
-      "schema": null,
+      "schema": {
+        "name": "t:names.section",
+        "settings": [
+          {
+            "id": "content_direction",
+            "type": "select",
+            "options": [
+              {
+                "value": "column"
+              },
+              {
+                "value": "row"
+              }
+            ]
+          },
+          {
+            "id": "vertical_on_mobile",
+            "type": "checkbox"
+          },
+          {
+            "id": "horizontal_alignment",
+            "type": "select",
+            "options": [
+              {
+                "value": "flex-start"
+              },
+              {
+                "value": "center"
+              },
+              {
+                "value": "flex-end"
+              },
+              {
+                "value": "space-between"
+              }
+            ]
+          },
+          {
+            "id": "vertical_alignment",
+            "type": "select",
+            "options": [
+              {
+                "value": "flex-start"
+              },
+              {
+                "value": "center"
+              },
+              {
+                "value": "flex-end"
+              }
+            ]
+          },
+          {
+            "id": "align_baseline",
+            "type": "checkbox"
+          },
+          {
+            "id": "horizontal_alignment_flex_direction_column",
+            "type": "select",
+            "options": [
+              {
+                "value": "flex-start"
+              },
+              {
+                "value": "center"
+              },
+              {
+                "value": "flex-end"
+              }
+            ]
+          },
+          {
+            "id": "vertical_alignment_flex_direction_column",
+            "type": "select",
+            "options": [
+              {
+                "value": "flex-start"
+              },
+              {
+                "value": "center"
+              },
+              {
+                "value": "flex-end"
+              },
+              {
+                "value": "space-between"
+              }
+            ]
+          },
+          {
+            "id": "gap",
+            "type": "range",
+            "min": 0,
+            "max": 100,
+            "step": 1
+          },
+          {
+            "id": "section_width",
+            "type": "select",
+            "options": [
+              {
+                "value": "page-width"
+              },
+              {
+                "value": "full-width"
+              }
+            ]
+          },
+          {
+            "id": "section_height",
+            "type": "select",
+            "options": [
+              {
+                "value": ""
+              },
+              {
+                "value": "small"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "large"
+              },
+              {
+                "value": "full-screen"
+              },
+              {
+                "value": "custom"
+              }
+            ]
+          },
+          {
+            "id": "section_height_custom",
+            "type": "range",
+            "min": 0,
+            "max": 100,
+            "step": 1
+          },
+          {
+            "id": "color_scheme",
+            "type": "color_scheme"
+          },
+          {
+            "id": "background_media",
+            "type": "select",
+            "options": [
+              {
+                "value": "none"
+              },
+              {
+                "value": "image"
+              },
+              {
+                "value": "video"
+              }
+            ]
+          },
+          {
+            "id": "video",
+            "type": "video"
+          },
+          {
+            "id": "video_position",
+            "type": "select",
+            "options": [
+              {
+                "value": "cover"
+              },
+              {
+                "value": "contain"
+              }
+            ]
+          },
+          {
+            "id": "background_image",
+            "type": "image_picker"
+          },
+          {
+            "id": "background_image_position",
+            "type": "select",
+            "options": [
+              {
+                "value": "cover"
+              },
+              {
+                "value": "fit"
+              }
+            ]
+          },
+          {
+            "id": "border",
+            "type": "select",
+            "options": [
+              {
+                "value": "none"
+              },
+              {
+                "value": "solid"
+              }
+            ]
+          },
+          {
+            "id": "border_width",
+            "type": "range",
+            "min": 0,
+            "max": 10,
+            "step": 0.5
+          },
+          {
+            "id": "border_opacity",
+            "type": "range",
+            "min": 0,
+            "max": 100,
+            "step": 1
+          },
+          {
+            "id": "border_radius",
+            "type": "range",
+            "min": 0,
+            "max": 100,
+            "step": 1
+          },
+          {
+            "id": "toggle_overlay",
+            "type": "checkbox"
+          },
+          {
+            "id": "overlay_color",
+            "type": "color"
+          },
+          {
+            "id": "overlay_style",
+            "type": "select",
+            "options": [
+              {
+                "value": "solid"
+              },
+              {
+                "value": "gradient"
+              }
+            ]
+          },
+          {
+            "id": "gradient_direction",
+            "type": "select",
+            "options": [
+              {
+                "value": "to top"
+              },
+              {
+                "value": "to bottom"
+              }
+            ]
+          },
+          {
+            "id": "padding-block-start",
+            "type": "range",
+            "min": 0,
+            "max": 100,
+            "step": 1
+          },
+          {
+            "id": "padding-block-end",
+            "type": "range",
+            "min": 0,
+            "max": 100,
+            "step": 1
+          }
+        ],
+        "blocks": [
+          "@theme",
+          "@app",
+          "_divider"
+        ]
+      },
       "reachability": {
-        "verdict": "code",
-        "basis": "no-candidate",
+        "verdict": "config",
+        "basis": "schema-expressible",
         "confidence": "high",
-        "candidate": null
+        "candidate": "sections/section.liquid",
+        "preset": "email_signup"
       }
     },
     "footer": {

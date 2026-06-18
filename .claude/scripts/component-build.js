@@ -61,6 +61,7 @@ function inspectComponent(key, componentMap, compositions) {
     verdict: r.verdict,
     basis: r.basis,
     candidate: r.candidate || null,
+    preset: r.preset || null,
     kind: (e.theme && e.theme.kind) || null,
     hostSchema: e.schema || null,
     usages,

@@ -49,16 +49,16 @@ const CANDIDATE_MAP = {
   'header-v1':                 { host: 'header',                  verdict: 'config', basis: 'schema-expressible', confidence: 'high' },
   'header-v2':                 { host: 'header',                  verdict: 'config', basis: 'schema-expressible', confidence: 'high' },   // two chrome variants, same host header (SP-1 idiom)
   'footer':                    { host: 'footer',                  verdict: 'config', basis: 'schema-expressible', confidence: 'high' },   // exact slug; rich block-based host footer
-  'newsletter-signup':         { host: null,                      verdict: 'code',   basis: 'no-candidate',       confidence: 'high' },   // no host newsletter SECTION (email-signup is a block)
+  'newsletter-signup':         { host: 'section', preset: 'email_signup',    verdict: 'config', basis: 'schema-expressible', confidence: 'high' }, // Horizon "Email signup" preset of the generic section (text blocks + email-signup block). Was code; the email-signup BLOCK has a ready section preset that wraps it.
   // --- homepage ---
   'split-banner':              { host: 'section', preset: 'split_showcase', verdict: 'config', basis: 'schema-expressible', confidence: 'high' }, // Horizon "Split showcase": a PRESET of the generic `section` (content_direction:row + two background_media `group`s, each spacer+text+button). buildComponentMap validates the preset exists and carries it to reachability.preset so the skill instantiates it instead of authoring code.
-  'trust-bar':                 { host: null,                      verdict: 'code',   basis: 'no-candidate',       confidence: 'high' },   // static icon+text row; no host peer
+  'trust-bar':                 { host: 'section', preset: 'icons_with_text', verdict: 'config', basis: 'schema-expressible', confidence: 'high' }, // Horizon "Icons with text" preset of the generic section (icon+text groups in a row). Was code; it IS an icon+text row.
   'marquee':                   { host: 'marquee',                 verdict: 'config', basis: 'schema-expressible', confidence: 'high' },   // exact slug
   'product-card-row':          { host: 'product-list',            verdict: 'config', basis: 'schema-expressible', confidence: 'high' },   // configurable product card grid/carousel
   'image-with-text':           { host: 'media-with-content',      verdict: 'config', basis: 'schema-expressible', confidence: 'high' },   // host name = media_with_text
-  'collection-list-grid':      { host: 'collection-list',         verdict: 'config', basis: 'schema-expressible', confidence: 'high' },   // grid of collections
-  'promo-banner':              { host: 'hero',                    verdict: 'config', basis: 'schema-expressible', confidence: 'medium' }, // promo band ~ hero (text/button, no media)
-  'brand-logos':               { host: 'marquee',                 verdict: 'config', basis: 'schema-expressible', confidence: 'medium' }, // logo wall ~ marquee logo blocks
+  'collection-list-grid':      { host: 'collection-list', preset: 'collections_grid', verdict: 'config', basis: 'schema-expressible', confidence: 'high' }, // refine to the GRID preset (collection-list also has bento/carousel/editorial)
+  'promo-banner':              { host: 'hero',                    verdict: 'config', basis: 'schema-expressible', confidence: 'medium' }, // promo band ~ hero (text/button, no media). REVIEW(presets): a no-media discount band may fit section/rich_text_section better; discount_code display may force code regardless — needs a design look.
+  'brand-logos':               { host: 'marquee',                 verdict: 'config', basis: 'schema-expressible', confidence: 'medium' }, // logo wall ~ marquee logo blocks. REVIEW(presets): marquee assumes a SCROLLING strip; if the design is a static logo grid, reconsider (section + logo blocks / large_logo) — needs a design look.
   'ugc-captions-below':        { host: null,                      verdict: 'code',   basis: 'no-candidate',       confidence: 'high' },   // UGC gallery w/ captions; no host peer
   // --- collection ---
   'collection-header':         { host: null,                      verdict: 'code',   basis: 'no-candidate',       confidence: 'medium' }, // collection banner; no dedicated host section
@@ -196,7 +196,7 @@ if (require.main === module) {
 
   const { _provenance, componentMap: _drop, ...rest } = dr;
   const outDR = { _provenance: PROVENANCE, ...rest, componentMap };
-  fs.writeFileSync(path.join(ROOT, 'design-rules.json'), JSON.stringify(outDR, null, 2) + '\n');
-  fs.writeFileSync(path.join(ROOT, 'work-order.json'), JSON.stringify(workOrder, null, 2) + '\n');
-  console.error('wrote design-rules.json + work-order.json');
+  fs.writeFileSync(path.join(ROOT, 'design-rules.next.json'), JSON.stringify(outDR, null, 2) + '\n');
+  fs.writeFileSync(path.join(ROOT, 'work-order.next.json'), JSON.stringify(workOrder, null, 2) + '\n');
+  console.error('wrote design-rules.next.json + work-order.next.json (DRAFT — live files untouched)');
 }

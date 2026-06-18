@@ -1,13 +1,11 @@
 'use strict';
 /**
- * Theme-JSON helpers for the Shopify-side build (settings_data.json / settings_schema.json + section schemas).
- * Deterministic, unit-tested. The lean write model (2026-06-10 pivot) edits files DIRECTLY — surgical Edit
- * for a few changes, a programmatic set-by-path for bulk changes in a faithfully-round-tripping file — then
- * validates (shopify-validate / `theme push --strict`) and spot-checks the preview. Git is the safety net
- * (we never run against prod), so the old backup + verify-only-changed substrate is gone (archived under
- * docs/superpowers/archive/2026-06-10-safe-write-substrate/). What remains here are the pure helpers that
- * stayed useful: JSONC header handling, a change-summary differ, and the section {% schema %} injector.
+ * SP-2 safe-write substrate for Shopify theme JSON (settings_schema.json / settings_data.json).
+ * Deterministic, unit-tested mechanics; the interactive diff + approval live in the skill prose.
+ * Reused by the per-component build (spec #3).
  */
+const fs = require('fs');
+const path = require('path');
 
 // settings_data.json is JSONC: a leading block-comment header then JSON. Strip the header, then JSON.parse.
 function stripJsoncHeader(text) { return String(text).replace(/^﻿/, '').replace(/^\s*\/\*[\s\S]*?\*\/\s*/, ''); }
@@ -15,8 +13,16 @@ function parseSettingsData(text) { return JSON.parse(stripJsoncHeader(text)); }
 // Extract the leading header (optional BOM + block comment, so a write can re-prepend it); '' if none.
 function settingsDataHeader(text) { const m = String(text).match(/^﻿?\s*\/\*[\s\S]*?\*\/\s*/); return m ? m[0] : ''; }
 
+// Copy srcPath to destDir/<basename-without-ext>.<stamp>.json; mkdir -p destDir; return the backup path.
+function backup(srcPath, destDir, stamp) {
+  fs.mkdirSync(destDir, { recursive: true });
+  const base = path.basename(srcPath).replace(/\.json$/i, '');
+  const out = path.join(destDir, `${base}.${stamp}.json`);
+  fs.copyFileSync(srcPath, out);
+  return out;
+}
+
 // Collect dot-paths whose leaf values differ between before/after (recursing into plain objects).
-// Kept as a read-only helper for showing a change SUMMARY before a big write (not a gate).
 function diffPaths(before, after, prefix, acc) {
   acc = acc || [];
   const keys = new Set([...Object.keys(before || {}), ...Object.keys(after || {})]);
@@ -30,6 +36,11 @@ function diffPaths(before, after, prefix, acc) {
     else if (JSON.stringify(a) !== JSON.stringify(b)) acc.push(p);
   }
   return acc;
+}
+// Paths that changed but are not covered by any approved prefix. Empty array = safe to keep; else restore.
+function verifyOnlyChanged(before, after, approvedPrefixes) {
+  const changed = diffPaths(before, after, '', []);
+  return changed.filter((p) => !(approvedPrefixes || []).some((pre) => p === pre || p.startsWith(pre + '.')));
 }
 
 // The {% schema %}…{% endschema %} block (same shape extractSchema matches). Captures open/body/close.
@@ -56,4 +67,4 @@ function injectSchemaSettings(liquidSource, newSettings) {
   return src.slice(0, m.index) + m[1] + body + m[3] + src.slice(m.index + m[0].length);
 }
 
-module.exports = { stripJsoncHeader, parseSettingsData, settingsDataHeader, diffPaths, injectSchemaSettings };
+module.exports = { stripJsoncHeader, parseSettingsData, settingsDataHeader, backup, diffPaths, verifyOnlyChanged, injectSchemaSettings };

@@ -5,7 +5,7 @@ description: >
   human-assisted step) — after foundations are built (SP-2) and the SP-1.1 work-order exists. The skill
   inspects the design intent + the host candidate section + schema, proposes a plan explaining how far
   settings reach and what needs code, the developer approves or corrects, then it executes (config first
-  via direct edits + schema extensions, then code), validates, and visually verifies the render. One
+  via the safe-write substrate + schema extensions, then code) behind backup+diff+approval+validate. One
   component per cycle, then offers the next. Gap-transparent; never silently approximates. Not for building
   Figma components — that is build-components. Not for foundations — that is build-shopify-foundations.
 user-invocable: true
@@ -22,7 +22,7 @@ allowed-tools: [Read, Write, Edit, Bash, Grep, mcp__figma__get_screenshot, mcp__
 You are building **one** design component into the Shopify host theme — **config and code as a single
 human-assisted step** (the user's fixed model: "config y código son un único paso, pero human assisted").
 You INSPECT, you PROPOSE a plan and explain every gap, the developer APPROVES or corrects, then you
-EXECUTE (config first, then code) with direct edits, then validate + visually verify. You never approximate silently.
+EXECUTE (config first, then code) behind a backup+diff+approval safe write. You never approximate silently.
 
 **Manifest:** `.claude/figma-sync/aristopet/manifest.json` (the active design source).
 **Host theme:** `config.themeRoot` (currently `"."` — the repo root, crunchy-horizon). Sections live in
@@ -69,7 +69,7 @@ running**. Remind the developer now:
 > visual check.
 
 Capture the URL; do **not** assume the server is up — wait for the developer's confirmation. If they decline
-to start it, the config/code writes still happen (direct edits + validate), but you cannot close the loop
+to start it, the config/code writes still happen behind backup+diff+approval, but you cannot close the loop
 without the visual check — say so explicitly rather than declaring the component done. (`app` components never
 reach here — they return at pre-flight gate 6.)
 
@@ -89,30 +89,10 @@ console.log(JSON.stringify({pick:key, inspect: cb.inspectComponent(key, cm, root
 ' "<KEY>"
 ```
 
-Read: `verdict`, `candidate` (the host section to build ON, or null), `preset` (a NAMED preset of that
-section file, or null), `hostSchema` (its load-bearing settings/blocks), and `usages` (one per template —
-the design intent `settings`/`blocks`/`colorScheme` and any `mobileDivergence`). For a `config` baseline,
-open the candidate `.liquid` to see the full host schema + markup. **If `preset` is non-null**, the candidate
-is that named preset of a Horizon "power section" — the generic `section.liquid` exposes presets like
-`split_showcase`, `icons_with_text`, `email_signup`. Find the entry in the file's `{% schema %}` `presets[]`
-whose `name` is `t:names.<preset>` and **instantiate that preset's block tree as the baseline** (write it into
-the template, then re-author each block's settings to the design intent). Do NOT add `left_*`/`right_*` content
-settings to the shared `section.liquid` schema — that primitive backs many sections; the per-half content lives
-in the preset's `group`/`text`/`button` blocks. For `code`/`no-candidate`, there is no host section — you will
-author a new one.
-
-**Inspect desktop AND mobile as separate, first-class passes — never infer mobile from desktop.** Every usage
-carries a `desktopNodeId` AND a `mobileNodeId`: fetch `mcp__figma__get_design_context` for **both** and DIFF
-them. Any property that differs (type level, columns, alignment, visibility, order, gap, width fit/fill) maps to
-the breakpoint-specific host setting (`type_preset_mobile`, `mobile_columns`, `mobile_card_size`, `width_mobile`,
-mobile alignment, …), NOT the desktop one. `mobileDivergence` is a hint, not the whole story — read the mobile
-node yourself. The mobile pass is mandatory and equal to desktop at inspect, at plan, and at the render gate.
-
-**Reason about the component's RUNTIME BEHAVIOR — the Figma inputs are STATIC snapshots.** `get_screenshot` / `get_design_context` / `get_variable_defs` capture ONE frame; a dynamic component's defining behavior is absent from them. From the component type/name, classify it — **static · looping (marquee/ticker) · rotating (carousel/slideshow) · expand-collapse (accordion) · hover/focus · sticky/scroll-reactive** — and for anything non-static, reason out what the static frame CANNOT show instead of transcribing the visible frame:
-- **Looping / repeating (marquee):** the loop SEAM (end rejoins start) never appears in a static frame — so the separator/spacing can't be read off the design, it must be reasoned. Reconstruct the repeating **UNIT so it tiles seamlessly**: the separator sits at the unit *boundary* (e.g. a trailing separator), not only between the visible items. A separator that is a colored TEXT glyph (one type style) → keep it as text + a trailing copy; a structural rule → a `_divider` (which renders vertical between row children, horizontal between column children).
-- **Rotating / expand-collapse / hover / sticky:** the frame shows ONE slide/state; map the others (slide count + autoplay, collapsed *and* expanded, rest *and* hover, top *and* stuck) from the host settings — never assume the visible state is the whole component.
-- **Priority rule (HARD):** when the runtime behavior — or a `gotchas.md` lesson — contradicts the literal Figma data, **behavior / gotcha WINS** (Figma is a hint, not intention; doubly so for anything runtime). Never override a gotcha with a "but the data says…" argument.
-- **Anti-rationalization (HARD):** a defect that nonetheless "matches the static asset" (a loop seam with no separator, a state that can't be reached, an element that overflows) is a STOP — flag it, never ship it as "faithful." Matching the frame is *transcription*-fidelity; the bar is *behavior*-fidelity.
+Read: `verdict`, `candidate` (the host section to build ON, or null), `hostSchema` (its load-bearing
+settings/blocks), and `usages` (one per template — the design intent `settings`/`blocks`/`colorScheme` and
+any `mobileDivergence`). For a `config` baseline, open the candidate `.liquid` to see the full host schema +
+markup. For `code`/`no-candidate`, there is no host section — you will author a new one.
 
 ## Step 2: Propose the plan (gap-transparent)
 
@@ -128,55 +108,42 @@ See `reference/plan.md` for the full method. In plain language, present:
     any `mobileDivergence` (routed to code). List every one.
 - **code / no-candidate:** propose a **new** `sections/<slug>.liquid` — its schema settings + a liquid
   skeleton bound to **foundations variables** (scheme colors + type styles), plus any new theme blocks.
-- **SETTINGS AUDIT — every setting is a conscious, design-checked decision.** Before finalizing, produce a
-  table: one row per host setting of every block — `setting | design value (desktop / mobile) | host setting |
-  applied | source`, where **source ∈ {design-verified, host-default, gap}**. No setting ships "because it was
-  the host default" or "because `get_design_context`'s CSS said so" — that output is a *translation/hint*; verify
-  each layout setting (alignment, direction, gap, width fit/fill) and each sub-block's `type_preset` against the
-  design and the *rendered geometry*, not the emitted class. Present the table at the approval gate so every row
-  is reviewable.
 - Ask the developer to **approve or correct** (e.g. "map `left_title` → host `heading`", "add an `eyebrow`
   setting", "this is code", "use 72 not 80"). Apply corrections to the mapping/plan before executing.
 
 ## Step 3: Execute — config first, then code (only after approval)
 
-See `reference/execute.md` for the lean write protocol. No backups (git is the net; dev theme via
-`shopify theme dev`, never prod), no per-write verify gate — edit directly, preserving formatting. Order matters:
+See `reference/execute.md` for the safe-write protocol. Order matters:
 
 **a. Config**
-1. **Schema** (the `schemaExtensions` + `schemaWidenings`): for a host section, add NEW settings to its
-   `{% schema %}` with `injectSchemaSettings(liquidSource, schemaExtensions)` (or a surgical `Edit` if the
-   block isn't 2-space/LF), and apply each `schemaWidening` with a surgical `Edit` (add the option / widen the
-   range in place). For a new section, write the `{% schema %}` directly.
-2. **Instance + settings:** write the section instance(s) into the relevant `templates/<t>.json` or
-   `sections/<group>.json` with the `applied` settings/blocks — edit the JSON directly (surgical `Edit`, or
-   set-by-path if it round-trips faithfully). Inspect the host's existing placement to choose the target
-   (chrome → `*-group.json`; page sections → `templates/<t>.json`).
+1. **Backup** each file you will touch (`safe-shopify-write.js` `backup(src, destDir, stamp)`,
+   `destDir=.claude/figma-sync/backups/`, `stamp=YYYYMMDD-HHMMSS`).
+2. **Schema extensions:** for a host section, `injectSchemaSettings(liquidSource, schemaExtensions)` adds the
+   new settings to its `{% schema %}` (the surrounding liquid stays byte-identical). For a new section, write
+   the `{% schema %}` directly.
+3. **Instance + settings:** write the section instance(s) into the relevant `templates/<t>.json` or
+   `sections/<group>.json` with the `applied` settings/blocks (JSON). Inspect the host's existing placement
+   to choose the target (chrome → `*-group.json`; page sections → `templates/<t>.json`).
+4. **Diff + approval**, then **verify**: `verifyOnlyChanged(beforeJSON, afterJSON, approvedPrefixes)` for the
+   JSON writes; a non-empty result → restore from backup and STOP.
 
 **b. Code** (the `codeGaps`)
-3. Author/edit `sections/<slug>.liquid` (+ blocks) for the gaps — markup bound to foundations variables,
-   following `.claude/figma-best-practices.md` conventions.
+5. Author/edit `sections/<slug>.liquid` (+ blocks) for the gaps — markup bound to foundations variables,
+   following `.claude/figma-best-practices.md` conventions. Behind **backup → diff → approval**.
 
 **c. Validate**
-4. `node .claude/scripts/shopify-validate.js <themeRoot>` — must pass. If red, fix forward and STOP.
+6. `node .claude/scripts/shopify-validate.js <themeRoot>` — must pass. If red, fix or restore + STOP.
 
 **d. Visual verify (against the live preview)**
-5. Confirm `shopify theme dev` is running (Step 0); if not, ask the developer to start it and wait. Open the
-   preview URL with the browser MCP confirmed at pre-flight gate 7 — chrome-devtools (`navigate_page`; attaches
-   to the running Chrome, fast — preferred) or Playwright (`browser_navigate`), whichever is connected.
-   Navigate to the template that renders **{key}**, then screenshot it at desktop **and** mobile widths
-   (`resize` ~1440, then ~390).
-6. Fetch the design intent — `mcp__figma__get_screenshot` on the usage's `desktopNodeId` / `mobileNodeId` —
+7. Confirm `shopify theme dev` is running (Step 0); if not, ask the developer to start it and wait. Open the
+   preview URL with the browser MCP confirmed at pre-flight gate 7 — Playwright (`browser_navigate`) or
+   chrome-devtools (`navigate_page`), whichever is connected. Navigate to the template that renders **{key}**,
+   then screenshot it at desktop **and** mobile widths (`resize` ~1440, then ~390).
+8. Fetch the design intent — `mcp__figma__get_screenshot` on the usage's `desktopNodeId` / `mobileNodeId` —
    and compare. A thin sliver, a collapsed section, missing text, an unbound/raw color, or wrong type means the
    layout is **broken**; never rationalize a visual anomaly (project rule — see gotchas). On divergence, fix
    the code and re-run **b → c → d**, or surface the gap to the developer. Only a faithful render at both
    breakpoints counts as done.
-7. **Verify with measured evidence, not eyeballing — at BOTH breakpoints.** "It looks like a card" is not
-   verification; structure rendering ≠ correct settings. For each text/heading/price node, `getComputedStyle`
-   the rendered element (font-size, font-family, weight) and DIFF against the design's named type style — right
-   SIZE with the wrong FONT is still wrong. For layout rows, measure geometry (e.g. the far-right action's
-   x-position) against the design intent. A default-not-design value, a right-size/wrong-font, or an element
-   packed where the design pushes it apart is a fail — fix and re-run **b → c → d**.
 
 ## Step 4: Record state
 
@@ -190,7 +157,7 @@ Built {key} into {themeRoot}.
   Code:     {C} gaps authored ({slug}.liquid {+ N blocks})
   Gaps:     all listed + approved above
   Visual:   verified vs Figma {nodeId} — desktop + mobile
-  Validated: shopify-validate 0/0
+Backups:    .claude/figma-sync/backups/
 ```
 
 Then run `nextComponent` again and offer the next un-built component (or report all components complete).
@@ -198,7 +165,7 @@ Then run `nextComponent` again and offer the next un-built component (or report 
 ## After Completion
 
 If the user corrected your approach during this run — a wrong intent→host mapping, a schema-extension choice,
-a placement (template vs group) gotcha, a liquid/binding convention, a write/format gotcha — append it as a
+a placement (template vs group) gotcha, a liquid/binding convention, a write/verify gotcha — append it as a
 short **dated bullet** to this skill's `gotchas.md` (`.claude/skills/build-shopify-component/gotchas.md`;
 create it if missing). That file is injected at the top of this skill on every invocation, so the next run
 starts with the lesson. This is the project's self-updating learning loop (P11/B7).

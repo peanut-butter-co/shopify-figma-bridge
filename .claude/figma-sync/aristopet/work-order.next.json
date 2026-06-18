@@ -1,26 +1,10 @@
 {
   "codeRequired": [
     {
-      "component": "trust-bar",
-      "basis": "no-candidate",
-      "usedIn": [
-        "index"
-      ]
-    },
-    {
       "component": "ugc-captions-below",
       "basis": "no-candidate",
       "usedIn": [
         "index",
-        "product"
-      ]
-    },
-    {
-      "component": "newsletter-signup",
-      "basis": "no-candidate",
-      "usedIn": [
-        "index",
-        "collection",
         "product"
       ]
     },
@@ -68,6 +52,14 @@
         "index"
       ],
       "delta": "setting \"left_counter\" is not in the host schema; setting \"left_eyebrow\" is not in the host schema; setting \"left_title\" is not in the host schema; setting \"left_description\" is not in the host schema; setting \"left_button_label\" is not in the host schema; setting \"right_counter\" is not in the host schema; setting \"right_eyebrow\" is not in the host schema; setting \"right_title\" is not in the host schema; setting \"right_description\" is not in the host schema; setting \"right_button_label\" is not in the host schema"
+    },
+    {
+      "component": "trust-bar",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "index"
+      ],
+      "delta": "setting \"item_1_heading\" is not in the host schema; setting \"item_1_text\" is not in the host schema; setting \"item_2_heading\" is not in the host schema; setting \"item_2_text\" is not in the host schema; setting \"item_3_heading\" is not in the host schema; setting \"item_3_text\" is not in the host schema; setting \"item_4_heading\" is not in the host schema; setting \"item_4_text\" is not in the host schema"
     },
     {
       "component": "marquee",
@@ -126,6 +118,14 @@
       "delta": "setting \"eyebrow\" is not in the host schema; setting \"heading\" is not in the host schema; setting \"link_label\" is not in the host schema; setting \"counter\" is not in the host schema"
     },
     {
+      "component": "newsletter-signup",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "index"
+      ],
+      "delta": "setting \"eyebrow\" is not in the host schema; setting \"heading\" is not in the host schema; setting \"subheading\" is not in the host schema; setting \"body\" is not in the host schema; setting \"input_placeholder\" is not in the host schema; setting \"button_label\" is not in the host schema; setting \"terms_label\" is not in the host schema"
+    },
+    {
       "component": "footer",
       "basis": "value-out-of-domain",
       "usedIn": [
@@ -164,6 +164,14 @@
         "collection"
       ],
       "delta": "setting \"card_1_eyebrow\" is not in the host schema; setting \"card_1_title\" is not in the host schema; setting \"card_1_price\" is not in the host schema; setting \"card_1_badge_1\" is not in the host schema; setting \"card_1_badge_2\" is not in the host schema; setting \"card_2_eyebrow\" is not in the host schema; setting \"card_2_title\" is not in the host schema; setting \"card_2_price\" is not in the host schema; setting \"card_3_eyebrow\" is not in the host schema; setting \"card_3_title\" is not in the host schema; setting \"card_3_price\" is not in the host schema; setting \"card_3_compare_at_price\" is not in the host schema; setting \"card_3_badge_1\" is not in the host schema; setting \"card_4_eyebrow\" is not in the host schema; setting \"card_4_title\" is not in the host schema; setting \"card_4_price\" is not in the host schema; setting \"card_4_badge_1\" is not in the host schema"
+    },
+    {
+      "component": "newsletter-signup",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "collection"
+      ],
+      "delta": "setting \"eyebrow\" is not in the host schema; setting \"heading\" is not in the host schema; setting \"subheading\" is not in the host schema; setting \"body\" is not in the host schema; setting \"input_placeholder\" is not in the host schema; setting \"button_label\" is not in the host schema; setting \"terms_label\" is not in the host schema"
     },
     {
       "component": "footer",
@@ -212,6 +220,14 @@
         "product"
       ],
       "delta": "setting \"product_card_1_title\" is not in the host schema; setting \"product_card_1_price\" is not in the host schema; setting \"product_card_2_title\" is not in the host schema; setting \"product_card_2_price\" is not in the host schema; setting \"product_card_3_title\" is not in the host schema; setting \"product_card_3_price\" is not in the host schema; setting \"product_card_4_title\" is not in the host schema; setting \"product_card_4_price\" is not in the host schema; setting \"product_card_5_title\" is not in the host schema; setting \"product_card_5_price\" is not in the host schema; setting \"product_card_6_title\" is not in the host schema; setting \"product_card_6_price\" is not in the host schema"
+    },
+    {
+      "component": "newsletter-signup",
+      "basis": "value-out-of-domain",
+      "usedIn": [
+        "product"
+      ],
+      "delta": "setting \"eyebrow\" is not in the host schema; setting \"heading\" is not in the host schema; setting \"subheading\" is not in the host schema; setting \"body\" is not in the host schema; setting \"input_placeholder\" is not in the host schema; setting \"button_label\" is not in the host schema; setting \"terms_label\" is not in the host schema"
     },
     {
       "component": "footer",
